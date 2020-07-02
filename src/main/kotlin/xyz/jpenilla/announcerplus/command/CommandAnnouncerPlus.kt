@@ -93,23 +93,30 @@ class CommandAnnouncerPlus : BaseCommand() {
         send(sender, m.toList())
     }
 
-    fun send(sender: CommandSender, messages: List<String>) {
+    private val miniMessage = MiniMessage.instance()
+
+    private fun send(sender: CommandSender, messages: List<String>) {
         for (message in messages) {
             send(sender, message)
         }
     }
 
-    fun send(sender: CommandSender, message: String) {
+    private fun send(sender: CommandSender, message: String) {
         val finalMessage = if (sender is Player) {
             announcerPlus.cfg.replacePlaceholders(sender, message)
         } else {
             announcerPlus.cfg.replacePlaceholders(null, message)
         }
-        val c = MiniMessage.instance().parse(finalMessage)
         val audience = BukkitAudiences.create(announcerPlus)
         when (sender) {
-            is Player -> audience.player(sender).sendMessage(c)
-            else -> audience.console().sendMessage(c)
+            is Player -> {
+                val c = miniMessage.parse(finalMessage)
+                audience.player(sender).sendMessage(c)
+            }
+            else -> {
+                val c = miniMessage.parse(miniMessage.stripTokens(finalMessage))
+                audience.console().sendMessage(c)
+            }
         }
     }
 }

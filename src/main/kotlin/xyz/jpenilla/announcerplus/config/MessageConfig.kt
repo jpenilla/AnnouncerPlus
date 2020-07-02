@@ -23,7 +23,7 @@ class MessageConfig(private val announcerPlus: AnnouncerPlus, val name: String, 
         load()
     }
 
-    fun load() {
+    private fun load() {
         timeUnit = TimeUnit.valueOf(data.getString("intervalUnit")!!)
         delay = when (timeUnit) {
             TimeUnit.SECONDS -> 20L
