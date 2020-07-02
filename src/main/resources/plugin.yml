@@ -1,0 +1,8 @@
+name: AnnouncerPlus
+version: ${project.version}
+main: xyz.jpenilla.announcerplus.AnnouncerPlus
+api-version: 1.16
+authors: [jmp]
+depend: [Vault]
+softdepend: [PlaceholderAPI]
+description: Announcement plugin with support for permissions. Supports Hex colors and clickable messages/hover text using MiniMessage
