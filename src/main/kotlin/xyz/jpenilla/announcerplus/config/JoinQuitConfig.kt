@@ -1,6 +1,7 @@
 package xyz.jpenilla.announcerplus.config
 
 import com.google.common.collect.ImmutableList
+import com.okkero.skedule.schedule
 import org.bukkit.Bukkit
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.entity.Player
@@ -29,14 +30,18 @@ class JoinQuitConfig(private val announcerPlus: AnnouncerPlus, val name: String,
 
     fun onJoin(player: Player) {
         if (player.hasPermission("announcerplus.join.$name")) {
-            val players = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
-
             chat.sendPlaceholders(player, joinMessages, announcerPlus.cfg.placeholders)
-            val m = chat.replacePlaceholders(player, joinBroadcasts, announcerPlus.cfg.placeholders)
-            for (p in players) {
-                if (p.name != player.name) {
-                    if (announcerPlus.perms!!.playerHas(p, permission) || permission == "") {
-                        chat.send(p, m)
+            announcerPlus.schedule {
+                waitFor(3L)
+                if (!isVanished(player)) {
+                    val players = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
+                    val m = chat.replacePlaceholders(player, joinBroadcasts, announcerPlus.cfg.placeholders)
+                    for (p in players) {
+                        if (p.name != player.name) {
+                            if (announcerPlus.perms!!.playerHas(p, permission) || permission == "") {
+                                chat.send(p, m)
+                            }
+                        }
                     }
                 }
             }
@@ -44,7 +49,7 @@ class JoinQuitConfig(private val announcerPlus: AnnouncerPlus, val name: String,
     }
 
     fun onQuit(player: Player) {
-        if (player.hasPermission("announcerplus.quit.$name")) {
+        if (player.hasPermission("announcerplus.quit.$name") && !isVanished(player)) {
             val players = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
 
             val m = chat.replacePlaceholders(player, quitBroadcasts, announcerPlus.cfg.placeholders)
@@ -56,5 +61,12 @@ class JoinQuitConfig(private val announcerPlus: AnnouncerPlus, val name: String,
                 }
             }
         }
+    }
+
+    private fun isVanished(player: Player): Boolean {
+        for (meta in player.getMetadata("vanished")) {
+            if (meta.asBoolean()) return true
+        }
+        return false
     }
 }

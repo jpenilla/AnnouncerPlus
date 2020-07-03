@@ -3,6 +3,8 @@ package xyz.jpenilla.announcerplus.command
 import co.aikar.commands.BaseCommand
 import co.aikar.commands.CommandHelp
 import co.aikar.commands.annotation.*
+import com.google.common.collect.ImmutableList
+import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.Config
@@ -56,7 +58,7 @@ class CommandAnnouncerPlus : BaseCommand() {
 
     @Subcommand("reload|r")
     @Description("Reloads the config for AnnouncerPlus")
-    @CommandPermission("announcerplus.admin")
+    @CommandPermission("announcerplus.reload")
     fun onReload(sender: CommandSender) {
         randomColor()
         chat.sendPlaceholders(sender, "<color:$color>Reloading ${announcerPlus.name} config...")
@@ -64,10 +66,28 @@ class CommandAnnouncerPlus : BaseCommand() {
         chat.sendPlaceholders(sender, "<green>Done.")
     }
 
+    @Subcommand("broadcast|bc")
+    @CommandAlias("broadcast")
+    @Description("Parse a message and broadcast it")
+    @CommandPermission("announcerplus.broadcast")
+    fun onBroadcast(sender: CommandSender, message: String) {
+        val players = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
+        for(player in players) {
+            chat.sendPlaceholders(player, message, cfg.placeholders)
+        }
+    }
+
+    @Subcommand("parse|p")
+    @Description("Parse a message and echo it back")
+    @CommandPermission("announcerplus.parse")
+    fun onParse(sender: CommandSender, message: String) {
+        chat.sendPlaceholders(sender, message, cfg.placeholders)
+    }
+
     @Subcommand("list|l")
     @CommandCompletion("@configs")
     @Description("Lists the messages of a config")
-    @CommandPermission("announcerplus.admin")
+    @CommandPermission("announcerplus.list")
     fun onList(sender: CommandSender, @Values("@configs") config: String, @Optional page: Int?) {
         randomColor()
         val msgConfig = cfg.messageConfigs[config]!!

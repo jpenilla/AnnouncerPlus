@@ -1,3 +1,4 @@
+# for a player to get these messages give them the announcerplus.messages.demo permission
 interval: 3
 # MINUTES, SECONDS, or HOURS
 intervalUnit: MINUTES

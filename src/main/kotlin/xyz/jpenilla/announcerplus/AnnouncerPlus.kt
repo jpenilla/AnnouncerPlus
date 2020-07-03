@@ -1,6 +1,7 @@
 package xyz.jpenilla.announcerplus
 
 import net.milkbowl.vault.permission.Permission
+import org.bstats.bukkit.Metrics
 import org.bukkit.plugin.RegisteredServiceProvider
 import org.bukkit.plugin.java.JavaPlugin
 import xyz.jpenilla.announcerplus.command.CommandHelper
@@ -29,6 +30,8 @@ class AnnouncerPlus : JavaPlugin() {
         commandHelper = CommandHelper(this)
         server.pluginManager.registerEvents(JoinQuitListener(this), this)
         broadcast()
+        UpdateChecker(this, 1).updateCheck()
+        val metrics = Metrics(this, 8067)
     }
 
     private fun broadcast() {
