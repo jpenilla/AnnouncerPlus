@@ -30,7 +30,7 @@ class AnnouncerPlus : JavaPlugin() {
         commandHelper = CommandHelper(this)
         server.pluginManager.registerEvents(JoinQuitListener(this), this)
         broadcast()
-        UpdateChecker(this, 1).updateCheck()
+        UpdateChecker(this, 81005).updateCheck()
         val metrics = Metrics(this, 8067)
     }
 
