@@ -1,3 +1,4 @@
+# These placeholders can be used like {nick} or {r}rainbow text{rc} in Join/Quit or broadcast configs
 placeholders:
   nick: "%essentials_nickname%"
   user: "%player_name%"
