@@ -20,8 +20,8 @@ class Config(private val announcerPlus: AnnouncerPlus) {
         announcerPlus.reloadConfig()
         val config = announcerPlus.config
 
-        joinEvent = config.getBoolean("joinEvent")
-        quitEvent = config.getBoolean("quitEvent")
+        joinEvent = config.getBoolean("joinEvent", true)
+        quitEvent = config.getBoolean("quitEvent", true)
         placeholders.clear()
         for (key in config.getConfigurationSection("placeholders")!!.getKeys(false)) {
             placeholders[key] = config.getString("placeholders.$key")!!
