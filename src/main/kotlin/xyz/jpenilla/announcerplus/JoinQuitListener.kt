@@ -9,17 +9,21 @@ import org.bukkit.event.player.PlayerQuitEvent
 class JoinQuitListener(private val announcerPlus: AnnouncerPlus) : Listener {
     @EventHandler
     fun onJoin(event: PlayerJoinEvent) {
-        event.joinMessage = ""
-        for (config in announcerPlus.cfg.joinQuitConfigs.values) {
-            config.onJoin(event.player)
+        if (announcerPlus.cfg.joinEvent) {
+            event.joinMessage = ""
+            for (config in announcerPlus.cfg.joinQuitConfigs.values) {
+                config.onJoin(event.player)
+            }
         }
     }
 
     @EventHandler
     fun onQuit(event: PlayerQuitEvent) {
-        event.quitMessage = ""
-        for (config in announcerPlus.cfg.joinQuitConfigs.values) {
-            config.onQuit(event.player)
+        if (announcerPlus.cfg.quitEvent) {
+            event.quitMessage = ""
+            for (config in announcerPlus.cfg.joinQuitConfigs.values) {
+                config.onQuit(event.player)
+            }
         }
     }
 }

@@ -1,3 +1,6 @@
+# Change these to enable/disable the join/quit features
+joinEvent: true
+quitEvent: true
 # These placeholders can be used like {nick} or {r}rainbow text{rc} in Join/Quit or broadcast configs
 placeholders:
   nick: "%essentials_nickname%"

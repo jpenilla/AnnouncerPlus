@@ -8,6 +8,8 @@ class Config(private val announcerPlus: AnnouncerPlus) {
     val messageConfigs: HashMap<String, MessageConfig> = HashMap()
     val joinQuitConfigs: HashMap<String, JoinQuitConfig> = HashMap()
     val placeholders = HashMap<String, String>()
+    var joinEvent = true
+    var quitEvent = true
 
     init {
         announcerPlus.saveDefaultConfig()
@@ -18,6 +20,8 @@ class Config(private val announcerPlus: AnnouncerPlus) {
         announcerPlus.reloadConfig()
         val config = announcerPlus.config
 
+        joinEvent = config.getBoolean("joinEvent")
+        quitEvent = config.getBoolean("quitEvent")
         placeholders.clear()
         for (key in config.getConfigurationSection("placeholders")!!.getKeys(false)) {
             placeholders[key] = config.getString("placeholders.$key")!!
