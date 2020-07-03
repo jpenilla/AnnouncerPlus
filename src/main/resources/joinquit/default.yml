@@ -1,6 +1,7 @@
 # To give a player these messages give them the announcerplus.join.default
 #    and announcerplus.quit.default permissions
-# If set, this permission will be required to see these join/quit messages
+#
+# If set, this permission will be required to see these join/quit messages:
 seePermission: ""
 # Sent to the player joining
 joinMessages:
