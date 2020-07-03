@@ -1,6 +1,6 @@
 placeholders:
   nick: "%essentials_nickname%"
-  user: "%player_username"
+  user: "%player_name%"
   prefix1: "<bold><blue>[<green>!</green>]</blue></bold>"
   abc: "aaaaabc"
   r: "<rainbow>"

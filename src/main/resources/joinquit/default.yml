@@ -1,10 +1,13 @@
 # If set, this permission will be required to see these join/quit messages
 seePermission: ""
+# Sent to the player joining
 joinMessages:
-  - "<yellow>{user}</yellow> <white>(</white>{nick}<white>)</white> <yellow>joined the game"
-  - "<rainbow><italic>Welcome, </rainbow> {user}<yellow>!"
+  - "<hover:show_text:'Username</yellow><gray>:</gray> {user}'>{nick}</hover> <yellow>joined the game"
+  - "<rainbow><italic>Welcome,</rainbow> {user}<yellow>!"
   - "This server is using <blue>Announcer<italic>Plus"
+# Sent to everyone but the player joining
 joinBroadcasts:
-  - "<yellow>{user}</yellow> <white>(</white>{nick}<white>)</white> <yellow>joined the game"
+  - "<hover:show_text:'Username</yellow><gray>:</gray> {user}'>{nick}</hover> <yellow>joined the game"
+# Sent to players online when player quits
 quitBroadcasts:
-  - "<yellow>{user}</yellow> <white>(</white>{nick}<white>)</white> <yellow>left the game"
+  - "<hover:show_text:'Username</yellow><gray>:</gray> {user}'>{nick}</hover> <yellow>left the game"

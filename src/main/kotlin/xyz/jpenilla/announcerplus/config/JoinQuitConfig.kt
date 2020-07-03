@@ -1,8 +1,6 @@
 package xyz.jpenilla.announcerplus.config
 
 import com.google.common.collect.ImmutableList
-import com.okkero.skedule.SynchronizationContext
-import com.okkero.skedule.schedule
 import org.bukkit.Bukkit
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.entity.Player
@@ -31,16 +29,14 @@ class JoinQuitConfig(private val announcerPlus: AnnouncerPlus, val name: String,
 
     fun onJoin(player: Player) {
         if (player.hasPermission("announcerplus.join.$name")) {
-            chat.sendPlaceholders(player, joinMessages, announcerPlus.cfg.placeholders)
-            announcerPlus.schedule {
-                val players = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
-                switchContext(SynchronizationContext.ASYNC)
+            val players = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
 
-                for (p in players) {
+            chat.sendPlaceholders(player, joinMessages, announcerPlus.cfg.placeholders)
+            val m = chat.replacePlaceholders(player, joinBroadcasts, announcerPlus.cfg.placeholders)
+            for (p in players) {
+                if (p.name != player.name) {
                     if (announcerPlus.perms!!.playerHas(p, permission) || permission == "") {
-                        if (p.uniqueId != player.uniqueId) {
-                            chat.sendPlaceholders(p, joinBroadcasts, announcerPlus.cfg.placeholders)
-                        }
+                        chat.send(p, m)
                     }
                 }
             }
@@ -49,15 +45,13 @@ class JoinQuitConfig(private val announcerPlus: AnnouncerPlus, val name: String,
 
     fun onQuit(player: Player) {
         if (player.hasPermission("announcerplus.quit.$name")) {
-            announcerPlus.schedule {
-                val players = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
-                switchContext(SynchronizationContext.ASYNC)
+            val players = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
 
-                for (p in players) {
+            val m = chat.replacePlaceholders(player, quitBroadcasts, announcerPlus.cfg.placeholders)
+            for (p in players) {
+                if (p.name != player.name) {
                     if (announcerPlus.perms!!.playerHas(p, permission) || permission == "") {
-                        if (p.uniqueId != player.uniqueId) {
-                            chat.sendPlaceholders(p, quitBroadcasts, announcerPlus.cfg.placeholders)
-                        }
+                        chat.send(p, m)
                     }
                 }
             }
