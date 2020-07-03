@@ -1,0 +1,10 @@
+# If set, this permission will be required to see these join/quit messages
+seePermission: ""
+joinMessages:
+  - "<yellow>{user}</yellow> <white>(</white>{nick}<white>)</white> <yellow>joined the game"
+  - "<rainbow><italic>Welcome, </rainbow> {user}<yellow>!"
+  - "This server is using <blue>Announcer<italic>Plus"
+joinBroadcasts:
+  - "<yellow>{user}</yellow> <white>(</white>{nick}<white>)</white> <yellow>joined the game"
+quitBroadcasts:
+  - "<yellow>{user}</yellow> <white>(</white>{nick}<white>)</white> <yellow>left the game"
