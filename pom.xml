@@ -204,7 +204,7 @@
         <dependency>
             <groupId>xyz.jpenilla</groupId>
             <artifactId>jmplib</artifactId>
-            <version>1.0.0-SNAPSHOT.52</version>
+            <version>1.0.0-SNAPSHOT.53</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -220,9 +220,9 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.jmanpenilla</groupId>
+            <groupId>com.github.DiamondDagger590</groupId>
             <artifactId>Prisma</artifactId>
-            <version>f428549ce6</version>
+            <version>a622d01b80</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
