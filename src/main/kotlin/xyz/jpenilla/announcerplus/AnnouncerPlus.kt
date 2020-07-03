@@ -4,13 +4,16 @@ import net.milkbowl.vault.permission.Permission
 import org.bukkit.plugin.RegisteredServiceProvider
 import org.bukkit.plugin.java.JavaPlugin
 import xyz.jpenilla.announcerplus.command.CommandHelper
+import xyz.jpenilla.announcerplus.compatability.PrismaHook
 import xyz.jpenilla.announcerplus.config.Config
+import xyz.jpenilla.jmplib.Chat
 
 class AnnouncerPlus : JavaPlugin() {
     var perms: Permission? = null
-    var placeholderAPI = false
+    var prismaCompat: PrismaHook? = null
     lateinit var cfg: Config; private set
     lateinit var commandHelper: CommandHelper
+    lateinit var chat: Chat
 
     override fun onEnable() {
         if (!setupPermissions()) {
@@ -18,7 +21,10 @@ class AnnouncerPlus : JavaPlugin() {
             server.pluginManager.disablePlugin(this)
             return
         }
-        placeholderAPI = server.pluginManager.isPluginEnabled("PlaceholderAPI")
+        chat = Chat(this)
+        if (server.pluginManager.isPluginEnabled("Prisma")) {
+            prismaCompat = PrismaHook()
+        }
         cfg = Config(this)
         commandHelper = CommandHelper(this)
         server.pluginManager.registerEvents(JoinQuitListener(this), this)

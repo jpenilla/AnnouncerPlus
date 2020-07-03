@@ -5,6 +5,7 @@ import co.aikar.commands.PaperCommandManager
 import org.bukkit.ChatColor
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.Config
+import xyz.jpenilla.jmplib.Chat
 
 
 class CommandHelper(private val announcerPlus: AnnouncerPlus) {
@@ -13,11 +14,12 @@ class CommandHelper(private val announcerPlus: AnnouncerPlus) {
     init {
         commandManager.enableUnstableAPI("help")
         commandManager.defaultHelpPerPage = 5
-        commandManager.setFormat(MessageType.ERROR, ChatColor.BLUE, ChatColor.AQUA, ChatColor.WHITE)
-        commandManager.setFormat(MessageType.INFO, ChatColor.BLUE, ChatColor.AQUA, ChatColor.WHITE)
-        commandManager.setFormat(MessageType.HELP, ChatColor.BLUE, ChatColor.AQUA, ChatColor.WHITE)
-        commandManager.setFormat(MessageType.SYNTAX, ChatColor.BLUE, ChatColor.AQUA, ChatColor.WHITE)
+        commandManager.setFormat(MessageType.ERROR, ChatColor.AQUA, ChatColor.BLUE, ChatColor.WHITE)
+        commandManager.setFormat(MessageType.INFO, ChatColor.AQUA, ChatColor.BLUE, ChatColor.WHITE)
+        commandManager.setFormat(MessageType.HELP, ChatColor.AQUA, ChatColor.BLUE, ChatColor.WHITE)
+        commandManager.setFormat(MessageType.SYNTAX, ChatColor.AQUA, ChatColor.BLUE, ChatColor.WHITE)
         commandManager.registerDependency(Config::class.java, announcerPlus.cfg)
+        commandManager.registerDependency(Chat::class.java, announcerPlus.chat)
         commandManager.registerCommand(CommandAnnouncerPlus())
         reload()
     }

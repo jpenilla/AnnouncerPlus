@@ -1,8 +1,6 @@
 package xyz.jpenilla.announcerplus.config
 
-import me.clip.placeholderapi.PlaceholderAPI
 import org.bukkit.configuration.file.YamlConfiguration
-import org.bukkit.entity.Player
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import java.io.File
 
@@ -47,18 +45,6 @@ class Config(private val announcerPlus: AnnouncerPlus) {
             val data = YamlConfiguration.loadConfiguration(configFile)
             val name = configFile.name.split(".").toTypedArray()[0]
             messageConfigs[name] = (MessageConfig(announcerPlus, name, data))
-        }
-    }
-
-    fun replacePlaceholders(player: Player?, message: String): String {
-        var m = message
-        for (placeholder in placeholders.entries) {
-            m = m.replace("{${placeholder.key}}", placeholder.value)
-        }
-        return if (player != null && announcerPlus.placeholderAPI) {
-            PlaceholderAPI.setPlaceholders(player, m)
-        } else {
-            m
         }
     }
 }

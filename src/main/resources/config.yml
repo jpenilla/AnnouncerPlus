@@ -1,3 +1,6 @@
 placeholders:
   prefix1: "<bold><blue>[<green>!</green>]</blue></bold>"
   abc: "aaaaabc"
+  nick: "%essentials_nickname%"
+  r: "<rainbow>"
+  rc: "</rainbow>"

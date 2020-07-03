@@ -4,8 +4,6 @@ import com.google.common.collect.ImmutableList
 import com.okkero.skedule.CoroutineTask
 import com.okkero.skedule.SynchronizationContext
 import com.okkero.skedule.schedule
-import net.kyori.adventure.platform.bukkit.BukkitAudiences
-import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.Bukkit
 import org.bukkit.configuration.file.YamlConfiguration
 import xyz.jpenilla.announcerplus.AnnouncerPlus
@@ -51,8 +49,7 @@ class MessageConfig(private val announcerPlus: AnnouncerPlus, val name: String, 
 
                 for (player in players) {
                     if (announcerPlus.perms!!.playerHas(player, "${announcerPlus.name}.messages.$name")) {
-                        val m = MiniMessage.instance().parse(announcerPlus.cfg.replacePlaceholders(player, message))
-                        BukkitAudiences.create(announcerPlus).player(player).sendMessage(m)
+                        announcerPlus.chat.sendPlaceholders(player, message, announcerPlus.cfg.placeholders)
                     }
                 }
                 yield()

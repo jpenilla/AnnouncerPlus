@@ -110,18 +110,6 @@
                             <shadedPattern>xyz.jpenilla.announcerplus.lib.skedule</shadedPattern>
                         </relocation>
                         <relocation>
-                            <pattern>net.kyori.examination</pattern>
-                            <shadedPattern>xyz.jpenilla.announcerplus.lib.kyori.examination</shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>net.kyori.adventure</pattern>
-                            <shadedPattern>xyz.jpenilla.announcerplus.lib.kyori.adventure</shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>org.checkerframework</pattern>
-                            <shadedPattern>xyz.jpenilla.announcerplus.lib.checkerframework</shadedPattern>
-                        </relocation>
-                        <relocation>
                             <pattern>co.aikar.commands</pattern>
                             <shadedPattern>xyz.jpenilla.announcerplus.lib.acf</shadedPattern>
                         </relocation>
@@ -178,10 +166,6 @@
             <url>https://mvn.jpenilla.xyz/repository/internal</url>
         </repository>
         <repository>
-            <id>placeholderapi</id>
-            <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
-        </repository>
-        <repository>
             <id>okkero</id>
             <url>http://nexus.okkero.com/repository/maven-releases/</url>
         </repository>
@@ -220,20 +204,8 @@
         <dependency>
             <groupId>xyz.jpenilla</groupId>
             <artifactId>jmplib</artifactId>
-            <version>1.0.0-SNAPSHOT.47</version>
+            <version>1.0.0-SNAPSHOT.52</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.okkero.skedule</groupId>
-            <artifactId>skedule</artifactId>
-            <version>1.2.6</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>me.clip</groupId>
-            <artifactId>placeholderapi</artifactId>
-            <version>2.10.6</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -242,14 +214,16 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>net.kyori</groupId>
-            <artifactId>adventure-platform-bukkit</artifactId>
-            <version>4.0.0-SNAPSHOT</version>
+            <groupId>com.okkero.skedule</groupId>
+            <artifactId>skedule</artifactId>
+            <version>1.2.6</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>net.kyori</groupId>
-            <artifactId>adventure-text-minimessage</artifactId>
-            <version>3.0.0-SNAPSHOT</version>
+            <groupId>com.github.jmanpenilla</groupId>
+            <artifactId>Prisma</artifactId>
+            <version>f428549ce6</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>co.aikar</groupId>
