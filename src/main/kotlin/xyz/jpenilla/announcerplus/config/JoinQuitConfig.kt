@@ -67,6 +67,9 @@ class JoinQuitConfig(private val announcerPlus: AnnouncerPlus, val name: String,
         for (meta in player.getMetadata("vanished")) {
             if (meta.asBoolean()) return true
         }
+        if (announcerPlus.essentials != null) {
+            return announcerPlus.essentials!!.isVanished(player)
+        }
         return false
     }
 }

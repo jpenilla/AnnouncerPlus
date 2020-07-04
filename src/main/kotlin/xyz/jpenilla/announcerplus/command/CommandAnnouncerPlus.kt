@@ -25,8 +25,8 @@ class CommandAnnouncerPlus : BaseCommand() {
 
     private lateinit var color: String
     private fun randomColor() {
-        color = if (announcerPlus.prismaCompat != null) {
-            announcerPlus.prismaCompat!!.randomColor()
+        color = if (announcerPlus.prisma != null) {
+            announcerPlus.prisma!!.randomColor()
         } else {
             listOf("#007AFF", "#54FFA1", "#FFB200", "#FF006C", "#D600FF", "#FFF200", "#FF00C5", "#7400FF",
                     "#E2FF00", "#FF5600", "#001CFF", "#FF0003", "#00FF07", "#65FF00", "#E400FF", "#00B9FF").random()
@@ -72,7 +72,7 @@ class CommandAnnouncerPlus : BaseCommand() {
     @CommandPermission("announcerplus.broadcast")
     fun onBroadcast(sender: CommandSender, message: String) {
         val players = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
-        for(player in players) {
+        for (player in players) {
             chat.sendPlaceholders(player, message, cfg.placeholders)
         }
     }

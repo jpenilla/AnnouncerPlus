@@ -5,13 +5,15 @@ import org.bstats.bukkit.Metrics
 import org.bukkit.plugin.RegisteredServiceProvider
 import org.bukkit.plugin.java.JavaPlugin
 import xyz.jpenilla.announcerplus.command.CommandHelper
+import xyz.jpenilla.announcerplus.compatability.EssentialsHook
 import xyz.jpenilla.announcerplus.compatability.PrismaHook
 import xyz.jpenilla.announcerplus.config.Config
 import xyz.jpenilla.jmplib.Chat
 
 class AnnouncerPlus : JavaPlugin() {
     var perms: Permission? = null
-    var prismaCompat: PrismaHook? = null
+    var prisma: PrismaHook? = null
+    var essentials: EssentialsHook? = null
     lateinit var cfg: Config; private set
     lateinit var commandHelper: CommandHelper
     lateinit var chat: Chat
@@ -24,7 +26,10 @@ class AnnouncerPlus : JavaPlugin() {
         }
         chat = Chat(this)
         if (server.pluginManager.isPluginEnabled("Prisma")) {
-            prismaCompat = PrismaHook()
+            prisma = PrismaHook()
+        }
+        if (server.pluginManager.isPluginEnabled("Essentials")) {
+            essentials = EssentialsHook(this)
         }
         cfg = Config(this)
         commandHelper = CommandHelper(this)

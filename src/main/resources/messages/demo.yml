@@ -1,4 +1,6 @@
 # for a player to get these messages give them the announcerplus.messages.demo permission
+#    if EssentialsX is installed, then giving a player the announcerplus.messages.demo.afk permission
+#    will stop them from receiving these messages while afk
 interval: 3
 # MINUTES, SECONDS, or HOURS
 intervalUnit: MINUTES

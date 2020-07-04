@@ -48,6 +48,11 @@ class MessageConfig(private val announcerPlus: AnnouncerPlus, val name: String, 
                 switchContext(SynchronizationContext.ASYNC)
 
                 for (player in players) {
+                    if (announcerPlus.essentials != null) {
+                        if (announcerPlus.essentials!!.isAfk(player) && announcerPlus.perms!!.playerHas(player, "${announcerPlus.name}.messages.$name.afk")) {
+                            continue
+                        }
+                    }
                     if (announcerPlus.perms!!.playerHas(player, "${announcerPlus.name}.messages.$name")) {
                         announcerPlus.chat.sendPlaceholders(player, message, announcerPlus.cfg.placeholders)
                     }
