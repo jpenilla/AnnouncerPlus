@@ -6,7 +6,7 @@
 
     <groupId>xyz.jpenilla</groupId>
     <artifactId>AnnouncerPlus</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4-SNAPSHOT.{BUILD_NUMBER}</version>
     <packaging>jar</packaging>
 
     <name>AnnouncerPlus</name>
