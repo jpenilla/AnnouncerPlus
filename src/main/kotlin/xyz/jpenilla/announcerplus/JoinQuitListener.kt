@@ -5,7 +5,6 @@ import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 
-
 class JoinQuitListener(private val announcerPlus: AnnouncerPlus) : Listener {
     @EventHandler
     fun onJoin(event: PlayerJoinEvent) {

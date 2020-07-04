@@ -6,7 +6,7 @@ interval: 3
 intervalUnit: MINUTES
 randomOrder: true
 messages:
-  - "{prefix1} <yellow>Woo: <rainbow>||||||||||||||||||||||||</rainbow>!"
+  - "<center>{prefix1} <yellow>Woo: <rainbow>||||||||||||||||||||||||</rainbow>!"
   - "<rainbow><bold>%player_name%</rainbow></bold> {prefix1}"
   - "<red><bold>Woo</bold>: {r}|||||||||||{abc}|||||||||||||{rc}!"
   - "{prefix1} Use <click:run_command:/spawn><hover:show_text:'<rainbow>Click to run!'><rainbow>/spawn</rainbow></hover></click> to return to spawn"

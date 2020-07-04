@@ -30,12 +30,12 @@ class JoinQuitConfig(private val announcerPlus: AnnouncerPlus, val name: String,
 
     fun onJoin(player: Player) {
         if (player.hasPermission("announcerplus.join.$name")) {
-            chat.sendPlaceholders(player, joinMessages, announcerPlus.cfg.placeholders)
+            chat.send(player, announcerPlus.cfg.parse(player, joinMessages))
             announcerPlus.schedule {
                 waitFor(3L)
                 if (!isVanished(player)) {
                     val players = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
-                    val m = chat.replacePlaceholders(player, joinBroadcasts, announcerPlus.cfg.placeholders)
+                    val m = announcerPlus.cfg.parse(player, joinBroadcasts)
                     for (p in players) {
                         if (p.name != player.name) {
                             if (announcerPlus.perms!!.playerHas(p, permission) || permission == "") {
@@ -52,7 +52,7 @@ class JoinQuitConfig(private val announcerPlus: AnnouncerPlus, val name: String,
         if (player.hasPermission("announcerplus.quit.$name") && !isVanished(player)) {
             val players = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
 
-            val m = chat.replacePlaceholders(player, quitBroadcasts, announcerPlus.cfg.placeholders)
+            val m = announcerPlus.cfg.parse(player, quitBroadcasts)
             for (p in players) {
                 if (p.name != player.name) {
                     if (announcerPlus.perms!!.playerHas(p, permission) || permission == "") {

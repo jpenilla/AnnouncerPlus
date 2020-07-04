@@ -14,6 +14,15 @@ import kotlin.math.ceil
 
 @CommandAlias("announcerplus|announcer|ap")
 class CommandAnnouncerPlus : BaseCommand() {
+
+    private fun CommandSender.send(message: String) {
+        announcerPlus.chat.send(this, announcerPlus.cfg.parse(this, message))
+    }
+
+    private fun CommandSender.send(messages: List<String>) {
+        announcerPlus.chat.send(this, announcerPlus.cfg.parse(this, messages))
+    }
+
     @Dependency
     private lateinit var cfg: Config
 
@@ -39,7 +48,7 @@ class CommandAnnouncerPlus : BaseCommand() {
     fun onHelp(sender: CommandSender, help: CommandHelp) {
         randomColor()
         val m = "----[ <color:$color>" + announcerPlus.name + "</color:$color> Help ]----"
-        chat.sendPlaceholders(sender, m)
+        sender.send(m)
         help.showHelp()
     }
 
@@ -53,7 +62,7 @@ class CommandAnnouncerPlus : BaseCommand() {
                 "By <color:$color>jmp",
                 "<color:$color>=========================="
         )
-        chat.sendPlaceholders(sender, m)
+        sender.send(m)
     }
 
     @Subcommand("reload|r")
@@ -61,9 +70,9 @@ class CommandAnnouncerPlus : BaseCommand() {
     @CommandPermission("announcerplus.reload")
     fun onReload(sender: CommandSender) {
         randomColor()
-        chat.sendPlaceholders(sender, "<color:$color>Reloading ${announcerPlus.name} config...")
+        sender.send("<color:$color>Reloading ${announcerPlus.name} config...")
         announcerPlus.reload()
-        chat.sendPlaceholders(sender, "<green>Done.")
+        sender.send("<green>Done.")
     }
 
     @Subcommand("broadcast|bc")
@@ -73,7 +82,7 @@ class CommandAnnouncerPlus : BaseCommand() {
     fun onBroadcast(sender: CommandSender, message: String) {
         val players = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
         for (player in players) {
-            chat.sendPlaceholders(player, message, cfg.placeholders)
+            announcerPlus.chat.send(player, announcerPlus.cfg.parse(player, message))
         }
     }
 
@@ -81,7 +90,7 @@ class CommandAnnouncerPlus : BaseCommand() {
     @Description("Parse a message and echo it back")
     @CommandPermission("announcerplus.parse")
     fun onParse(sender: CommandSender, message: String) {
-        chat.sendPlaceholders(sender, message, cfg.placeholders)
+        sender.send(message)
     }
 
     @Subcommand("list|l")
@@ -114,6 +123,6 @@ class CommandAnnouncerPlus : BaseCommand() {
         }
         m.add("<color:$color>Page <white>$p</white> / <white>$pages</white> ==============================")
 
-        chat.sendPlaceholders(sender, m.toList(), cfg.placeholders)
+        sender.send(m.toList())
     }
 }

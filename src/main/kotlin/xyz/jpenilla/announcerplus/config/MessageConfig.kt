@@ -54,7 +54,7 @@ class MessageConfig(private val announcerPlus: AnnouncerPlus, val name: String, 
                         }
                     }
                     if (announcerPlus.perms!!.playerHas(player, "${announcerPlus.name}.messages.$name")) {
-                        announcerPlus.chat.sendPlaceholders(player, message, announcerPlus.cfg.placeholders)
+                        announcerPlus.chat.send(player, announcerPlus.cfg.parse(player, message))
                     }
                 }
                 yield()

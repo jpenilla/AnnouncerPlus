@@ -1,7 +1,10 @@
 package xyz.jpenilla.announcerplus.config
 
+import org.bukkit.command.CommandSender
 import org.bukkit.configuration.file.YamlConfiguration
+import org.bukkit.entity.Player
 import xyz.jpenilla.announcerplus.AnnouncerPlus
+import xyz.jpenilla.jmplib.TextUtil
 import java.io.File
 
 class Config(private val announcerPlus: AnnouncerPlus) {
@@ -73,5 +76,27 @@ class Config(private val announcerPlus: AnnouncerPlus) {
             val name = configFile.name.split(".").toTypedArray()[0]
             messageConfigs[name] = (MessageConfig(announcerPlus, name, data))
         }
+    }
+
+    fun parse(player: CommandSender, message: String) : String {
+        val a = TextUtil.replacePlaceholders(message, placeholders)
+        val msg = if (a.startsWith("<center>")) {
+            announcerPlus.chat.getCenteredMessage(a.replace("<center>", ""))
+        } else {
+            a
+        }
+        return if (player is Player) {
+            announcerPlus.chat.replacePlaceholders(player, msg, null)
+        } else {
+            msg
+        }
+    }
+
+    fun parse(player: CommandSender, messages: List<String>) : List<String> {
+        val tempMessages = ArrayList<String>()
+        for (message in messages) {
+            tempMessages.add(parse(player, message))
+        }
+        return tempMessages
     }
 }
