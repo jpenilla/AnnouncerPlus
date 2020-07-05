@@ -15,6 +15,10 @@ import kotlin.math.ceil
 @CommandAlias("announcerplus|announcer|ap")
 class CommandAnnouncerPlus : BaseCommand() {
 
+    init {
+        randomColor()
+    }
+
     private fun CommandSender.send(message: String) {
         announcerPlus.chat.send(this, announcerPlus.cfg.parse(this, message))
     }
@@ -32,23 +36,11 @@ class CommandAnnouncerPlus : BaseCommand() {
     @Dependency
     private lateinit var chat: Chat
 
-    private lateinit var color: String
-    private fun randomColor() {
-        color = if (announcerPlus.prisma != null) {
-            announcerPlus.prisma!!.randomColor()
-        } else {
-            listOf("#007AFF", "#54FFA1", "#FFB200", "#FF006C", "#D600FF", "#FFF200", "#FF00C5", "#7400FF",
-                    "#E2FF00", "#FF5600", "#001CFF", "#FF0003", "#00FF07", "#65FF00", "#E400FF", "#00B9FF").random()
-        }
-    }
-
     @Default
     @HelpCommand
     @Description("AnnouncerPlus Help")
     fun onHelp(sender: CommandSender, help: CommandHelp) {
         randomColor()
-        val m = "----[ <color:$color>" + announcerPlus.name + "</color:$color> Help ]----"
-        sender.send(m)
         help.showHelp()
     }
 
@@ -58,11 +50,11 @@ class CommandAnnouncerPlus : BaseCommand() {
         randomColor()
         val m = listOf(
                 "<color:$color>==========================",
-                announcerPlus.name + " <color:$color>" + announcerPlus.description.version,
+                "<hover:show_text:'<rainbow>click me!'><click:open_url:${announcerPlus.description.website}>${announcerPlus.name}  <color:$color>${announcerPlus.description.version}",
                 "By <color:$color>jmp",
                 "<color:$color>=========================="
         )
-        sender.send(m)
+        sender.send(chat.getCenteredMessage(m))
     }
 
     @Subcommand("reload|r")
@@ -70,9 +62,9 @@ class CommandAnnouncerPlus : BaseCommand() {
     @CommandPermission("announcerplus.reload")
     fun onReload(sender: CommandSender) {
         randomColor()
-        sender.send("<color:$color>Reloading ${announcerPlus.name} config...")
+        sender.send(chat.getCenteredMessage("<color:$color>Reloading ${announcerPlus.name} config..."))
         announcerPlus.reload()
-        sender.send("<green>Done.")
+        sender.send(chat.getCenteredMessage("<green>Done."))
     }
 
     @Subcommand("broadcast|bc")
@@ -111,9 +103,20 @@ class CommandAnnouncerPlus : BaseCommand() {
             }
         }
 
+        val h = StringBuilder()
+        if (p > 1) {
+            h.append("<bold><click:run_command:/announcerplus list $config ${p - 1}><hover:show_text:'<italic>Click for previous page'><<</bold></click></hover> ")
+        }
+        h.append("<color:$color>Page <white>$p</white> / <white>$pages</white> (<white>${msgConfig.messages.size} results</white>) =========================</color:$color>")
+        if (p < pages) {
+            if (p == 1 && pages == 1) return
+            h.append("<bold><click:run_command:/announcerplus list $config ${p + 1}><hover:show_text:'<italic>Click for next page'> >></bold></click></hover>")
+        }
+        val header = h.toString()
+
         val m = ArrayList<String>()
         m.add("Messages<gray>:</gray> <color:$color>$config</color:$color> <gray><italic>(announcerplus.messages.$config)")
-        m.add("<color:$color>Page <white>$p</white> / <white>$pages</white> ==============================")
+        m.add(header)
         val n = pageSize * (p - 1)
         for (i in n until (n + pageSize)) {
             try {
@@ -121,8 +124,25 @@ class CommandAnnouncerPlus : BaseCommand() {
             } catch (e: Exception) {
             }
         }
-        m.add("<color:$color>Page <white>$p</white> / <white>$pages</white> ==============================")
+        m.add(header)
+        m.add("")
 
-        sender.send(m.toList())
+        sender.send(m)
+    }
+
+    fun randomColor() {
+        Companion.randomColor(AnnouncerPlus.instance)
+    }
+
+    companion object {
+        var color = "#ffffff"
+        private fun randomColor(announcerPlus: AnnouncerPlus) {
+            color = if (announcerPlus.prisma != null) {
+                announcerPlus.prisma!!.randomColor()
+            } else {
+                listOf("#007AFF", "#54FFA1", "#FFB200", "#FF006C", "#D600FF", "#FFF200", "#FF00C5", "#7400FF",
+                        "#E2FF00", "#FF5600", "#001CFF", "#FF0003", "#00FF07", "#65FF00", "#E400FF", "#00B9FF").random()
+            }
+        }
     }
 }

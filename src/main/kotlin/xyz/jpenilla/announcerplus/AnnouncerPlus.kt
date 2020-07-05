@@ -19,6 +19,7 @@ class AnnouncerPlus : JavaPlugin() {
     lateinit var chat: Chat
 
     override fun onEnable() {
+        instance = this
         if (!setupPermissions()) {
             logger.warning("Permissions plugin not found. AnnouncerPlus will not work.")
             server.pluginManager.disablePlugin(this)
@@ -60,5 +61,9 @@ class AnnouncerPlus : JavaPlugin() {
             perms = rsp.provider
         }
         return perms != null
+    }
+
+    companion object {
+        lateinit var instance: AnnouncerPlus
     }
 }

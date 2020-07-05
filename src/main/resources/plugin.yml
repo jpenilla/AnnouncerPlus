@@ -3,6 +3,7 @@ version: ${project.version}
 main: xyz.jpenilla.announcerplus.AnnouncerPlus
 api-version: 1.16
 authors: [jmp]
+website: https://www.spigotmc.org/resources/announcer-plus.81005/
 depend: [Vault]
 softdepend: [PlaceholderAPI, Prisma, Essentials]
 description: Announcement plugin with support for permissions. Supports Hex colors and clickable messages/hover text using MiniMessage
