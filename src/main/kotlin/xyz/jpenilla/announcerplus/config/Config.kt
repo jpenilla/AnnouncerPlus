@@ -78,7 +78,7 @@ class Config(private val announcerPlus: AnnouncerPlus) {
         }
     }
 
-    fun parse(player: CommandSender, message: String) : String {
+    fun parse(player: CommandSender, message: String): String {
         val a = TextUtil.replacePlaceholders(message, placeholders)
         val msg = if (a.startsWith("<center>")) {
             announcerPlus.chat.getCenteredMessage(a.replace("<center>", ""))
@@ -92,7 +92,7 @@ class Config(private val announcerPlus: AnnouncerPlus) {
         }
     }
 
-    fun parse(player: CommandSender, messages: List<String>) : List<String> {
+    fun parse(player: CommandSender, messages: List<String>): List<String> {
         val tempMessages = ArrayList<String>()
         for (message in messages) {
             tempMessages.add(parse(player, message))

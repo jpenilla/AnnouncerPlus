@@ -24,13 +24,11 @@ class HelpFormatter(private val announcerPlus: AnnouncerPlus, manager: PaperComm
     private fun getFooter(help: CommandHelp): String {
         val builder = StringBuilder()
         if (help.page > 1) {
-            builder.append("<color:${CommandAnnouncerPlus.color}><bold><click:run_command:/announcerplus help ${listToSpaceSeparatedString(help.search)} ${help.page - 1}><hover:show_text:'<italic>Click for previous page'><<</bold></click></hover> </color:${CommandAnnouncerPlus.color}>")
+            builder.append("<color:$color><bold><click:run_command:/announcerplus help ${listToSpaceSeparatedString(help.search)} ${help.page - 1}><hover:show_text:'<italic>Click for previous page'><<</bold></click></hover> </color:$color>")
         }
-        builder.append("Page <color:${CommandAnnouncerPlus.color}>{page}</color:${CommandAnnouncerPlus.color}> of <color:${CommandAnnouncerPlus.color}>{totalpages}</color:${CommandAnnouncerPlus.color}> (<color:${CommandAnnouncerPlus.color}>{results} results<white>)</white> ============")
-        if (help.page < help.totalPages) {
-            if (!help.isOnlyPage) {
-                builder.append("<color:${CommandAnnouncerPlus.color}><bold><click:run_command:/announcerplus help ${listToSpaceSeparatedString(help.search)} ${help.page + 1}><hover:show_text:'<italic>Click for next page'> >></bold></click></hover></color:${CommandAnnouncerPlus.color}>")
-            }
+        builder.append("Page <color:$color>{page}</color:$color> of <color:$color>{totalpages}</color:$color> (<color:$color>{results} results<white>)</white> ============")
+        if (help.page < help.totalPages && !help.isOnlyPage) {
+            builder.append("<white><bold><click:run_command:/announcerplus help ${listToSpaceSeparatedString(help.search)} ${help.page + 1}><hover:show_text:'<italic>Click for next page'> >></bold></click></hover></white>")
         }
         return builder.toString()
     }
