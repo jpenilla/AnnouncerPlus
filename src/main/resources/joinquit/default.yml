@@ -6,8 +6,10 @@ seePermission: ""
 # Sent to the player joining
 joinMessages:
   - "<hover:show_text:'<yellow>Username</yellow><gray>:</gray> {user}'>{nick}</hover> <yellow>joined the game"
-  - "<rainbow><italic>Welcome,</rainbow> {user}<yellow>!"
-  - "This server is using <blue>Announcer<italic>Plus"
+  - "<center><rainbow><italic>Welcome,</rainbow> {user}<yellow>!"
+  - "<center><gradient:black:white>------------------</gradient><gradient:white:black>------------------</gradient>"
+  - "This server is using <blue>Announcer<italic>Plus<reset>!"
+  - "<gradient:green:white>Configure these messages by editing the config files!"
 # Sent to everyone but the player joining
 joinBroadcasts:
   - "<hover:show_text:'<yellow>Username</yellow><gray>:</gray> {user}'>{nick}</hover> <yellow>joined the game"

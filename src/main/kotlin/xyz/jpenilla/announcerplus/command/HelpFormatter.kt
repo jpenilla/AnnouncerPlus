@@ -9,6 +9,9 @@ import xyz.jpenilla.jmplib.TextUtil
 
 
 class HelpFormatter(private val announcerPlus: AnnouncerPlus, manager: PaperCommandManager) : CommandHelpFormatter(manager) {
+    companion object {
+        var loaded = false
+    }
 
     override fun printDetailedHelpHeader(help: CommandHelp, issuer: CommandIssuer, entry: HelpEntry) {
         issuer.send(TextUtil.replacePlaceholders("<color:$color>=====<white>[</white> {commandprefix}{command} <white>Detailed Help ]</white>=====", arrayToMap(getHeaderFooterFormatReplacements(help)), false))
@@ -59,7 +62,7 @@ class HelpFormatter(private val announcerPlus: AnnouncerPlus, manager: PaperComm
     }
 
     private fun CommandIssuer.send(message: String) {
-        if (this is BukkitCommandIssuer) {
+        if (this is BukkitCommandIssuer && loaded) {
             if (this.isPlayer || this.issuer is ConsoleCommandSender) {
                 announcerPlus.chat.sendPlaceholders(this.issuer, message)
             }

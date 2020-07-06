@@ -1,6 +1,7 @@
 package xyz.jpenilla.announcerplus.command
 
 import co.aikar.commands.PaperCommandManager
+import com.okkero.skedule.schedule
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.Config
 import xyz.jpenilla.jmplib.Chat
@@ -16,6 +17,11 @@ class CommandHelper(private val announcerPlus: AnnouncerPlus) {
         commandManager.registerDependency(Chat::class.java, announcerPlus.chat)
         commandManager.helpFormatter = HelpFormatter(announcerPlus, commandManager)
         commandManager.registerCommand(CommandAnnouncerPlus())
+        //TODO: Find a better fix for stopping the console getting spammed with help messages on load
+        announcerPlus.schedule {
+            waitFor(1L)
+            HelpFormatter.loaded = true
+        }
         reload()
     }
 
