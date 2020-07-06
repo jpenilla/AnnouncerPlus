@@ -9,21 +9,34 @@ import org.bukkit.entity.Player
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 
 class JoinQuitConfig(private val announcerPlus: AnnouncerPlus, val name: String, private val data: YamlConfiguration) {
+    private val chat = announcerPlus.chat
+
+    var titleFadeInSeconds = 1
+    var titleDurationSeconds = 3
+    var titleFadeOutSeconds = 1
+    lateinit var permission: String
+    lateinit var titleTitle: String
+    lateinit var titleSubtitle: String
     val joinMessages = ArrayList<String>()
     val joinBroadcasts = ArrayList<String>()
     val quitBroadcasts = ArrayList<String>()
     val joinCommands = ArrayList<String>()
     val quitCommands = ArrayList<String>()
     val runAsPlayerJoinCommands = ArrayList<String>()
-    private lateinit var permission: String
-    private val chat = announcerPlus.chat
 
     init {
         load()
     }
 
     private fun load() {
+        titleFadeInSeconds = data.getInt("title.fadeInSeconds", 1)
+        titleDurationSeconds = data.getInt("title.durationSeconds", 3)
+        titleFadeOutSeconds = data.getInt("title.fadeOutSeconds", 1)
+
         permission = data.getString("seePermission", "")!!
+        titleTitle = data.getString("title.title", "")!!
+        titleSubtitle = data.getString("title.subTitle", "")!!
+
         joinMessages.clear()
         joinMessages.addAll(data.getStringList("joinMessages"))
         joinBroadcasts.clear()
@@ -41,6 +54,10 @@ class JoinQuitConfig(private val announcerPlus: AnnouncerPlus, val name: String,
     fun onJoin(player: Player) {
         if (player.hasPermission("announcerplus.join.$name")) {
             chat.send(player, announcerPlus.cfg.parse(player, joinMessages))
+            if (!(titleTitle == "" && titleSubtitle == "")) {
+                val title = chat.getTitleSeconds(announcerPlus.cfg.parse(player, titleTitle), announcerPlus.cfg.parse(player, titleSubtitle), titleFadeInSeconds, titleDurationSeconds, titleFadeOutSeconds)
+                chat.showTitle(player, title)
+            }
             announcerPlus.schedule {
                 waitFor(3L)
                 if (!isVanished(player)) {

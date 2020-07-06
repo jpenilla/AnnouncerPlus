@@ -3,19 +3,27 @@
 #
 # If set, this permission will be required to see these join/quit messages:
 seePermission: ""
-# Sent to the player joining
+# Sent to the player joining (optional)
 joinMessages:
   - "<hover:show_text:'<yellow>Username</yellow><gray>:</gray> {user}'>{nick}</hover> <yellow>joined the game"
   - "<center><rainbow><italic>Welcome,</rainbow> {user}<yellow>!"
   - "<center><gradient:black:white>------------------</gradient><gradient:white:black>------------------</gradient>"
   - "This server is using <blue>Announcer<italic>Plus<reset>!"
   - "<gradient:green:white>Configure these messages by editing the config files!"
-# Sent to everyone but the player joining
+# Sent to everyone but the player joining (optional)
 joinBroadcasts:
   - "<hover:show_text:'<yellow>Username</yellow><gray>:</gray> {user}'>{nick}</hover> <yellow>joined the game"
-# Sent to players online when player quits
+# Sent to players online when player quits (optional)
 quitBroadcasts:
   - "<hover:show_text:'<yellow>Username</yellow><gray>:</gray> {user}'>{nick}</hover> <yellow>left the game"
+# send this title/subtitle to the joining player (optional)
+title:
+  fadeInSeconds: 1
+  durationSeconds: 3
+  fadeOutSeconds: 1
+  # either of these may be left blank
+  title: "<bold><italic><rainbow>Welcome</rainbow><yellow>!"
+  subTitle: "<gradient:blue:light_purple>{user}"
 # these commands will be run as the player on join (optional)
 runAsPlayerJoinCommands:
   - "ap about"
