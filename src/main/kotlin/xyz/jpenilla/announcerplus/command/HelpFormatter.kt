@@ -9,9 +9,7 @@ import xyz.jpenilla.jmplib.TextUtil
 
 
 class HelpFormatter(private val announcerPlus: AnnouncerPlus, manager: PaperCommandManager) : CommandHelpFormatter(manager) {
-    companion object {
-        var loaded = false
-    }
+    var loaded = false
 
     override fun printDetailedHelpHeader(help: CommandHelp, issuer: CommandIssuer, entry: HelpEntry) {
         issuer.send(TextUtil.replacePlaceholders("<color:$color>=====<white>[</white> {commandprefix}{command} <white>Detailed Help ]</white>=====", arrayToMap(getHeaderFooterFormatReplacements(help)), false))

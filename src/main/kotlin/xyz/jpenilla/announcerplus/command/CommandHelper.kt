@@ -9,18 +9,19 @@ import xyz.jpenilla.jmplib.Chat
 
 class CommandHelper(private val announcerPlus: AnnouncerPlus) {
     private val commandManager = PaperCommandManager(announcerPlus)
+    private val helpFormatter = HelpFormatter(announcerPlus, commandManager)
 
     init {
         commandManager.enableUnstableAPI("help")
         commandManager.defaultHelpPerPage = 4
         commandManager.registerDependency(Config::class.java, announcerPlus.cfg)
         commandManager.registerDependency(Chat::class.java, announcerPlus.chat)
-        commandManager.helpFormatter = HelpFormatter(announcerPlus, commandManager)
+        commandManager.helpFormatter = helpFormatter
         commandManager.registerCommand(CommandAnnouncerPlus())
         //TODO: Find a better fix for stopping the console getting spammed with help messages on load
         announcerPlus.schedule {
             waitFor(1L)
-            HelpFormatter.loaded = true
+            announcerPlus.commandHelper.helpFormatter.loaded = true
         }
         reload()
     }
