@@ -69,18 +69,16 @@ class JoinQuitConfig(private val announcerPlus: AnnouncerPlus, val name: String,
     fun onQuit(player: Player) {
         if (player.hasPermission("announcerplus.quit.$name") && !isVanished(player)) {
             val players = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
-            announcerPlus.schedule {
-                val m = announcerPlus.cfg.parse(player, quitBroadcasts)
-                for (p in players) {
-                    if (p.name != player.name) {
-                        if (announcerPlus.perms!!.playerHas(p, permission) || permission == "") {
-                            chat.send(p, m)
-                        }
+            val m = announcerPlus.cfg.parse(player, quitBroadcasts)
+            for (p in players) {
+                if (p.name != player.name) {
+                    if (announcerPlus.perms!!.playerHas(p, permission) || permission == "") {
+                        chat.send(p, m)
                     }
                 }
-                for (command in quitCommands) {
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), chat.papiParse(player, command))
-                }
+            }
+            for (command in quitCommands) {
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), chat.papiParse(player, command))
             }
         }
     }
