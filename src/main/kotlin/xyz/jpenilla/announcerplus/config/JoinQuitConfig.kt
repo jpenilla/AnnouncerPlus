@@ -1,6 +1,7 @@
 package xyz.jpenilla.announcerplus.config
 
 import com.google.common.collect.ImmutableList
+import com.okkero.skedule.SynchronizationContext
 import com.okkero.skedule.schedule
 import org.bukkit.Bukkit
 import org.bukkit.configuration.file.YamlConfiguration
@@ -11,6 +12,9 @@ class JoinQuitConfig(private val announcerPlus: AnnouncerPlus, val name: String,
     val joinMessages = ArrayList<String>()
     val joinBroadcasts = ArrayList<String>()
     val quitBroadcasts = ArrayList<String>()
+    val joinCommands = ArrayList<String>()
+    val quitCommands = ArrayList<String>()
+    val runAsPlayerJoinCommands = ArrayList<String>()
     private lateinit var permission: String
     private val chat = announcerPlus.chat
 
@@ -26,6 +30,12 @@ class JoinQuitConfig(private val announcerPlus: AnnouncerPlus, val name: String,
         joinBroadcasts.addAll(data.getStringList("joinBroadcasts"))
         quitBroadcasts.clear()
         quitBroadcasts.addAll(data.getStringList("quitBroadcasts"))
+        joinCommands.clear()
+        joinCommands.addAll(data.getStringList("joinCommands"))
+        quitCommands.clear()
+        quitCommands.addAll(data.getStringList("quitCommands"))
+        runAsPlayerJoinCommands.clear()
+        runAsPlayerJoinCommands.addAll(data.getStringList("runAsPlayerJoinCommands"))
     }
 
     fun onJoin(player: Player) {
@@ -35,6 +45,7 @@ class JoinQuitConfig(private val announcerPlus: AnnouncerPlus, val name: String,
                 waitFor(3L)
                 if (!isVanished(player)) {
                     val players = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
+                    switchContext(SynchronizationContext.ASYNC)
                     val m = announcerPlus.cfg.parse(player, joinBroadcasts)
                     for (p in players) {
                         if (p.name != player.name) {
@@ -42,6 +53,13 @@ class JoinQuitConfig(private val announcerPlus: AnnouncerPlus, val name: String,
                                 chat.send(p, m)
                             }
                         }
+                    }
+                    switchContext(SynchronizationContext.SYNC)
+                    for (command in joinCommands) {
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), chat.papiParse(player, command))
+                    }
+                    for (command in runAsPlayerJoinCommands) {
+                        Bukkit.dispatchCommand(player, chat.papiParse(player, command))
                     }
                 }
             }
@@ -51,13 +69,17 @@ class JoinQuitConfig(private val announcerPlus: AnnouncerPlus, val name: String,
     fun onQuit(player: Player) {
         if (player.hasPermission("announcerplus.quit.$name") && !isVanished(player)) {
             val players = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
-
-            val m = announcerPlus.cfg.parse(player, quitBroadcasts)
-            for (p in players) {
-                if (p.name != player.name) {
-                    if (announcerPlus.perms!!.playerHas(p, permission) || permission == "") {
-                        chat.send(p, m)
+            announcerPlus.schedule {
+                val m = announcerPlus.cfg.parse(player, quitBroadcasts)
+                for (p in players) {
+                    if (p.name != player.name) {
+                        if (announcerPlus.perms!!.playerHas(p, permission) || permission == "") {
+                            chat.send(p, m)
+                        }
                     }
+                }
+                for (command in quitCommands) {
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), chat.papiParse(player, command))
                 }
             }
         }

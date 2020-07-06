@@ -14,7 +14,12 @@ joinBroadcasts:
 # Sent to players online when player quits
 quitBroadcasts:
   - "<hover:show_text:'<yellow>Username</yellow><gray>:</gray> {user}'>{nick}</hover> <yellow>left the game"
+# these commands will be run as the player on join (optional)
+runAsPlayerJoinCommands:
+  - "ap about"
+# these commands will be run as console on join (optional)
 joinCommands:
   - "minecraft:give %player_name% dirt"
+# these commands will be run as console on quit (optional)
 quitCommands:
-  - "minecraft:give %player_name% cobblestone"
+  - "broadcast %player_name% left"

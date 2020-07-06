@@ -2,6 +2,7 @@ package xyz.jpenilla.announcerplus.command
 
 import co.aikar.commands.*
 import org.bukkit.Bukkit
+import org.bukkit.command.ConsoleCommandSender
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.command.CommandAnnouncerPlus.Companion.color
 import xyz.jpenilla.jmplib.TextUtil
@@ -57,15 +58,15 @@ class HelpFormatter(private val announcerPlus: AnnouncerPlus, manager: PaperComm
         printDetailedHelpCommand(help, issuer, entry)
     }
 
-    fun CommandIssuer.send(message: String) {
-        if (isPlayer) {
-            announcerPlus.chat.sendPlaceholders(Bukkit.getPlayer(uniqueId)!!, message)
-        } else {
-            announcerPlus.chat.send(Bukkit.getConsoleSender(), message)
+    private fun CommandIssuer.send(message: String) {
+        if (this is BukkitCommandIssuer) {
+            if (this.isPlayer || this.issuer is ConsoleCommandSender) {
+                announcerPlus.chat.sendPlaceholders(this.issuer, message)
+            }
         }
     }
 
-    fun CommandIssuer.send(messages: List<String>) {
+    private fun CommandIssuer.send(messages: List<String>) {
         for (m in messages) {
             send(m)
         }

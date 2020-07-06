@@ -11,7 +11,10 @@ import xyz.jpenilla.announcerplus.AnnouncerPlus
 class MessageConfig(private val announcerPlus: AnnouncerPlus, val name: String, private val data: YamlConfiguration) {
     private var broadcastAllTask: CoroutineTask? = null
 
+    private val chat = announcerPlus.chat
     val messages = ArrayList<String>()
+    val commands = ArrayList<String>()
+    val perPlayerCommands = ArrayList<String>()
     var timeUnit: TimeUnit = TimeUnit.SECONDS
     var interval = 10
     var randomOrder = false
@@ -32,6 +35,10 @@ class MessageConfig(private val announcerPlus: AnnouncerPlus, val name: String, 
         randomOrder = data.getBoolean("randomOrder")
         messages.clear()
         messages.addAll(data.getStringList("messages"))
+        commands.clear()
+        commands.addAll(data.getStringList("commands"))
+        perPlayerCommands.clear()
+        perPlayerCommands.addAll(data.getStringList("perPlayerCommands"))
     }
 
     fun broadcast() {
@@ -54,9 +61,20 @@ class MessageConfig(private val announcerPlus: AnnouncerPlus, val name: String, 
                         }
                     }
                     if (announcerPlus.perms!!.playerHas(player, "${announcerPlus.name}.messages.$name")) {
-                        announcerPlus.chat.send(player, announcerPlus.cfg.parse(player, message))
+                        chat.send(player, announcerPlus.cfg.parse(player, message))
+
+                        switchContext(SynchronizationContext.SYNC)
+                        for (command in perPlayerCommands) {
+                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), chat.papiParse(player, command))
+                        }
+                        switchContext(SynchronizationContext.ASYNC)
                     }
                 }
+                switchContext(SynchronizationContext.SYNC)
+                for (command in commands) {
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command)
+                }
+                switchContext(SynchronizationContext.ASYNC)
                 yield()
             }
             broadcast()
