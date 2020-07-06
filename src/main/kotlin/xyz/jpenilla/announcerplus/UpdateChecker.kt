@@ -30,7 +30,7 @@ class UpdateChecker(private val announcerPlus: AnnouncerPlus, private val resour
                         l.contains("SNAPSHOT") -> announcerPlus.logger.info("[!] You are running a development build of ${announcerPlus.name} (${announcerPlus.description.version}) [!]")
                         else -> {
                             announcerPlus.logger.info("[!] ${announcerPlus.name} is outdated! (${announcerPlus.description.version})")
-                            announcerPlus.logger.info("[!] $l is available at https://www.spigotmc.org/resources/announcer-plus.81005/")
+                            announcerPlus.logger.info("[!] $l is available at ${announcerPlus.description.website}")
                         }
                     }
                     if (initialRun) {

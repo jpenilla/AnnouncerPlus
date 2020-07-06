@@ -5,6 +5,10 @@ interval: 3
 # MINUTES, SECONDS, or HOURS
 intervalUnit: MINUTES
 randomOrder: true
+commands:
+  - "broadcast demo"
+perPlayerCommands:
+  - "msg %player_name% hello"
 messages:
   - "<center>{prefix1} <yellow>Woo: <rainbow>||||||||||||||||||||||||</rainbow>!"
   - "<rainbow><bold>%player_name%</rainbow></bold> {prefix1}"
