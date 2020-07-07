@@ -21,17 +21,13 @@ class UpdateChecker(private val announcerPlus: AnnouncerPlus, private val resour
                             }
                         }
                     }
-                    when {
-                        l == announcerPlus.description.version -> {
-                            if (initialRun) {
-                                announcerPlus.logger.info("You are running the latest version of ${announcerPlus.name}! :)")
-                            }
-                        }
-                        l.contains("SNAPSHOT") -> announcerPlus.logger.info("[!] You are running a development build of ${announcerPlus.name} (${announcerPlus.description.version}) [!]")
-                        else -> {
-                            announcerPlus.logger.info("[!] ${announcerPlus.name} is outdated! (${announcerPlus.description.version})")
-                            announcerPlus.logger.info("[!] $l is available at ${announcerPlus.description.website}")
-                        }
+                    if (l == announcerPlus.description.version && initialRun){
+                        announcerPlus.logger.info("You are running the latest version of ${announcerPlus.name}! :)")
+                    } else if(announcerPlus.description.version.contains("SNAPSHOT") && initialRun) {
+                        announcerPlus.logger.info("[!] You are running a development build of ${announcerPlus.name} (${announcerPlus.description.version}) [!]")
+                    } else if (!(l == announcerPlus.description.version || announcerPlus.description.version.contains("SNAPSHOT"))) {
+                        announcerPlus.logger.info("[!] ${announcerPlus.name} is outdated! (${announcerPlus.description.version})")
+                        announcerPlus.logger.info("[!] $l is available at ${announcerPlus.description.website}")
                     }
                     if (initialRun) {
                         initialRun = false
