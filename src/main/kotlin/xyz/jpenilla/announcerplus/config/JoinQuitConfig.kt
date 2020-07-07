@@ -113,24 +113,20 @@ class JoinQuitConfig(private val announcerPlus: AnnouncerPlus, val name: String,
 
     fun onQuit(player: Player) {
         if (player.hasPermission("announcerplus.quit.$name") && !isVanished(player)) {
-            announcerPlus.schedule {
-                val players = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
-                switchContext(SynchronizationContext.ASYNC)
-                val m = announcerPlus.cfg.parse(player, quitBroadcasts)
-                for (p in players) {
-                    if (p.name != player.name) {
-                        if (announcerPlus.perms!!.playerHas(p, permission) || permission == "") {
-                            chat.send(p, m)
-                            if (quitSounds != "") {
-                                chat.playSounds(p, quitSounds, randomQuitSound)
-                            }
+            val players = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
+            val m = announcerPlus.cfg.parse(player, quitBroadcasts)
+            for (p in players) {
+                if (p.name != player.name) {
+                    if (announcerPlus.perms!!.playerHas(p, permission) || permission == "") {
+                        chat.send(p, m)
+                        if (quitSounds != "") {
+                            chat.playSounds(p, quitSounds, randomQuitSound)
                         }
                     }
                 }
-                switchContext(SynchronizationContext.SYNC)
-                for (command in quitCommands) {
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), chat.papiParse(player, command))
-                }
+            }
+            for (command in quitCommands) {
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), chat.papiParse(player, command))
             }
         }
     }
