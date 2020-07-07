@@ -16,6 +16,17 @@ joinBroadcasts:
 # Sent to players online when player quits (optional)
 quitBroadcasts:
   - "<hover:show_text:'<yellow>Username</yellow><gray>:</gray> {user}'>{nick}</hover> <yellow>left the game"
+# play this sound to the player who joins (optional)
+#   You may list more then one sound separated by a comma
+joinSounds: "minecraft:entity.strider.happy,minecraft:entity.villager.ambient,minecraft:block.note_block.cow_bell"
+# if more than one join sound is listed, this will determine if a random one, or if all of the sounds are played.
+randomJoinSound: true
+# played to all players except the joining player on join (optional)
+joinBroadcastSounds: "minecraft:entity.enderman.teleport,minecraft:entity.cow.ambient"
+randomJoinBroadcastSound: true
+# played to all players on player quit
+quitSounds: "minecraft:entity.enderman.teleport"
+randomQuitSound: true
 # show this title/subtitle to the joining player (optional)
 title:
   fadeInSeconds: 1

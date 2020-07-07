@@ -15,10 +15,16 @@ class JoinQuitConfig(private val announcerPlus: AnnouncerPlus, val name: String,
     var titleDurationSeconds = 4
     var titleFadeOutSeconds = 1
     var actionBarDurationSeconds = 6
+    var randomJoinSound = true
+    var randomJoinBroadcastSound = true
+    var randomQuitSound = true
     lateinit var permission: String
     lateinit var titleTitle: String
     lateinit var titleSubtitle: String
     lateinit var actionBarText: String
+    lateinit var joinSounds: String
+    lateinit var joinBroadcastSounds: String
+    lateinit var quitSounds: String
     val joinMessages = ArrayList<String>()
     val joinBroadcasts = ArrayList<String>()
     val quitBroadcasts = ArrayList<String>()
@@ -36,10 +42,17 @@ class JoinQuitConfig(private val announcerPlus: AnnouncerPlus, val name: String,
         titleFadeOutSeconds = data.getInt("title.fadeOutSeconds", 1)
         actionBarDurationSeconds = data.getInt("actionBar.durationSeconds", 6)
 
+        randomJoinSound = data.getBoolean("randomJoinSound", true)
+        randomJoinBroadcastSound = data.getBoolean("randomJoinBroadcastSound", true)
+        randomQuitSound = data.getBoolean("randomQuitSound", true)
+
         permission = data.getString("seePermission", "")!!
         titleTitle = data.getString("title.title", "")!!
         titleSubtitle = data.getString("title.subTitle", "")!!
         actionBarText = data.getString("actionBar.text", "")!!
+        joinSounds = data.getString("joinSounds", "")!!
+        joinBroadcastSounds = data.getString("joinBroadcastSounds", "")!!
+        quitSounds = data.getString("quitSounds", "")!!
 
         joinMessages.clear()
         joinMessages.addAll(data.getStringList("joinMessages"))
@@ -68,6 +81,9 @@ class JoinQuitConfig(private val announcerPlus: AnnouncerPlus, val name: String,
                         if (p.name != player.name) {
                             if (announcerPlus.perms!!.playerHas(p, permission) || permission == "") {
                                 chat.send(p, m)
+                                if (joinBroadcastSounds != "") {
+                                    chat.playSounds(p, joinBroadcastSounds, randomJoinBroadcastSound)
+                                }
                             }
                         }
                     }
@@ -80,29 +96,41 @@ class JoinQuitConfig(private val announcerPlus: AnnouncerPlus, val name: String,
                     }
                 }
             }
-            if (titleTitle != "" && titleSubtitle != "") {
-                val title = chat.getTitleSeconds(announcerPlus.cfg.parse(player, titleTitle), announcerPlus.cfg.parse(player, titleSubtitle), titleFadeInSeconds, titleDurationSeconds, titleFadeOutSeconds)
-                chat.showTitle(player, title)
-            }
-            if (actionBarText != "") {
-                chat.sendActionBar(player, actionBarDurationSeconds, announcerPlus.cfg.parse(player, actionBarText))
+            announcerPlus.schedule(SynchronizationContext.ASYNC) {
+                if (titleTitle != "" && titleSubtitle != "") {
+                    val title = chat.getTitleSeconds(announcerPlus.cfg.parse(player, titleTitle), announcerPlus.cfg.parse(player, titleSubtitle), titleFadeInSeconds, titleDurationSeconds, titleFadeOutSeconds)
+                    chat.showTitle(player, title)
+                }
+                if (actionBarText != "") {
+                    chat.sendActionBar(player, actionBarDurationSeconds, announcerPlus.cfg.parse(player, actionBarText))
+                }
+                if (joinSounds != "") {
+                    chat.playSounds(player, joinSounds, randomJoinSound)
+                }
             }
         }
     }
 
     fun onQuit(player: Player) {
         if (player.hasPermission("announcerplus.quit.$name") && !isVanished(player)) {
-            val players = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
-            val m = announcerPlus.cfg.parse(player, quitBroadcasts)
-            for (p in players) {
-                if (p.name != player.name) {
-                    if (announcerPlus.perms!!.playerHas(p, permission) || permission == "") {
-                        chat.send(p, m)
+            announcerPlus.schedule {
+                val players = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
+                switchContext(SynchronizationContext.ASYNC)
+                val m = announcerPlus.cfg.parse(player, quitBroadcasts)
+                for (p in players) {
+                    if (p.name != player.name) {
+                        if (announcerPlus.perms!!.playerHas(p, permission) || permission == "") {
+                            chat.send(p, m)
+                            if (quitSounds != "") {
+                                chat.playSounds(p, quitSounds, randomQuitSound)
+                            }
+                        }
                     }
                 }
-            }
-            for (command in quitCommands) {
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), chat.papiParse(player, command))
+                switchContext(SynchronizationContext.SYNC)
+                for (command in quitCommands) {
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), chat.papiParse(player, command))
+                }
             }
         }
     }
