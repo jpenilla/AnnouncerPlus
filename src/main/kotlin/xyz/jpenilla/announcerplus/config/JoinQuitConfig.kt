@@ -12,11 +12,13 @@ class JoinQuitConfig(private val announcerPlus: AnnouncerPlus, val name: String,
     private val chat = announcerPlus.chat
 
     var titleFadeInSeconds = 1
-    var titleDurationSeconds = 3
+    var titleDurationSeconds = 4
     var titleFadeOutSeconds = 1
+    var actionBarDurationSeconds = 6
     lateinit var permission: String
     lateinit var titleTitle: String
     lateinit var titleSubtitle: String
+    lateinit var actionBarText: String
     val joinMessages = ArrayList<String>()
     val joinBroadcasts = ArrayList<String>()
     val quitBroadcasts = ArrayList<String>()
@@ -30,12 +32,14 @@ class JoinQuitConfig(private val announcerPlus: AnnouncerPlus, val name: String,
 
     private fun load() {
         titleFadeInSeconds = data.getInt("title.fadeInSeconds", 1)
-        titleDurationSeconds = data.getInt("title.durationSeconds", 3)
+        titleDurationSeconds = data.getInt("title.durationSeconds", 4)
         titleFadeOutSeconds = data.getInt("title.fadeOutSeconds", 1)
+        actionBarDurationSeconds = data.getInt("actionBar.durationSeconds", 6)
 
         permission = data.getString("seePermission", "")!!
         titleTitle = data.getString("title.title", "")!!
         titleSubtitle = data.getString("title.subTitle", "")!!
+        actionBarText = data.getString("actionBar.text", "")!!
 
         joinMessages.clear()
         joinMessages.addAll(data.getStringList("joinMessages"))
@@ -54,10 +58,6 @@ class JoinQuitConfig(private val announcerPlus: AnnouncerPlus, val name: String,
     fun onJoin(player: Player) {
         if (player.hasPermission("announcerplus.join.$name")) {
             chat.send(player, announcerPlus.cfg.parse(player, joinMessages))
-            if (!(titleTitle == "" && titleSubtitle == "")) {
-                val title = chat.getTitleSeconds(announcerPlus.cfg.parse(player, titleTitle), announcerPlus.cfg.parse(player, titleSubtitle), titleFadeInSeconds, titleDurationSeconds, titleFadeOutSeconds)
-                chat.showTitle(player, title)
-            }
             announcerPlus.schedule {
                 waitFor(3L)
                 if (!isVanished(player)) {
@@ -79,6 +79,13 @@ class JoinQuitConfig(private val announcerPlus: AnnouncerPlus, val name: String,
                         Bukkit.dispatchCommand(player, chat.papiParse(player, command))
                     }
                 }
+            }
+            if (titleTitle != "" && titleSubtitle != "") {
+                val title = chat.getTitleSeconds(announcerPlus.cfg.parse(player, titleTitle), announcerPlus.cfg.parse(player, titleSubtitle), titleFadeInSeconds, titleDurationSeconds, titleFadeOutSeconds)
+                chat.showTitle(player, title)
+            }
+            if (actionBarText != "") {
+                chat.sendActionBar(player, actionBarDurationSeconds, announcerPlus.cfg.parse(player, actionBarText))
             }
         }
     }

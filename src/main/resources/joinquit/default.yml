@@ -16,14 +16,18 @@ joinBroadcasts:
 # Sent to players online when player quits (optional)
 quitBroadcasts:
   - "<hover:show_text:'<yellow>Username</yellow><gray>:</gray> {user}'>{nick}</hover> <yellow>left the game"
-# send this title/subtitle to the joining player (optional)
+# show this title/subtitle to the joining player (optional)
 title:
   fadeInSeconds: 1
-  durationSeconds: 3
+  durationSeconds: 5
   fadeOutSeconds: 1
   # either of these may be left blank
   title: "<bold><italic><rainbow>Welcome</rainbow><yellow>!"
   subTitle: "<gradient:blue:light_purple>{user}"
+# show this actionbar to the player on join (optional)
+actionBar:
+  durationSeconds: 6
+  text: "<gradient:green:blue>|||||||||||||||||||||</gradient><gradient:blue:green>||||||||||||||||||</gradient>"
 # these commands will be run as the player on join (optional)
 runAsPlayerJoinCommands:
   - "ap about"
