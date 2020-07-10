@@ -78,11 +78,9 @@ class HelpFormatter(private val announcerPlus: AnnouncerPlus, manager: PaperComm
         if (strings != null) {
             for ((index, s) in strings.withIndex()) {
                 b.append(s)
-                b.append(if (index != strings.size - 1) {
-                    " "
-                } else {
-                    ""
-                })
+                if (index != strings.size - 1) {
+                    b.append(" ")
+                }
             }
         }
         return b.toString()

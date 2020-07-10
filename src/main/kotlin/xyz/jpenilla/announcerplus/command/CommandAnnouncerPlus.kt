@@ -115,7 +115,7 @@ class CommandAnnouncerPlus : BaseCommand() {
         val header = h.toString()
 
         val m = ArrayList<String>()
-        m.add("Messages<gray>:</gray> <color:$color>$config</color:$color> <gray><italic>(announcerplus.messages.$config)")
+        m.add("Messages<gray>:</gray> <color:$color>$config</color:$color> <gray><italic><hover:show_text:'<italic>Click to copy'><click:copy_to_clipboard:announcerplus.messages.$config>(announcerplus.messages.$config)")
         m.add(header)
         val n = pageSize * (p - 1)
         for (i in n until (n + pageSize)) {

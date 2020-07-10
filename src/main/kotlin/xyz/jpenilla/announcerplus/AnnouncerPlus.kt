@@ -25,7 +25,7 @@ class AnnouncerPlus : JavaPlugin() {
             server.pluginManager.disablePlugin(this)
             return
         }
-        chat = Chat(this)
+        chat = Chat.get(this)
         if (server.pluginManager.isPluginEnabled("Prisma")) {
             prisma = PrismaHook()
         }
