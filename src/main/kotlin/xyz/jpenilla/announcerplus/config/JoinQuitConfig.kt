@@ -82,7 +82,7 @@ class JoinQuitConfig(private val announcerPlus: AnnouncerPlus, val name: String,
                             if (announcerPlus.perms!!.playerHas(p, permission) || permission == "") {
                                 chat.send(p, m)
                                 if (joinBroadcastSounds != "") {
-                                    chat.playSounds(p, joinBroadcastSounds, randomJoinBroadcastSound)
+                                    chat.playSounds(p, randomJoinBroadcastSound, joinBroadcastSounds)
                                 }
                             }
                         }
@@ -105,7 +105,7 @@ class JoinQuitConfig(private val announcerPlus: AnnouncerPlus, val name: String,
                     chat.sendActionBar(player, actionBarDurationSeconds, announcerPlus.cfg.parse(player, actionBarText))
                 }
                 if (joinSounds != "") {
-                    chat.playSounds(player, joinSounds, randomJoinSound)
+                    chat.playSounds(player, randomJoinSound, joinSounds)
                 }
             }
         }
@@ -120,7 +120,7 @@ class JoinQuitConfig(private val announcerPlus: AnnouncerPlus, val name: String,
                     if (announcerPlus.perms!!.playerHas(p, permission) || permission == "") {
                         chat.send(p, m)
                         if (quitSounds != "") {
-                            chat.playSounds(p, quitSounds, randomQuitSound)
+                            chat.playSounds(p, randomQuitSound, quitSounds)
                         }
                     }
                 }

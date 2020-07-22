@@ -6,6 +6,7 @@ import co.aikar.commands.annotation.*
 import com.google.common.collect.ImmutableList
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
+import org.bukkit.entity.Player
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.Config
 import xyz.jpenilla.jmplib.Chat
@@ -81,7 +82,7 @@ class CommandAnnouncerPlus : BaseCommand() {
     @Subcommand("parse|p")
     @Description("Parse a message and echo it back")
     @CommandPermission("announcerplus.parse")
-    fun onParse(sender: CommandSender, message: String) {
+    fun onParse(sender: Player, message: String) {
         sender.send(message)
     }
 
@@ -130,7 +131,7 @@ class CommandAnnouncerPlus : BaseCommand() {
         sender.send(m)
     }
 
-    fun randomColor() {
+    private fun randomColor() {
         Companion.randomColor(AnnouncerPlus.instance)
     }
 
@@ -138,7 +139,7 @@ class CommandAnnouncerPlus : BaseCommand() {
         var color = "#ffffff"
         private fun randomColor(announcerPlus: AnnouncerPlus) {
             color = if (announcerPlus.prisma != null) {
-                announcerPlus.prisma!!.randomColor()
+                announcerPlus.prisma.randomEnumColorHex()
             } else {
                 listOf("#007AFF", "#54FFA1", "#FFB200", "#FF006C", "#D600FF", "#FFF200", "#FF00C5", "#7400FF",
                         "#E2FF00", "#FF5600", "#001CFF", "#FF0003", "#00FF07", "#65FF00", "#E400FF", "#00B9FF").random()

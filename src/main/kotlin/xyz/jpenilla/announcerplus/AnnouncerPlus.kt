@@ -3,31 +3,23 @@ package xyz.jpenilla.announcerplus
 import net.milkbowl.vault.permission.Permission
 import org.bstats.bukkit.Metrics
 import org.bukkit.plugin.RegisteredServiceProvider
-import org.bukkit.plugin.java.JavaPlugin
 import xyz.jpenilla.announcerplus.command.CommandHelper
 import xyz.jpenilla.announcerplus.compatability.EssentialsHook
-import xyz.jpenilla.announcerplus.compatability.PrismaHook
 import xyz.jpenilla.announcerplus.config.Config
-import xyz.jpenilla.jmplib.Chat
+import xyz.jpenilla.jmplib.BasePlugin
 
-class AnnouncerPlus : JavaPlugin() {
+class AnnouncerPlus : BasePlugin() {
     var perms: Permission? = null
-    var prisma: PrismaHook? = null
     var essentials: EssentialsHook? = null
     lateinit var cfg: Config; private set
     lateinit var commandHelper: CommandHelper
-    lateinit var chat: Chat
 
-    override fun onEnable() {
+    override fun onPluginEnable() {
         instance = this
         if (!setupPermissions()) {
             logger.warning("Permissions plugin not found. AnnouncerPlus will not work.")
             server.pluginManager.disablePlugin(this)
             return
-        }
-        chat = Chat.get(this)
-        if (server.pluginManager.isPluginEnabled("Prisma")) {
-            prisma = PrismaHook()
         }
         if (server.pluginManager.isPluginEnabled("Essentials")) {
             essentials = EssentialsHook(this)

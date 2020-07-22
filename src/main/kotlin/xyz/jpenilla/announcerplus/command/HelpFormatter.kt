@@ -1,7 +1,7 @@
 package xyz.jpenilla.announcerplus.command
 
 import co.aikar.commands.*
-import org.bukkit.Bukkit
+import com.okkero.skedule.schedule
 import org.bukkit.command.ConsoleCommandSender
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.command.CommandAnnouncerPlus.Companion.color
@@ -100,5 +100,13 @@ class HelpFormatter(private val announcerPlus: AnnouncerPlus, manager: PaperComm
             }
         }
         return map
+    }
+
+    init {
+        //TODO: Find a better fix for stopping the console getting spammed with help messages on load
+        announcerPlus.schedule {
+            waitFor(1L)
+            loaded = true
+        }
     }
 }
