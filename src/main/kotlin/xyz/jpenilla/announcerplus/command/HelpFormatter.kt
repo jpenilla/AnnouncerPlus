@@ -62,7 +62,7 @@ class HelpFormatter(private val announcerPlus: AnnouncerPlus, manager: PaperComm
     private fun CommandIssuer.send(message: String) {
         if (this is BukkitCommandIssuer && loaded) {
             if (this.isPlayer || this.issuer is ConsoleCommandSender) {
-                announcerPlus.chat.sendPlaceholders(this.issuer, message)
+                announcerPlus.chat.sendParsed(this.issuer, message)
             }
         }
     }

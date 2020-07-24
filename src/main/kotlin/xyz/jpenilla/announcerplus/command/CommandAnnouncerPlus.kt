@@ -99,7 +99,7 @@ class CommandAnnouncerPlus : BaseCommand() {
         if (page != null) {
             p = page
             if (p < 1 || p > pages) {
-                chat.sendPlaceholders(sender, "<red>Page does not exist</red>")
+                chat.sendParsed(sender, "<red>Page does not exist</red>")
                 return
             }
         }

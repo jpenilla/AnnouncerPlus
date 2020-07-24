@@ -121,7 +121,24 @@
                             <pattern>co.aikar.locales</pattern>
                             <shadedPattern>xyz.jpenilla.announcerplus.lib.acflocales</shadedPattern>
                         </relocation>
+                        <relocation>
+                            <pattern>net.kyori.examination</pattern>
+                            <shadedPattern>xyz.jpenilla.announcerplus.lib.kyori.examination</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>net.kyori.adventure</pattern>
+                            <shadedPattern>xyz.jpenilla.announcerplus.lib.kyori.adventure</shadedPattern>
+                        </relocation>
                     </relocations>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>org/checkerframework/**</exclude>
+                                <exclude>com/google/**</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
                 </configuration>
                 <executions>
                     <execution>
@@ -218,14 +235,8 @@
         <dependency>
             <groupId>xyz.jpenilla</groupId>
             <artifactId>jmplib</artifactId>
-            <version>1.0.0-SNAPSHOT.84</version>
+            <version>1.0.0-SNAPSHOT.87</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.8.0</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.okkero.skedule</groupId>

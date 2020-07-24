@@ -86,7 +86,7 @@ class Config(private val announcerPlus: AnnouncerPlus) {
             a
         }
         return if (player is Player) {
-            announcerPlus.chat.replacePlaceholders(player, msg, null)
+            announcerPlus.chat.parse(player, msg, null)
         } else {
             msg
         }
