@@ -6,7 +6,7 @@
 
     <groupId>xyz.jpenilla</groupId>
     <artifactId>AnnouncerPlus</artifactId>
-    <version>1.0.6-SNAPSHOT.{BUILD_NUMBER}</version>
+    <version>1.1.0-SNAPSHOT.{BUILD_NUMBER}</version>
     <packaging>jar</packaging>
 
     <name>AnnouncerPlus</name>
@@ -129,6 +129,18 @@
                             <pattern>net.kyori.adventure</pattern>
                             <shadedPattern>xyz.jpenilla.announcerplus.lib.kyori.adventure</shadedPattern>
                         </relocation>
+                        <relocation>
+                            <pattern>org.spongepowered.configurate</pattern>
+                            <shadedPattern>xyz.jpenilla.announcerplus.lib.configurate</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>ninja.leaping.configurate</pattern>
+                            <shadedPattern>xyz.jpenilla.announcerplus.lib.configurate</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.typesafe.config</pattern>
+                            <shadedPattern>xyz.jpenilla.announcerplus.lib.typesafe.config</shadedPattern>
+                        </relocation>
                     </relocations>
                     <filters>
                         <filter>
@@ -162,6 +174,10 @@
     </build>
 
     <repositories>
+        <repository>
+            <id>sponge</id>
+            <url>https://repo.spongepowered.org/maven</url>
+        </repository>
         <repository>
             <id>spigotmc-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
@@ -235,7 +251,7 @@
         <dependency>
             <groupId>xyz.jpenilla</groupId>
             <artifactId>jmplib</artifactId>
-            <version>1.0.0-SNAPSHOT.87</version>
+            <version>1.0.0-SNAPSHOT.89</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -259,6 +275,16 @@
             <groupId>org.bstats</groupId>
             <artifactId>bstats-bukkit</artifactId>
             <version>1.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.spongepowered</groupId>
+            <artifactId>configurate-hocon</artifactId>
+            <version>3.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.spongepowered</groupId>
+            <artifactId>configurate-ext-kotlin</artifactId>
+            <version>3.7</version>
         </dependency>
     </dependencies>
 </project>

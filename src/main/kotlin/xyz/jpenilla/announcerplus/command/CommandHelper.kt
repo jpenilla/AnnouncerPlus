@@ -2,7 +2,7 @@ package xyz.jpenilla.announcerplus.command
 
 import co.aikar.commands.PaperCommandManager
 import xyz.jpenilla.announcerplus.AnnouncerPlus
-import xyz.jpenilla.announcerplus.config.Config
+import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.jmplib.Chat
 
 
@@ -12,7 +12,7 @@ class CommandHelper(private val announcerPlus: AnnouncerPlus) {
     init {
         commandManager.enableUnstableAPI("help")
         commandManager.defaultHelpPerPage = 4
-        commandManager.registerDependency(Config::class.java, announcerPlus.cfg)
+        commandManager.registerDependency(ConfigManager::class.java, announcerPlus.configManager)
         commandManager.registerDependency(Chat::class.java, announcerPlus.chat)
         commandManager.helpFormatter = HelpFormatter(announcerPlus, commandManager)
         commandManager.registerCommand(CommandAnnouncerPlus())
@@ -22,7 +22,7 @@ class CommandHelper(private val announcerPlus: AnnouncerPlus) {
     fun reload() {
         commandManager.commandCompletions.registerAsyncCompletion("configs") {
             val completion = ArrayList<String>()
-            for (messageConfig in announcerPlus.cfg.messageConfigs.values) {
+            for (messageConfig in announcerPlus.configManager.messageConfigs.values) {
                 completion.add(messageConfig.name)
             }
             completion

@@ -5,13 +5,15 @@ import org.bstats.bukkit.Metrics
 import org.bukkit.plugin.RegisteredServiceProvider
 import xyz.jpenilla.announcerplus.command.CommandHelper
 import xyz.jpenilla.announcerplus.compatability.EssentialsHook
-import xyz.jpenilla.announcerplus.config.Config
+import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.jmplib.BasePlugin
+import java.lang.String
+import java.util.concurrent.Callable
 
 class AnnouncerPlus : BasePlugin() {
     var perms: Permission? = null
     var essentials: EssentialsHook? = null
-    lateinit var cfg: Config; private set
+    lateinit var configManager: ConfigManager; private set
     lateinit var commandHelper: CommandHelper
 
     override fun onPluginEnable() {
@@ -24,22 +26,24 @@ class AnnouncerPlus : BasePlugin() {
         if (server.pluginManager.isPluginEnabled("Essentials")) {
             essentials = EssentialsHook(this)
         }
-        cfg = Config(this)
+        configManager = ConfigManager(this)
         commandHelper = CommandHelper(this)
         server.pluginManager.registerEvents(JoinQuitListener(this), this)
         broadcast()
         UpdateChecker(this, 81005).updateCheck()
         val metrics = Metrics(this, 8067)
+        metrics.addCustomChart(Metrics.SimplePie("join_quit_configs", Callable { configManager.joinQuitConfigs.size.toString() }))
+        metrics.addCustomChart(Metrics.SimplePie("message_configs", Callable { configManager.messageConfigs.size.toString() }))
     }
 
     private fun broadcast() {
-        for (c in cfg.messageConfigs.values) {
+        for (c in configManager.messageConfigs.values) {
             c.broadcast()
         }
     }
 
     fun reload() {
-        cfg.reload()
+        configManager.load()
         commandHelper.reload()
         broadcast()
     }

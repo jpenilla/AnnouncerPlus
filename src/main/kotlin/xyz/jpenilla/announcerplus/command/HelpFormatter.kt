@@ -12,15 +12,15 @@ class HelpFormatter(private val announcerPlus: AnnouncerPlus, manager: PaperComm
     var loaded = false
 
     override fun printDetailedHelpHeader(help: CommandHelp, issuer: CommandIssuer, entry: HelpEntry) {
-        issuer.send(TextUtil.replacePlaceholders("<color:$color>=====<white>[</white> {commandprefix}{command} <white>Detailed Help ]</white>=====", arrayToMap(getHeaderFooterFormatReplacements(help)), false))
+        issuer.send(TextUtil.replacePlaceholders("<color:$color>─────<white>[</white> {commandprefix}{command} <white>Detailed Help ]</white>─────", arrayToMap(getHeaderFooterFormatReplacements(help)), false))
     }
 
     override fun printSearchHeader(help: CommandHelp, issuer: CommandIssuer) {
-        issuer.send(TextUtil.replacePlaceholders("<color:$color>=====<white>[</white> {commandprefix}{command} <italic>{search}</italic> <white>Search Results ]</white>=====", arrayToMap(getHeaderFooterFormatReplacements(help)), false))
+        issuer.send(TextUtil.replacePlaceholders("<color:$color>─────<white>[</white> {commandprefix}{command} <italic>{search}</italic> <white>Search Results ]</white>─────", arrayToMap(getHeaderFooterFormatReplacements(help)), false))
     }
 
     override fun printHelpHeader(help: CommandHelp, issuer: CommandIssuer) {
-        issuer.send(TextUtil.replacePlaceholders("<color:$color>=====<white>[</white> {commandprefix}{command} <white>Help ]</white>=====", arrayToMap(getHeaderFooterFormatReplacements(help)), false))
+        issuer.send(TextUtil.replacePlaceholders("<color:$color>─────<white>[</white> {commandprefix}{command} <white>Help ]</white>─────", arrayToMap(getHeaderFooterFormatReplacements(help)), false))
     }
 
     private fun getFooter(help: CommandHelp): String {
@@ -28,7 +28,7 @@ class HelpFormatter(private val announcerPlus: AnnouncerPlus, manager: PaperComm
         if (help.page > 1) {
             builder.append("<color:$color><bold><click:run_command:/announcerplus help ${listToSpaceSeparatedString(help.search)} ${help.page - 1}><hover:show_text:'<italic>Click for previous page'><<</bold></click></hover> </color:$color>")
         }
-        builder.append("Page <color:$color>{page}</color:$color> of <color:$color>{totalpages}</color:$color> (<color:$color>{results} results<white>)</white> ============")
+        builder.append("Page <color:$color>{page}</color:$color> of <color:$color>{totalpages}</color:$color> (<color:$color>{results} results<white>)</white> ──────────")
         if (help.page < help.totalPages && !help.isOnlyPage) {
             builder.append("<white><bold><click:run_command:/announcerplus help ${listToSpaceSeparatedString(help.search)} ${help.page + 1}><hover:show_text:'<italic>Click for next page'> >></bold></click></hover></white>")
         }

@@ -8,7 +8,7 @@ import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import xyz.jpenilla.announcerplus.AnnouncerPlus
-import xyz.jpenilla.announcerplus.config.Config
+import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.jmplib.Chat
 import kotlin.math.ceil
 
@@ -16,26 +16,26 @@ import kotlin.math.ceil
 @CommandAlias("announcerplus|announcer|ap")
 class CommandAnnouncerPlus : BaseCommand() {
 
-    init {
-        randomColor()
-    }
-
-    private fun CommandSender.send(message: String) {
-        announcerPlus.chat.send(this, announcerPlus.cfg.parse(this, message))
-    }
-
-    private fun CommandSender.send(messages: List<String>) {
-        announcerPlus.chat.send(this, announcerPlus.cfg.parse(this, messages))
-    }
-
     @Dependency
-    private lateinit var cfg: Config
+    private lateinit var configManager: ConfigManager
 
     @Dependency
     private lateinit var announcerPlus: AnnouncerPlus
 
     @Dependency
     private lateinit var chat: Chat
+
+    init {
+        randomColor()
+    }
+
+    private fun CommandSender.send(message: String) {
+        announcerPlus.chat.send(this, configManager.parse(this, message))
+    }
+
+    private fun CommandSender.send(messages: List<String>) {
+        announcerPlus.chat.send(this, configManager.parse(this, messages))
+    }
 
     @Default
     @HelpCommand
@@ -75,7 +75,7 @@ class CommandAnnouncerPlus : BaseCommand() {
     fun onBroadcast(sender: CommandSender, message: String) {
         val players = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
         for (player in players) {
-            announcerPlus.chat.send(player, announcerPlus.cfg.parse(player, message))
+            announcerPlus.chat.send(player, configManager.parse(player, message))
         }
     }
 
@@ -92,7 +92,7 @@ class CommandAnnouncerPlus : BaseCommand() {
     @CommandPermission("announcerplus.list")
     fun onList(sender: CommandSender, @Values("@configs") config: String, @Optional page: Int?) {
         randomColor()
-        val msgConfig = cfg.messageConfigs[config]!!
+        val msgConfig = configManager.messageConfigs[config]!!
         var p = 1
         val pageSize = 4
         val pages = ceil(msgConfig.messages.size / pageSize.toDouble()).toInt()
@@ -108,7 +108,7 @@ class CommandAnnouncerPlus : BaseCommand() {
         if (p > 1) {
             h.append("<bold><click:run_command:/announcerplus list $config ${p - 1}><hover:show_text:'<italic>Click for previous page'><<</bold></click></hover> ")
         }
-        h.append("<color:$color>Page <white>$p</white> / <white>$pages</white> (<white>${msgConfig.messages.size} results</white>) =========================</color:$color>")
+        h.append("<color:$color>Page <white>$p</white> / <white>$pages</white> (<white>${msgConfig.messages.size} results</white>) ──────────</color:$color>")
         if (p < pages) {
             if (p == 1 && pages == 1) return
             h.append("<bold><click:run_command:/announcerplus list $config ${p + 1}><hover:show_text:'<italic>Click for next page'> >></bold></click></hover>")
@@ -121,7 +121,7 @@ class CommandAnnouncerPlus : BaseCommand() {
         val n = pageSize * (p - 1)
         for (i in n until (n + pageSize)) {
             try {
-                m.add(" <color:$color>-</color:$color> <white>\"</white>${msgConfig.messages[i]}<white>\"")
+                m.add(" <color:$color>-</color:$color> <white>\"</white>${msgConfig.messages[i].text[0]}<white>\"")
             } catch (e: Exception) {
             }
         }
