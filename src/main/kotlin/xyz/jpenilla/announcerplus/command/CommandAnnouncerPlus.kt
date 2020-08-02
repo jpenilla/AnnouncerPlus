@@ -121,7 +121,18 @@ class CommandAnnouncerPlus : BaseCommand() {
         val n = pageSize * (p - 1)
         for (i in n until (n + pageSize)) {
             try {
-                m.add(" <color:$color>-</color:$color> <white>\"</white>${msgConfig.messages[i].text[0]}<white>\"")
+                val messages = arrayListOf<String>()
+                for (line in msgConfig.messages[i].text) {
+                    val b = StringBuilder()
+                    if (msgConfig.messages[i].text.indexOf(line) == 0) {
+                        b.append(" <color:$color>-</color:$color> ")
+                    } else {
+                        b.append("     ")
+                    }
+                    b.append("<white>\"</white>$line</gradient></rainbow><reset><white>\"")
+                    messages.add(b.toString())
+                }
+                m.addAll(messages)
             } catch (e: Exception) {
             }
         }
