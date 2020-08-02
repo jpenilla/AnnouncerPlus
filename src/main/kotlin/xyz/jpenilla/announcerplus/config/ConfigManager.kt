@@ -45,7 +45,7 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
 
     private fun loadJoinQuitConfigs() {
         joinQuitConfigs.clear()
-        val path = "${announcerPlus.dataFolder}/joinquit"
+        val path = "${announcerPlus.dataFolder}/join-quit-configs"
         val folder = File(path)
         if (!folder.exists()) {
             if (folder.mkdir()) {
@@ -77,7 +77,7 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
             mC.stop()
         }
         messageConfigs.clear()
-        val path = "${announcerPlus.dataFolder}/messages"
+        val path = "${announcerPlus.dataFolder}/message-configs"
         val folder = File(path)
         if (!folder.exists()) {
             if (folder.mkdir()) {
