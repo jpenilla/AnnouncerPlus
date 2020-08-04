@@ -161,13 +161,13 @@ class MessageConfig {
         @Setting(value = "sounds-randomized", comment = Constants.CONFIG_COMMENT_SOUNDS_RANDOM)
         var randomSound = true
 
-        @Setting(value = "commands", comment = "These commands will run as console on broadcast\n  Example: \"broadcast This is a test\"")
+        @Setting(value = "commands", comment = "These commands will run as console on broadcast. Example: \"broadcast This is a test\"")
         val commands = arrayListOf<String>()
 
-        @Setting(value = "per-player-commands", comment = "These commands will run as console once per player on broadcast\n  Example: \"minecraft:give %player_name% dirt\"")
+        @Setting(value = "per-player-commands", comment = "These commands will run as console once per player on broadcast. Example: \"minecraft:give %player_name% dirt\"")
         val perPlayerCommands = arrayListOf<String>()
 
-        @Setting(value = "as-player-commands", comment = "These commands will run once per player, as the player on broadcast\n  Example: \"ap about\"")
+        @Setting(value = "as-player-commands", comment = "These commands will run once per player, as the player on broadcast. Example: \"ap about\"")
         val asPlayerCommands = arrayListOf<String>()
 
         fun sounds(sounds: String): Message {

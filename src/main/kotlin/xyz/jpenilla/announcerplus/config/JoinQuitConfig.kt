@@ -81,12 +81,12 @@ class JoinQuitConfig {
         val asPlayerCommands = arrayListOf<String>()
 
         @Setting(value = "title-settings", comment = "Settings relating to showing a title to the joining Player")
-        var title = TitleSettings(1, 5, 1,
-                "<bold><italic><rainbow>Welcome</rainbow><yellow>!",
-                "<gradient:blue:light_purple>{user}")
+        var title = TitleSettings(1, 7, 1,
+                "<bold><italic><gradient:green:blue:green:{animate:scroll:0.1}>Welcome</gradient><yellow>{animate:flash:!:!!:!!!:10}",
+                "<{animate:pulse:red:blue:yellow:green:10}>{user}")
 
         @Setting(value = "action-bar-settings", comment = "Settings relating to showing an Action Bar to the joining Player")
-        var actionBar = ActionBarSettings(false, 6,
+        var actionBar = ActionBarSettings(false, 8,
                 "<gradient:green:blue:green:{animate:scroll:0.1}>|||||||||||||||||||||||||||||||||||||||</gradient>")
     }
 
