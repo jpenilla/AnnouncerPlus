@@ -9,6 +9,7 @@ import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.ConfigManager
+import xyz.jpenilla.announcerplus.task.TitleUpdateTask
 import xyz.jpenilla.jmplib.Chat
 import kotlin.math.ceil
 
@@ -84,6 +85,13 @@ class CommandAnnouncerPlus : BaseCommand() {
     @CommandPermission("announcerplus.parse")
     fun onParse(sender: Player, message: String) {
         sender.send(message)
+    }
+
+    @Subcommand("parseanimation|pa")
+    @Description("Parse a message with an animation and display it as a Title")
+    @CommandPermission("announcerplus.parseanimation")
+    fun onParseAnimation(sender: Player, message: String) {
+        TitleUpdateTask(announcerPlus, sender, 0, 10, 0, message, message).start()
     }
 
     @Subcommand("list|l")

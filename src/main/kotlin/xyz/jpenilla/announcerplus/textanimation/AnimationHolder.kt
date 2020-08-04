@@ -18,7 +18,12 @@ class AnimationHolder(private val message: String) {
 
             when (tokens[0]) {
                 "scroll" -> {
-                    val speed = tokens[1].toFloatOrNull() ?: 0.1f
+                    val speed = try {
+                        tokens[1].toFloat()
+                    } catch (e: Exception) {
+                        0.1f
+                    }
+
                     animations[matcher.group()] = AnimatedGradient(speed)
                 }
 
