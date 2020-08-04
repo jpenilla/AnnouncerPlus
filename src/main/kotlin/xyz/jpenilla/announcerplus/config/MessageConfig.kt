@@ -49,8 +49,10 @@ class MessageConfig {
                     "{prefix1} <bold><rainbow>this is the last line (line 3)")),
             Message(arrayListOf("{prefix1} Test <gradient:blue:aqua>AnnouncerPlus</gradient> broadcast with sound<green>!"))
                     .sounds("minecraft:entity.strider.happy,minecraft:entity.villager.ambient,minecraft:block.note_block.cow_bell"),
-            Message(arrayListOf("{prefix1} Use <click:run_command:/ap about><hover:show_text:'<rainbow>Click to run!'><rainbow>/ap about</rainbow></hover></click> to check the plugin version")),
-            Message(arrayListOf("<bold><italic>Hello, </bold></italic> {nick} {prefix1} {r}!!!!!!!!!{rc}")),
+            Message(arrayListOf("{prefix1} Use <click:run_command:/ap about><hover:show_text:'<rainbow>Click to run!'><rainbow>/ap about</rainbow></hover></click> to check the plugin version"))
+                    .actionBar(ActionBarSettings(true, 15, "<{animate:pulse:red:blue:10}>Test Animated Action Bar Broadcast")),
+            Message(arrayListOf("<bold><italic>Hello, </bold></italic> {nick} {prefix1} {r}!!!!!!!!!{rc}"))
+                    .title(TitleSettings(1, 13, 2, "<gradient:green:blue:green:{animate:scroll:0.1}>||||||||||||||||||||||||||||||||||||||||||||", "<{animate:pulse:red:blue:10}>||||||||||||||||||||||||||||||||||||||||||")),
             Message(arrayListOf("<center><gradient:red:blue>Centered text Example"))
     )
 
@@ -92,8 +94,16 @@ class MessageConfig {
                         }
                     }
                     if (announcerPlus.perms!!.playerHas(player, "${announcerPlus.name}.messages.$name")) {
-                        chat.send(player, announcerPlus.configManager.parse(player, message.text))
+                        if (message.text.size != 0) {
+                            chat.send(player, announcerPlus.configManager.parse(player, message.text))
+                        }
                         chat.playSounds(player, message.randomSound, message.sounds)
+                        if (message.actionBar.isEnabled()) {
+                            message.actionBar.display(announcerPlus, player)
+                        }
+                        if (message.title.isEnabled()) {
+                            message.title.display(announcerPlus, player)
+                        }
 
                         switchContext(SynchronizationContext.SYNC)
                         for (command in message.perPlayerCommands) {
@@ -131,8 +141,19 @@ class MessageConfig {
 
     @ConfigSerializable
     class Message {
-        @Setting(value = "message-text", comment = "The lines of text for this message")
+        constructor()
+        constructor(text: List<String>) {
+            this.text.addAll(text)
+        }
+
+        @Setting(value = "message-text", comment = "The lines of text for this message. Can be empty for no chat messages.")
         val text = arrayListOf<String>()
+
+        @Setting(value = "action-bar", comment = "Configure the Action Bar for this message")
+        var actionBar = ActionBarSettings()
+
+        @Setting(value = "title", comment = "Configure the Title for this message")
+        var title = TitleSettings()
 
         @Setting(value = "sounds", comment = "The sounds to play when this message is sent\n  ${Constants.CONFIG_COMMENT_SOUNDS_LINE2}")
         var sounds = ""
@@ -149,15 +170,19 @@ class MessageConfig {
         @Setting(value = "as-player-commands", comment = "These commands will run once per player, as the player on broadcast\n  Example: \"ap about\"")
         val asPlayerCommands = arrayListOf<String>()
 
-        constructor()
-
         fun sounds(sounds: String): Message {
             this.sounds = sounds
             return this
         }
 
-        constructor(text: List<String>) {
-            this.text.addAll(text)
+        fun actionBar(actionBar: ActionBarSettings): Message {
+            this.actionBar = actionBar
+            return this
+        }
+
+        fun title(title: TitleSettings): Message {
+            this.title = title
+            return this
         }
     }
 

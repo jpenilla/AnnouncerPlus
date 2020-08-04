@@ -69,6 +69,9 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
             val root = configLoader.load(configOptions)
             val name = configFile.nameWithoutExtension
             joinQuitConfigs[name] = JoinQuitConfig.loadFrom(announcerPlus, root, name)
+
+            joinQuitConfigs[name]?.saveTo(root)
+            configLoader.save(root)
         }
     }
 
@@ -102,6 +105,9 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
             val name = configFile.nameWithoutExtension
             val root = configLoader.load(configOptions)
             messageConfigs[name] = MessageConfig.loadFrom(announcerPlus, root, name)
+
+            messageConfigs[name]?.saveTo(root)
+            configLoader.save(root)
         }
     }
 

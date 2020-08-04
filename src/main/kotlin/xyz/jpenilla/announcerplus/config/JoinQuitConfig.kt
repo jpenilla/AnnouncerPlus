@@ -81,37 +81,13 @@ class JoinQuitConfig {
         val asPlayerCommands = arrayListOf<String>()
 
         @Setting(value = "title-settings", comment = "Settings relating to showing a title to the joining Player")
-        var title = TitleSettings()
+        var title = TitleSettings(1, 5, 1,
+                "<bold><italic><rainbow>Welcome</rainbow><yellow>!",
+                "<gradient:blue:light_purple>{user}")
 
         @Setting(value = "action-bar-settings", comment = "Settings relating to showing an Action Bar to the joining Player")
-        var actionBar = ActionBarSettings()
-
-        @ConfigSerializable
-        class TitleSettings {
-            @Setting(value = "fade-in-seconds", comment = "Seconds of duration for the title fade-in animation")
-            var fadeInSeconds = 1
-
-            @Setting(value = "duration-seconds", comment = "Seconds of duration for the title to stay on screen")
-            var durationSeconds = 5
-
-            @Setting(value = "fade-out-seconds", comment = "Seconds of duration for the title fade-out animation")
-            var fadeOutSeconds = 1
-
-            @Setting(value = "title", comment = "Title text")
-            var title = "<bold><italic><rainbow>Welcome</rainbow><yellow>!"
-
-            @Setting(value = "subtitle", comment = "Subtitle text")
-            var subtitle = "<gradient:blue:light_purple>{user}"
-        }
-
-        @ConfigSerializable
-        class ActionBarSettings {
-            @Setting(value = "duration-seconds", comment = "Seconds of duration for the Action Bar to stay on screen")
-            var durationSeconds = 6
-
-            @Setting(value = "text", comment = "The text for the Action Bar")
-            var text = "<gradient:green:blue:green>|||||||||||||||||||||||||||||||||||||||</gradient>"
-        }
+        var actionBar = ActionBarSettings(false, 6,
+                "<gradient:green:blue:green:{animate:scroll:0.1}>|||||||||||||||||||||||||||||||||||||||</gradient>")
     }
 
     @ConfigSerializable
@@ -150,20 +126,19 @@ class JoinQuitConfig {
                     }
                     switchContext(SynchronizationContext.SYNC)
                     for (command in join.commands) {
-                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), chat.papiParse(player, command))
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), announcerPlus.configManager.parse(player, command))
                     }
                     for (command in join.asPlayerCommands) {
-                        Bukkit.dispatchCommand(player, chat.papiParse(player, command))
+                        Bukkit.dispatchCommand(player, announcerPlus.configManager.parse(player, command))
                     }
                 }
             }
             announcerPlus.schedule(SynchronizationContext.ASYNC) {
-                if (join.title.title != "" && join.title.subtitle != "") {
-                    val title = chat.getTitleSeconds(announcerPlus.configManager.parse(player, join.title.title), announcerPlus.configManager.parse(player, join.title.subtitle), join.title.fadeInSeconds, join.title.durationSeconds, join.title.fadeOutSeconds)
-                    chat.showTitle(player, title)
+                if (join.title.isEnabled()) {
+                    join.title.display(announcerPlus, player)
                 }
-                if (join.actionBar.text != "") {
-                    chat.sendActionBar(player, join.actionBar.durationSeconds, announcerPlus.configManager.parse(player, join.actionBar.text))
+                if (join.actionBar.isEnabled()) {
+                    join.actionBar.display(announcerPlus, player)
                 }
                 if (join.sounds != "") {
                     chat.playSounds(player, join.randomSound, join.sounds)

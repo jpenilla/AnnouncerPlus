@@ -7,7 +7,6 @@ import xyz.jpenilla.announcerplus.command.CommandHelper
 import xyz.jpenilla.announcerplus.compatability.EssentialsHook
 import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.jmplib.BasePlugin
-import java.lang.String
 import java.util.concurrent.Callable
 
 class AnnouncerPlus : BasePlugin() {
