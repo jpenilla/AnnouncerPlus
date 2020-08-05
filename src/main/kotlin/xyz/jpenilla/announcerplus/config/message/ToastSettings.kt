@@ -34,6 +34,12 @@ class ToastSettings : MessageElement {
     @Setting(value = "frame", comment = "The frame for the Toast. Can be CHALLENGE, GOAL, or TASK")
     var frame = FrameType.GOAL
 
+    @Setting(value = "icon-enchanted", comment = "Should the icon item be enchanted?")
+    var enchanted = false
+
+    @Setting(value = "icon-custom-model-data", comment = "Enter custom model data for the icon item. -1 to disable")
+    var customModelData = -1
+
     enum class FrameType(val value: String) {
         CHALLENGE("challenge"),
         GOAL("goal"),
@@ -73,6 +79,13 @@ class ToastSettings : MessageElement {
         val display = JsonObject()
         val icon = JsonObject()
         icon.addProperty("item", this.icon.key.toString())
+        val nbtBuilder = StringBuilder("{CustomModelData:$customModelData")
+        if (enchanted) {
+            nbtBuilder.append(",Enchantments:[{id:\"aqua_affinity\",lvl:1}]}")
+        } else {
+            nbtBuilder.append("}")
+        }
+        icon.addProperty("nbt", nbtBuilder.toString())
         display.add("icon", icon)
         val title = announcerPlus.jsonParser.parse(announcerPlus.gsonComponentSerializer.serialize(announcerPlus.miniMessage.parse(announcerPlus.configManager.parse(player, "$header<reset>\n$footer"))))
         display.add("title", title)

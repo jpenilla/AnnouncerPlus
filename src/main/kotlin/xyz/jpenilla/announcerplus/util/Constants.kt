@@ -1,4 +1,4 @@
-package xyz.jpenilla.announcerplus
+package xyz.jpenilla.announcerplus.util
 
 object Constants {
     const val CONFIG_COMMENT_SOUNDS_LINE2 =

@@ -32,4 +32,37 @@ class MainConfig {
 
     @Setting(value = "quit-features", comment = "This setting enables or disables all Quit event features")
     var quitEvent = true
+
+    @Setting(value = "random-join-configs", comment = "Here you can define randomized join configs.\n" +
+            "  To assign randomized join configs, give the announcerplus.randomjoin.demo permission, replacing demo with your randomized config\n" +
+            "  WARNING: If you are OP make sure to negate the appropriate permissions so that you do not get duplicate join/quit messages")
+    val randomJoinConfigs = hashMapOf(
+            Pair("demo", arrayListOf(
+                    JoinQuitPair("default", 0.1),
+                    JoinQuitPair("default", 0.2)))
+    )
+
+    @Setting(value = "random-quit-configs", comment = "Here you can define randomized join configs.\n" +
+            "  To assign randomized quit configs, give the announcerplus.randomquit.demo permission, replacing demo with your randomized config\n" +
+            "  WARNING: If you are OP make sure to negate the appropriate permissions so that you do not get duplicate join/quit messages")
+    val randomQuitConfigs = hashMapOf(
+            Pair("demo", arrayListOf(
+                    JoinQuitPair("default", 0.2),
+                    JoinQuitPair("default", 0.1)))
+    )
+
+    @ConfigSerializable
+    class JoinQuitPair {
+        constructor()
+        constructor(configName: String, weight: Double) {
+            this.configName = configName
+            this.weight = weight
+        }
+
+        @Setting(value = "config-name", comment = "The name of the config (the text before .conf in the file name)")
+        var configName = "default"
+
+        @Setting(value = "config-weight", comment = "The weight of this config for random selection, 0.0-1.0")
+        var weight = 0.1
+    }
 }

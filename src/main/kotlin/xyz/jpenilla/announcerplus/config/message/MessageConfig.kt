@@ -11,7 +11,7 @@ import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import xyz.jpenilla.announcerplus.AnnouncerPlus
-import xyz.jpenilla.announcerplus.Constants
+import xyz.jpenilla.announcerplus.util.Constants
 import xyz.jpenilla.jmplib.Chat
 
 @ConfigSerializable

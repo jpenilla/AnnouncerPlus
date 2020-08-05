@@ -11,10 +11,10 @@ import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import xyz.jpenilla.announcerplus.AnnouncerPlus
-import xyz.jpenilla.announcerplus.Constants
 import xyz.jpenilla.announcerplus.config.message.ActionBarSettings
 import xyz.jpenilla.announcerplus.config.message.TitleSettings
 import xyz.jpenilla.announcerplus.config.message.ToastSettings
+import xyz.jpenilla.announcerplus.util.Constants
 import xyz.jpenilla.jmplib.Chat
 
 @ConfigSerializable

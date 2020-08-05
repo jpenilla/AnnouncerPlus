@@ -1,7 +1,8 @@
-package xyz.jpenilla.announcerplus
+package xyz.jpenilla.announcerplus.util
 
 import com.okkero.skedule.SynchronizationContext
 import com.okkero.skedule.schedule
+import xyz.jpenilla.announcerplus.AnnouncerPlus
 import java.io.IOException
 import java.net.URL
 import java.util.*

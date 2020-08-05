@@ -10,6 +10,7 @@ import org.bukkit.plugin.RegisteredServiceProvider
 import xyz.jpenilla.announcerplus.command.CommandHelper
 import xyz.jpenilla.announcerplus.compatability.EssentialsHook
 import xyz.jpenilla.announcerplus.config.ConfigManager
+import xyz.jpenilla.announcerplus.util.UpdateChecker
 import xyz.jpenilla.jmplib.BasePlugin
 import java.util.concurrent.Callable
 
