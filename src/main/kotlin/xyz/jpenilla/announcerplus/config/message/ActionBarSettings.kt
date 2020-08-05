@@ -1,4 +1,4 @@
-package xyz.jpenilla.announcerplus.config
+package xyz.jpenilla.announcerplus.config.message
 
 import ninja.leaping.configurate.objectmapping.Setting
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable
@@ -7,7 +7,7 @@ import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.task.ActionBarUpdateTask
 
 @ConfigSerializable
-class ActionBarSettings {
+class ActionBarSettings: MessageElement {
     constructor()
     constructor(fadeEnabled: Boolean, durationSeconds: Int, text: String) {
         this.fadeEnabled = fadeEnabled
@@ -24,11 +24,11 @@ class ActionBarSettings {
     @Setting(value = "text", comment = "The text for the Action Bar. Set to \"\" (empty string) to disable. Accepts animations")
     var text = ""
 
-    fun isEnabled(): Boolean {
+    override fun isEnabled(): Boolean {
         return text != ""
     }
 
-    fun display(announcerPlus: AnnouncerPlus, player: Player) {
+    override fun display(announcerPlus: AnnouncerPlus, player: Player) {
         ActionBarUpdateTask(announcerPlus, player, durationSeconds * 20L, fadeEnabled, text).start()
     }
 }

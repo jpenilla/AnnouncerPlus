@@ -1,4 +1,4 @@
-package xyz.jpenilla.announcerplus.config
+package xyz.jpenilla.announcerplus.config.message
 
 import ninja.leaping.configurate.objectmapping.Setting
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable
@@ -7,7 +7,7 @@ import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.task.TitleUpdateTask
 
 @ConfigSerializable
-class TitleSettings {
+class TitleSettings: MessageElement {
     constructor()
     constructor(fadeInSeconds: Int, durationSeconds: Int, fadeOutSeconds: Int, title: String, subTitle: String) {
         this.fadeInSeconds = fadeInSeconds
@@ -32,11 +32,15 @@ class TitleSettings {
     @Setting(value = "subtitle", comment = "Subtitle text. If the title and subtitle are both set to \"\" (empty string), then this title is disabled")
     var subTitle = ""
 
-    fun isEnabled(): Boolean {
-        return title != "" || subTitle != ""
+    override fun isEnabled(): Boolean {
+        return if (fadeInSeconds == 0 && durationSeconds == 0 && fadeOutSeconds == 0) {
+            false
+        } else {
+            title != "" || subTitle != ""
+        }
     }
 
-    fun display(announcerPlus: AnnouncerPlus, player: Player) {
+    override fun display(announcerPlus: AnnouncerPlus, player: Player) {
         TitleUpdateTask(announcerPlus, player, fadeInSeconds, durationSeconds, fadeOutSeconds, title, subTitle).start()
     }
 }

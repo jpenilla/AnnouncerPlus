@@ -5,10 +5,12 @@ import co.aikar.commands.CommandHelp
 import co.aikar.commands.annotation.*
 import com.google.common.collect.ImmutableList
 import org.bukkit.Bukkit
+import org.bukkit.Material
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.ConfigManager
+import xyz.jpenilla.announcerplus.config.message.ToastSettings
 import xyz.jpenilla.announcerplus.task.TitleUpdateTask
 import xyz.jpenilla.jmplib.Chat
 import kotlin.math.ceil
@@ -92,6 +94,14 @@ class CommandAnnouncerPlus : BaseCommand() {
     @CommandPermission("announcerplus.parseanimation")
     fun onParseAnimation(sender: Player, message: String) {
         TitleUpdateTask(announcerPlus, sender, 0, 10, 0, message, message).start()
+    }
+
+    @Subcommand("parsetoast|pt")
+    @Description("Parse a toast message and display it")
+    @CommandPermission("announcerplus.parsetoast")
+    @CommandCompletion("* * * *")
+    fun onParseToast(sender: Player, icon: Material, frame: ToastSettings.FrameType, header: String, @Optional footer: String?) {
+        ToastSettings(icon, frame, header, footer ?: "").display(announcerPlus, sender)
     }
 
     @Subcommand("list|l")

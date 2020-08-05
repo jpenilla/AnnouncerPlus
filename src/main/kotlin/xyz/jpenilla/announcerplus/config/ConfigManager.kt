@@ -7,6 +7,7 @@ import ninja.leaping.configurate.objectmapping.serialize.TypeSerializerCollectio
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import xyz.jpenilla.announcerplus.AnnouncerPlus
+import xyz.jpenilla.announcerplus.config.message.MessageConfig
 import java.io.File
 
 class ConfigManager(private val announcerPlus: AnnouncerPlus) {

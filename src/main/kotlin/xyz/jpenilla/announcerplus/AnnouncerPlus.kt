@@ -1,5 +1,9 @@
 package xyz.jpenilla.announcerplus
 
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonParser
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer
 import net.milkbowl.vault.permission.Permission
 import org.bstats.bukkit.Metrics
 import org.bukkit.plugin.RegisteredServiceProvider
@@ -10,6 +14,9 @@ import xyz.jpenilla.jmplib.BasePlugin
 import java.util.concurrent.Callable
 
 class AnnouncerPlus : BasePlugin() {
+    val gson: Gson = GsonBuilder().create()
+    val jsonParser = JsonParser()
+    val gsonComponentSerializer = GsonComponentSerializer.gson()
     var perms: Permission? = null
     var essentials: EssentialsHook? = null
     lateinit var configManager: ConfigManager; private set

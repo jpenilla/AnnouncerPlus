@@ -8,9 +8,13 @@ import ninja.leaping.configurate.objectmapping.ObjectMapper
 import ninja.leaping.configurate.objectmapping.Setting
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable
 import org.bukkit.Bukkit
+import org.bukkit.Material
 import org.bukkit.entity.Player
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.Constants
+import xyz.jpenilla.announcerplus.config.message.ActionBarSettings
+import xyz.jpenilla.announcerplus.config.message.TitleSettings
+import xyz.jpenilla.announcerplus.config.message.ToastSettings
 import xyz.jpenilla.jmplib.Chat
 
 @ConfigSerializable
@@ -88,6 +92,10 @@ class JoinQuitConfig {
         @Setting(value = "action-bar-settings", comment = "Settings relating to showing an Action Bar to the joining Player")
         var actionBar = ActionBarSettings(false, 8,
                 "<gradient:green:blue:green:{animate:scroll:0.1}>|||||||||||||||||||||||||||||||||||||||</gradient>")
+
+        @Setting(value = "toast-settings", comment = "Configure the Toast that will be showed to the joining player")
+        var toast = ToastSettings(Material.NETHERITE_INGOT, ToastSettings.FrameType.CHALLENGE,
+                "<gradient:green:blue><bold><italic>AnnouncerPlus", "<rainbow>Welcome to the server!")
     }
 
     @ConfigSerializable
@@ -134,12 +142,9 @@ class JoinQuitConfig {
                 }
             }
             announcerPlus.schedule(SynchronizationContext.ASYNC) {
-                if (join.title.isEnabled()) {
-                    join.title.display(announcerPlus, player)
-                }
-                if (join.actionBar.isEnabled()) {
-                    join.actionBar.display(announcerPlus, player)
-                }
+                join.title.displayIfEnabled(announcerPlus, player)
+                join.actionBar.displayIfEnabled(announcerPlus, player)
+                join.toast.displayIfEnabled(announcerPlus, player)
                 if (join.sounds != "") {
                     chat.playSounds(player, join.randomSound, join.sounds)
                 }

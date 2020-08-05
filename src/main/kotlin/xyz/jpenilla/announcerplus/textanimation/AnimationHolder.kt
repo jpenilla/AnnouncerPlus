@@ -23,7 +23,6 @@ class AnimationHolder(private val message: String) {
                     } catch (e: Exception) {
                         0.1f
                     }
-
                     animations[matcher.group()] = AnimatedGradient(speed)
                 }
 

@@ -1,4 +1,4 @@
-package xyz.jpenilla.announcerplus.config
+package xyz.jpenilla.announcerplus.config.message
 
 import com.google.common.collect.ImmutableList
 import com.okkero.skedule.CoroutineTask
@@ -9,6 +9,7 @@ import ninja.leaping.configurate.objectmapping.ObjectMapper
 import ninja.leaping.configurate.objectmapping.Setting
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable
 import org.bukkit.Bukkit
+import org.bukkit.Material
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.Constants
 import xyz.jpenilla.jmplib.Chat
@@ -44,9 +45,11 @@ class MessageConfig {
     val messages = arrayListOf(
             Message(arrayListOf("<center><rainbow>Test AnnouncerPlus broadcast!")),
             Message(arrayListOf(
-                    "{prefix1} <gradient:blue:green:blue>Multi-line test AnnouncerPlus broadcast",
-                    "<center><gradient:red:gold:red>Line number two of three",
-                    "{prefix1} <bold><rainbow>this is the last line (line 3)")),
+                    "{prefix1} 1. <gradient:blue:green:blue>Multi-line test AnnouncerPlus broadcast",
+                    "{prefix1} 2. <gradient:red:gold:red>Line number two of three",
+                    "{prefix1} 3. <bold><rainbow>this is the last line (line 3)"))
+                    .toast(ToastSettings(Material.NETHERITE_INGOT, ToastSettings.FrameType.CHALLENGE,
+                            "<gradient:green:blue><bold><italic>AnnouncerPlus", "<rainbow>This is a Toast message!")),
             Message(arrayListOf("{prefix1} Test <gradient:blue:aqua>AnnouncerPlus</gradient> broadcast with sound<green>!"))
                     .sounds("minecraft:entity.strider.happy,minecraft:entity.villager.ambient,minecraft:block.note_block.cow_bell"),
             Message(arrayListOf("{prefix1} Use <click:run_command:/ap about><hover:show_text:'<rainbow>Click to run!'><rainbow>/ap about</rainbow></hover></click> to check the plugin version"))
@@ -98,12 +101,9 @@ class MessageConfig {
                             chat.send(player, announcerPlus.configManager.parse(player, message.text))
                         }
                         chat.playSounds(player, message.randomSound, message.sounds)
-                        if (message.actionBar.isEnabled()) {
-                            message.actionBar.display(announcerPlus, player)
-                        }
-                        if (message.title.isEnabled()) {
-                            message.title.display(announcerPlus, player)
-                        }
+                        message.actionBar.displayIfEnabled(announcerPlus, player)
+                        message.title.displayIfEnabled(announcerPlus, player)
+                        message.toast.displayIfEnabled(announcerPlus, player)
 
                         switchContext(SynchronizationContext.SYNC)
                         for (command in message.perPlayerCommands) {
@@ -155,6 +155,9 @@ class MessageConfig {
         @Setting(value = "title", comment = "Configure the Title for this message")
         var title = TitleSettings()
 
+        @Setting(value = "toast", comment = "Configure the Toast/Achievement/Advancement for this message")
+        var toast = ToastSettings()
+
         @Setting(value = "sounds", comment = "The sounds to play when this message is sent\n  ${Constants.CONFIG_COMMENT_SOUNDS_LINE2}")
         var sounds = ""
 
@@ -182,6 +185,11 @@ class MessageConfig {
 
         fun title(title: TitleSettings): Message {
             this.title = title
+            return this
+        }
+
+        fun toast(toast: ToastSettings): Message {
+            this.toast = toast
             return this
         }
     }
