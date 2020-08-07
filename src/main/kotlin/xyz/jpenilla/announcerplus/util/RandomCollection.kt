@@ -4,7 +4,7 @@ import java.util.*
 import kotlin.random.Random
 
 class RandomCollection<E> {
-    private val map: NavigableMap<Double, E> = TreeMap()
+    private val map = TreeMap<Double, E>()
     private var total = 0.0
 
     fun add(weight: Double, result: E): RandomCollection<E> {
@@ -15,7 +15,7 @@ class RandomCollection<E> {
     }
 
     fun next(): E {
-        val value: Double = Random.nextDouble() * total
+        val value = Random.nextDouble() * total
         return map.higherEntry(value).value
     }
 }

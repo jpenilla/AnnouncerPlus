@@ -1,6 +1,8 @@
-package xyz.jpenilla.announcerplus.textanimation
+package xyz.jpenilla.announcerplus.textanimation.animation
 
-class AnimatedGradient(private val increment: Float) : TextAnimation {
+import xyz.jpenilla.announcerplus.textanimation.TextAnimation
+
+class ScrollingGradient(private val increment: Float) : TextAnimation {
     private var phase = -1f
 
     override fun getValue(): String {
@@ -12,6 +14,6 @@ class AnimatedGradient(private val increment: Float) : TextAnimation {
             phase = -1f
         }
         phase += increment
-        return phase.toString()
+        return getValue()
     }
 }

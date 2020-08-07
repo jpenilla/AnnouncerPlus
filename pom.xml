@@ -6,7 +6,7 @@
 
     <groupId>xyz.jpenilla</groupId>
     <artifactId>AnnouncerPlus</artifactId>
-    <version>1.1.1-SNAPSHOT.{BUILD_NUMBER}</version>
+    <version>1.1.2-SNAPSHOT.{BUILD_NUMBER}</version>
     <packaging>jar</packaging>
 
     <name>AnnouncerPlus</name>
@@ -285,6 +285,11 @@
             <groupId>org.spongepowered</groupId>
             <artifactId>configurate-ext-kotlin</artifactId>
             <version>3.7</version>
+        </dependency>
+        <dependency>
+            <groupId>net.kyori</groupId>
+            <artifactId>adventure-text-feature-pagination</artifactId>
+            <version>4.0.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>

@@ -1,9 +1,10 @@
-package xyz.jpenilla.announcerplus.textanimation
+package xyz.jpenilla.announcerplus.textanimation.animation
 
 import net.kyori.adventure.text.format.TextColor
+import xyz.jpenilla.announcerplus.textanimation.TextAnimation
 import kotlin.math.roundToInt
 
-class PulsingText(colors: List<TextColor>, ticks: Int) : TextAnimation {
+class PulsingColor(colors: List<TextColor>, ticks: Int) : TextAnimation {
     private var index = 0
     private var colorIndex = 0
     private val colors = ArrayList(colors)
@@ -19,7 +20,7 @@ class PulsingText(colors: List<TextColor>, ticks: Int) : TextAnimation {
 
     override fun nextValue(): String {
         color = nextColor().asHexString()
-        return color
+        return getValue()
     }
 
     private fun interpolate(color1: TextColor, color2: TextColor, factor: Float): TextColor {

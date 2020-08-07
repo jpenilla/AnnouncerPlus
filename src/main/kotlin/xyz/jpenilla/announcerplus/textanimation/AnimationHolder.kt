@@ -2,11 +2,12 @@ package xyz.jpenilla.announcerplus.textanimation
 
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
+import xyz.jpenilla.announcerplus.textanimation.animation.*
 import java.util.regex.Pattern
 
 class AnimationHolder(private val message: String) {
     companion object {
-        private val pattern = Pattern.compile("\\{animate:/?([a-z][^}\\s]*)/?}?")
+        private val pattern = Pattern.compile("\\{animate:/?([a-z][^}]*)/?}?")
     }
 
     private val matcher = pattern.matcher(message)
@@ -23,7 +24,7 @@ class AnimationHolder(private val message: String) {
                     } catch (e: Exception) {
                         0.1f
                     }
-                    animations[matcher.group()] = AnimatedGradient(speed)
+                    animations[matcher.group()] = ScrollingGradient(speed)
                 }
 
                 "flash" -> {
@@ -32,7 +33,7 @@ class AnimationHolder(private val message: String) {
                     try {
                         ticks = colors.last().toInt()
                         colors.removeAt(colors.lastIndex)
-                    } catch (e: NumberFormatException) {
+                    } catch (e: Exception) {
                         ticks = 10
                     }
                     animations[matcher.group()] = FlashingText(colors, ticks)
@@ -44,13 +45,52 @@ class AnimationHolder(private val message: String) {
                     try {
                         ticks = colors.last().toInt()
                         colors.removeAt(colors.lastIndex)
-                    } catch (e: NumberFormatException) {
+                    } catch (e: Exception) {
                         ticks = 10
                     }
                     val textColors = colors.map { color ->
                         NamedTextColor.NAMES.value(color) ?: (TextColor.fromHexString(color) ?: NamedTextColor.WHITE)
                     }
-                    animations[matcher.group()] = PulsingText(textColors, ticks)
+                    animations[matcher.group()] = PulsingColor(textColors, ticks)
+                }
+
+                "type" -> {
+                    val text = tokens[1]
+                    val ticks = try {
+                        tokens[2].toInt()
+                    } catch (e: Exception) {
+                        6
+                    }
+                    animations[matcher.group()] = Typewriter(text, ticks)
+                }
+
+                "randomcolor" -> {
+                    val type = try {
+                        RandomColor.Type.of(tokens[1])
+                    } catch (e: IllegalArgumentException) {
+                        throw IllegalArgumentException("No type provided. use one of ${RandomColor.Type.values()}")
+                    }
+                    val ticks = try {
+                        tokens[2].toInt()
+                    } catch (e: Exception) {
+                        10
+                    }
+                    animations[matcher.group()] = RandomColor(type, ticks)
+                }
+
+                "scrolltext" -> {
+                    val text = tokens[1]
+                    val window = try {
+                        tokens[2].toInt()
+                    } catch (e: Exception) {
+                        throw IllegalArgumentException("Invalid window size Integer: ${tokens[2]}. Use a number")
+                    }
+                    val ticks = try {
+                        tokens[3].toInt()
+                    } catch (e: Exception) {
+                        4
+                    }
+                    animations[matcher.group()] = ScrollingText(text, window, ticks)
                 }
             }
         }
