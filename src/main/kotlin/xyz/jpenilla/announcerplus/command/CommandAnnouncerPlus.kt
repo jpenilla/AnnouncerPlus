@@ -15,7 +15,6 @@ import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.Style
 import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.format.TextDecoration
-import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -55,48 +54,82 @@ class CommandAnnouncerPlus : BaseCommand() {
 
     @Default
     @HelpCommand
-    @Description("AnnouncerPlus Help")
+    @Description("Shows help for AnnouncerPlus commands.")
     fun onHelp(sender: CommandSender, help: CommandHelp) {
         randomColor()
         help.showHelp()
     }
 
     @Subcommand("about")
-    @Description("About AnnouncerPlus")
+    @Description("Prints some information about AnnouncerPlus.")
     fun onAbout(sender: CommandSender) {
         randomColor()
         val m = listOf(
-                "<color:$color>==========================",
-                "<hover:show_text:'<rainbow>click me!'><click:open_url:${announcerPlus.description.website}>${announcerPlus.name}  <color:$color>${announcerPlus.description.version}",
+                "<gradient:white:$color:white><strikethrough>---------------------------",
+                "<hover:show_text:'<rainbow>click me!'><click:open_url:${announcerPlus.description.website}>${announcerPlus.name} <color:$color>${announcerPlus.description.version}",
                 "By <color:$color>jmp",
-                "<color:$color>=========================="
+                "<gradient:white:$color:white><strikethrough>---------------------------"
         )
         sender.send(chat.getCenteredMessage(m))
     }
 
     @Subcommand("reload|r")
-    @Description("Reloads the config for AnnouncerPlus")
+    @Description("Reloads AnnouncerPlus configs.")
     @CommandPermission("announcerplus.reload")
     fun onReload(sender: CommandSender) {
         randomColor()
         sender.send(chat.getCenteredMessage("<color:$color>Reloading ${announcerPlus.name} config..."))
-        announcerPlus.reload()
-        sender.send(chat.getCenteredMessage("<green>Done."))
+        try {
+            announcerPlus.reload()
+            sender.send(chat.getCenteredMessage("<green>Done."))
+        } catch (e: Exception) {
+            sender.send(chat.getCenteredMessage("<gradient:red:gold>I'm sorry, but there was an error reloading the plugin. This is most likely due to misconfiguration. Check console for more info."))
+            e.printStackTrace()
+        }
     }
 
     @Subcommand("broadcast|bc")
-    @CommandAlias("broadcast")
-    @Description("Parse a message and broadcast it")
     @CommandPermission("announcerplus.broadcast")
-    fun onBroadcast(sender: CommandSender, message: String) {
-        val players = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
-        for (player in players) {
-            announcerPlus.chat.send(player, configManager.parse(player, message))
+    @Description("Parses and broadcasts a message to chat in the specified world or all worlds.")
+    @CommandCompletion("* *")
+    fun onBroadcastChat(sender: CommandSender, world: CommandHelper.WorldPlayers, message: String) {
+        for (player in world.players) {
+            chat.send(player, configManager.parse(player, message))
+        }
+    }
+
+    @Subcommand("broadcasttoast|bctoast|bcto")
+    @CommandPermission("announcerplus.broadcasttoast")
+    @Description("Parses and broadcasts a Toast style message to the specified world or all worlds.")
+    @CommandCompletion("* * * *")
+    fun onBroadcastToast(sender: CommandSender, world: CommandHelper.WorldPlayers, icon: Material, frame: ToastSettings.FrameType, text: CommandHelper.StringPair) {
+        for (player in world.players) {
+            ToastSettings(icon, frame, text.first, text.second).display(announcerPlus, player)
+        }
+    }
+
+    @Subcommand("broadcasttitle|bctitle|bcti")
+    @CommandPermission("announcerplus.broadcasttitle")
+    @Description("Parses and broadcasts a Title and Subtitle style message to the specified world or all worlds.")
+    @CommandCompletion("* @numbers_by_5 *")
+    fun onBroadcastTitle(sender: CommandSender, world: CommandHelper.WorldPlayers, seconds: Int, text: CommandHelper.StringPair) {
+        for (player in world.players) {
+            TitleUpdateTask(announcerPlus, player, 0, seconds, 1, text.first, text.second).start()
+        }
+    }
+
+    @Subcommand("broadcastactionbar|bcactionbar|bcab")
+    @CommandPermission("announcerplus.broadcastactionbar")
+    @Description("Parses and broadcasts an Action Bar style message to the specified world or all worlds.")
+    @CommandCompletion("* @numbers_by_5 *")
+    fun onBroadcastActionBar(sender: CommandSender, world: CommandHelper.WorldPlayers, seconds: Int, text: String) {
+        for (player in world.players) {
+            ActionBarUpdateTask(announcerPlus, player, seconds * 20L, true, text).start()
         }
     }
 
     @Subcommand("parse|p")
-    @Description("Parse a message and echo it back")
+    @Description("Parses a message and echoes it backs")
     @CommandPermission("announcerplus.parse")
     fun onParse(sender: Player, message: String) {
         sender.send(message)
@@ -105,17 +138,34 @@ class CommandAnnouncerPlus : BaseCommand() {
     @Subcommand("parseanimation|pa")
     @Description("Parse a message with an animation and display it")
     @CommandPermission("announcerplus.parseanimation")
-    fun onParseAnimation(sender: Player, length: Int, message: String) {
-        TitleUpdateTask(announcerPlus, sender, 0, length, 0, message, message).start()
-        ActionBarUpdateTask(announcerPlus, sender, length * 20L, false, message).start()
+    @CommandCompletion("@numbers_by_5 *")
+    fun onParseAnimation(sender: Player, seconds: Int, message: String) {
+        TitleUpdateTask(announcerPlus, sender, 0, seconds, 0, message, message).start()
+        ActionBarUpdateTask(announcerPlus, sender, seconds * 20L, false, message).start()
     }
 
-    @Subcommand("parsetoast|pt")
+    @Subcommand("parsetoast|pto")
     @Description("Parse a toast message and display it")
     @CommandPermission("announcerplus.parsetoast")
-    @CommandCompletion("* * * *")
-    fun onParseToast(sender: Player, icon: Material, frame: ToastSettings.FrameType, header: String, @Optional footer: String?) {
-        ToastSettings(icon, frame, header, footer ?: "").display(announcerPlus, sender)
+    @CommandCompletion("* * *")
+    fun onParseToast(sender: Player, icon: Material, frame: ToastSettings.FrameType, text: CommandHelper.StringPair) {
+        ToastSettings(icon, frame, text.first, text.second).display(announcerPlus, sender)
+    }
+
+    @Subcommand("parsetitle|ptitle|pti")
+    @CommandPermission("announcerplus.parsetitle")
+    @Description("Parses a Title and Subtitle style message and displays it back.")
+    @CommandCompletion("@numbers_by_5 *")
+    fun onParseTitle(sender: Player, seconds: Int, text: CommandHelper.StringPair) {
+        TitleUpdateTask(announcerPlus, sender, 0, seconds, 1, text.first, text.second).start()
+    }
+
+    @Subcommand("parseactionbar|pactionbar|pab")
+    @CommandPermission("announcerplus.parseactionbar")
+    @Description("Parses an Action Bar style message and displays it back.")
+    @CommandCompletion("@numbers_by_5 *")
+    fun onParseActionBar(sender: Player, seconds: Int, text: String) {
+        ActionBarUpdateTask(announcerPlus, sender, seconds * 20L, true, text).start()
     }
 
     @Subcommand("list|l")
