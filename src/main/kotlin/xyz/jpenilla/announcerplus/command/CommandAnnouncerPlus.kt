@@ -4,6 +4,7 @@ import co.aikar.commands.BaseCommand
 import co.aikar.commands.CommandHelp
 import co.aikar.commands.annotation.*
 import co.aikar.commands.annotation.Optional
+import co.aikar.commands.bukkit.contexts.OnlinePlayer
 import com.google.common.collect.ImmutableList
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.TextComponent
@@ -101,20 +102,21 @@ class CommandAnnouncerPlus : BaseCommand() {
     @Subcommand("broadcasttoast|bctoast|bcto")
     @CommandPermission("announcerplus.broadcasttoast")
     @Description("Parses and broadcasts a Toast style message to the specified world or all worlds.")
-    @CommandCompletion("* * * *")
-    fun onBroadcastToast(sender: CommandSender, world: CommandHelper.WorldPlayers, icon: Material, frame: ToastSettings.FrameType, text: CommandHelper.StringPair) {
+    @CommandCompletion("* * * * *")
+    fun onBroadcastToast(sender: CommandSender, world: CommandHelper.WorldPlayers, icon: Material, frame: ToastSettings.FrameType, header: CommandHelper.QuotedString, body: CommandHelper.QuotedString) {
+        val toast = ToastSettings(icon, frame, header.string, body.string)
         for (player in world.players) {
-            ToastSettings(icon, frame, text.first, text.second).display(announcerPlus, player)
+            toast.queueDisplay(announcerPlus, player)
         }
     }
 
     @Subcommand("broadcasttitle|bctitle|bcti")
     @CommandPermission("announcerplus.broadcasttitle")
     @Description("Parses and broadcasts a Title and Subtitle style message to the specified world or all worlds.")
-    @CommandCompletion("* @numbers_by_5 *")
-    fun onBroadcastTitle(sender: CommandSender, world: CommandHelper.WorldPlayers, seconds: Int, text: CommandHelper.StringPair) {
+    @CommandCompletion("* @numbers_by_5 * *")
+    fun onBroadcastTitle(sender: CommandSender, world: CommandHelper.WorldPlayers, seconds: Int, title: CommandHelper.QuotedString, subTitle: CommandHelper.QuotedString) {
         for (player in world.players) {
-            TitleUpdateTask(announcerPlus, player, 0, seconds, 1, text.first, text.second).start()
+            TitleUpdateTask(announcerPlus, player, 0, seconds, 1, title.string, subTitle.string).start()
         }
     }
 
@@ -125,6 +127,47 @@ class CommandAnnouncerPlus : BaseCommand() {
     fun onBroadcastActionBar(sender: CommandSender, world: CommandHelper.WorldPlayers, seconds: Int, text: String) {
         for (player in world.players) {
             ActionBarUpdateTask(announcerPlus, player, seconds * 20L, true, text).start()
+        }
+    }
+
+    @Subcommand("send")
+    @CommandPermission("announcerplus.send")
+    @Description("Parses a message and sends it to the specified players.")
+    @CommandCompletion("* *")
+    fun onSendChat(sender: CommandSender, players: Array<OnlinePlayer>, message: String) {
+        for (player in players) {
+            chat.send(player.player, configManager.parse(player.player, message))
+        }
+    }
+
+    @Subcommand("sendtoast")
+    @CommandPermission("announcerplus.sendtoast")
+    @Description("Parses and sends a Toast style message to the specified players.")
+    @CommandCompletion("* * * * *")
+    fun onSendToast(sender: CommandSender, players: Array<OnlinePlayer>, icon: Material, frame: ToastSettings.FrameType, header: CommandHelper.QuotedString, body: CommandHelper.QuotedString) {
+        val toast = ToastSettings(icon, frame, header.string, body.string)
+        for (player in players) {
+            toast.queueDisplay(announcerPlus, player.player)
+        }
+    }
+
+    @Subcommand("sendtitle")
+    @CommandPermission("announcerplus.sendtitle")
+    @Description("Parses and sends a Title and Subtitle style message to the specified players.")
+    @CommandCompletion("* @numbers_by_5 * *")
+    fun onSendTitle(sender: CommandSender, players: Array<OnlinePlayer>, seconds: Int, title: CommandHelper.QuotedString, subTitle: CommandHelper.QuotedString) {
+        for (player in players) {
+            TitleUpdateTask(announcerPlus, player.player, 0, seconds, 1, title.string, subTitle.string).start()
+        }
+    }
+
+    @Subcommand("sendactionbar|sendab")
+    @CommandPermission("announcerplus.sendactionbar")
+    @Description("Parses and sends an Action Bar style message to the specified players.")
+    @CommandCompletion("* @numbers_by_5 *")
+    fun onSendActionBar(sender: CommandSender, players: Array<OnlinePlayer>, seconds: Int, text: String) {
+        for (player in players) {
+            ActionBarUpdateTask(announcerPlus, player.player, seconds * 20L, true, text).start()
         }
     }
 
@@ -147,17 +190,17 @@ class CommandAnnouncerPlus : BaseCommand() {
     @Subcommand("parsetoast|pto")
     @Description("Parse a toast message and display it")
     @CommandPermission("announcerplus.parsetoast")
-    @CommandCompletion("* * *")
-    fun onParseToast(sender: Player, icon: Material, frame: ToastSettings.FrameType, text: CommandHelper.StringPair) {
-        ToastSettings(icon, frame, text.first, text.second).display(announcerPlus, sender)
+    @CommandCompletion("* * * *")
+    fun onParseToast(sender: Player, icon: Material, frame: ToastSettings.FrameType, header: CommandHelper.QuotedString, body: CommandHelper.QuotedString) {
+        ToastSettings(icon, frame, header.string, body.string).queueDisplay(announcerPlus, sender)
     }
 
     @Subcommand("parsetitle|ptitle|pti")
     @CommandPermission("announcerplus.parsetitle")
     @Description("Parses a Title and Subtitle style message and displays it back.")
-    @CommandCompletion("@numbers_by_5 *")
-    fun onParseTitle(sender: Player, seconds: Int, text: CommandHelper.StringPair) {
-        TitleUpdateTask(announcerPlus, sender, 0, seconds, 1, text.first, text.second).start()
+    @CommandCompletion("@numbers_by_5 * *")
+    fun onParseTitle(sender: Player, seconds: Int, title: CommandHelper.QuotedString, subTitle: CommandHelper.QuotedString) {
+        TitleUpdateTask(announcerPlus, sender, 0, seconds, 1, title.string, subTitle.string).start()
     }
 
     @Subcommand("parseactionbar|pactionbar|pab")

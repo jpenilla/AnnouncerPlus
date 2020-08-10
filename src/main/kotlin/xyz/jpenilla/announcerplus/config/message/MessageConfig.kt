@@ -102,7 +102,7 @@ class MessageConfig {
                         chat.playSounds(player, message.randomSound, message.sounds)
                         message.actionBar.displayIfEnabled(announcerPlus, player)
                         message.title.displayIfEnabled(announcerPlus, player)
-                        message.toast.displayIfEnabled(announcerPlus, player)
+                        message.toast.queueDisplay(announcerPlus, player)
 
                         switchContext(SynchronizationContext.SYNC)
                         for (command in message.perPlayerCommands) {

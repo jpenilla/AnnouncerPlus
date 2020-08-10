@@ -4,6 +4,7 @@ import co.aikar.commands.ACFUtil
 import co.aikar.commands.InvalidCommandArgument
 import co.aikar.commands.MessageKeys
 import co.aikar.commands.PaperCommandManager
+import co.aikar.commands.bukkit.contexts.OnlinePlayer
 import com.google.common.collect.ImmutableList
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
@@ -39,37 +40,54 @@ class CommandHelper(private val announcerPlus: AnnouncerPlus) {
                     ?: throw InvalidCommandArgument(MessageKeys.PLEASE_SPECIFY_ONE_OF, "{valid}", ACFUtil.join(valid, ", "))
         }
 
-        contexts.registerContext(StringPair::class.java) {
-            val input = if (it.isLastArg) {
-                it.joinArgs()
-            } else {
-                it.popFirstArg()
-            }
-            val matcher = quotesPattern.matcher(input)
-            val strings = arrayListOf<String>()
-            while (matcher.find()) {
+        contexts.registerContext(QuotedString::class.java) {
+            val args = it.args.joinToString(" ")
+            val matcher = quotesPattern.matcher(args)
+            if (matcher.find() && args.startsWith(matcher.group(0))) {
                 val string = StringBuilder(matcher.group(0))
+
+                val argsList = args.replaceFirst(string.toString(), "").split(" ")
                 string.deleteCharAt(string.lastIndex)
                 string.deleteCharAt(0)
-                strings.add(string.toString().replace("\\\"", "\""))
+
+                for (arg in ImmutableList.copyOf(it.args)) {
+                    if (!argsList.contains(arg)) {
+                        it.args.remove(arg)
+                    }
+                }
+
+                QuotedString(string.toString().replace("\\\"", "\"").replace("\\ ", " "))
+            } else {
+                QuotedString(it.popFirstArg())
             }
-            if (strings.isEmpty()) {
-                strings.add(input)
-            }
-            StringPair(strings[0], strings.getOrNull(1) ?: "")
         }
 
         contexts.registerContext(WorldPlayers::class.java) {
             val input = it.popFirstArg()
             val world = Bukkit.getWorld(input)
-            if (world != null) {
-                WorldPlayers(ImmutableList.copyOf(world.players))
-            } else if (input == "*") {
-                WorldPlayers(ImmutableList.copyOf(Bukkit.getOnlinePlayers()))
-            } else {
-                val valid = ArrayList(Bukkit.getWorlds().map { w -> w.name })
-                valid.add("*")
-                throw InvalidCommandArgument(MessageKeys.PLEASE_SPECIFY_ONE_OF, "{valid}", ACFUtil.join(valid, ", "))
+            when {
+                world != null -> {
+                    WorldPlayers(ImmutableList.copyOf(world.players))
+                }
+                input == "*" -> {
+                    WorldPlayers(ImmutableList.copyOf(Bukkit.getOnlinePlayers()))
+                }
+                input.contains(",") -> {
+                    val inputs = input.split(",")
+                    val players = arrayListOf<Player>()
+                    val valid = ArrayList(Bukkit.getWorlds().map { w -> w.name })
+                    for (string in inputs) {
+                        val w = Bukkit.getWorld(string)
+                                ?: throw InvalidCommandArgument(MessageKeys.PLEASE_SPECIFY_ONE_OF, "{valid}", ACFUtil.join(valid, ", "))
+                        players.addAll(w.players)
+                    }
+                    WorldPlayers(players.distinct())
+                }
+                else -> {
+                    val valid = ArrayList(Bukkit.getWorlds().map { w -> w.name })
+                    valid.add("*")
+                    throw InvalidCommandArgument(MessageKeys.PLEASE_SPECIFY_ONE_OF, "{valid}", ACFUtil.join(valid, ", "))
+                }
             }
         }
     }
@@ -101,20 +119,20 @@ class CommandHelper(private val announcerPlus: AnnouncerPlus) {
             completion
         }
 
-        completions.registerAsyncCompletion("string_pair") {
-            ImmutableList.of(
-                    "A single unquoted text",
-                    "\"Text 1\" \"Text 2\"",
-                    "\"Some Text\" \"Some \\\"quoted\\\" text!\"",
-                    "\"A single text\""
-            )
+        completions.registerAsyncCompletion("quoted_string") {
+            val input = it.input
+            if (input.length > 1 && input.startsWith("\"") && input.endsWith("\"") && !input.endsWith("\\\"")) {
+                ImmutableList.of("")
+            } else {
+                ImmutableList.of("$input\"")
+            }
         }
-        completions.setDefaultCompletion("string_pair", StringPair::class.java)
+        completions.setDefaultCompletion("quoted_string", QuotedString::class.java)
 
         completions.registerCompletion("world_audience") {
-            val valid = ArrayList(Bukkit.getWorlds().map { w -> w.name })
-            valid.add("*")
-            valid
+            val completion = ArrayList(getCommaSeparatedCompletion(it.input, Bukkit.getWorlds().map { w -> w.name }))
+            completion.add("*")
+            completion
         }
         completions.setDefaultCompletion("world_audience", WorldPlayers::class.java)
 
@@ -127,6 +145,33 @@ class CommandHelper(private val announcerPlus: AnnouncerPlus) {
             }
             completion
         }
+
+        completions.registerCompletion("player_array") {
+            val names = ImmutableList.copyOf(Bukkit.getOnlinePlayers()).map { player -> player.name }
+            getCommaSeparatedCompletion(it.input, names)
+        }
+        completions.setDefaultCompletion("player_array", Array<OnlinePlayer>::class.java)
+    }
+
+    private fun getCommaSeparatedCompletion(input: String, names: List<String>): List<String> {
+        val completion = arrayListOf<String>()
+        completion.addAll(names)
+        if (input.endsWith(",") && !input.startsWith(",")) {
+            completion.addAll(names.map { name -> "$input$name" })
+        }
+        if (input.isNotEmpty()) {
+            val i = input.split(",")
+            if (names.contains(i.last())) {
+                completion.add("$input,")
+            }
+        }
+        for (string in ImmutableList.copyOf(completion)) {
+            val splitC = string.split(",")
+            if (splitC.distinct().size != splitC.size) {
+                completion.remove(string)
+            }
+        }
+        return completion
     }
 
     fun reload() {
@@ -137,6 +182,6 @@ class CommandHelper(private val announcerPlus: AnnouncerPlus) {
         private val quotesPattern = Pattern.compile("\"(\\\\\\\\|\\\\\"|[^\"])*\"")
     }
 
-    data class StringPair(val first: String, val second: String)
+    data class QuotedString(val string: String)
     data class WorldPlayers(val players: List<Player>)
 }

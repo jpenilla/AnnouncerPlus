@@ -74,6 +74,10 @@ class ToastSettings : MessageElement {
         }
     }
 
+    fun queueDisplay(announcerPlus: AnnouncerPlus, player: Player) {
+        announcerPlus.toastTask.queueToast(this, player)
+    }
+
     private fun getJson(announcerPlus: AnnouncerPlus, player: Player): String {
         val json = JsonObject()
         val display = JsonObject()

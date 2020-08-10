@@ -1,8 +1,10 @@
 package xyz.jpenilla.announcerplus.textanimation.animation
 
+import org.bukkit.entity.Player
+import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.textanimation.TextAnimation
 
-class ScrollingText(text: String, private val windowSize: Int, private val ticks: Int) : TextAnimation {
+class ScrollingText(private val announcerPlus: AnnouncerPlus, private val player: Player?, text: String, private val windowSize: Int, private val ticks: Int) : TextAnimation {
     private val spaces = getSpaces(windowSize)
     private val text = "$spaces$text$spaces"
     private var index = 0
@@ -16,21 +18,23 @@ class ScrollingText(text: String, private val windowSize: Int, private val ticks
         return sb.toString()
     }
 
-    private fun next() {
-        index++
-        if (index > text.length - windowSize) {
-            index = 0
-        }
-    }
-
     override fun getValue(): String {
-        return text.substring(index, index + windowSize)
+        return try {
+            announcerPlus.configManager.parse(player, text).substring(index, index + windowSize)
+        } catch (e: Exception) {
+            //if the placeholders changed in a way that causes us to out of bounds
+            index = 0
+            announcerPlus.configManager.parse(player, text).substring(index, index + windowSize)
+        }
     }
 
     override fun nextValue(): String {
         ticksLived++
         if (ticksLived % ticks == 0) {
-            next()
+            index++
+            if (index > announcerPlus.configManager.parse(player, text).length - windowSize) {
+                index = 0
+            }
         }
         return getValue()
     }

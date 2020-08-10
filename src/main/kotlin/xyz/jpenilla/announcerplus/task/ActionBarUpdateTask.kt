@@ -6,7 +6,7 @@ import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.textanimation.AnimationHolder
 
 class ActionBarUpdateTask(private val announcerPlus: AnnouncerPlus, private val player: Player, private val lifeTime: Long, private val shouldFade: Boolean, private val text: String) : UpdateTask(announcerPlus) {
-    private val animationHolder = AnimationHolder(text)
+    private val animationHolder = AnimationHolder(announcerPlus, player, text)
 
     override fun stop() {
         super.stop()
@@ -16,7 +16,7 @@ class ActionBarUpdateTask(private val announcerPlus: AnnouncerPlus, private val 
     }
 
     override fun update() {
-        announcerPlus.chat.sendActionBar(player, announcerPlus.configManager.parse(player, animationHolder.parseNext(text)))
+        announcerPlus.chat.sendActionBar(player, animationHolder.parseNext(text))
     }
 
     override fun shouldContinue(): Boolean {

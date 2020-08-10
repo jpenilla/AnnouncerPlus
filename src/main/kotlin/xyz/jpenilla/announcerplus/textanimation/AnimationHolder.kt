@@ -2,10 +2,12 @@ package xyz.jpenilla.announcerplus.textanimation
 
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
+import org.bukkit.entity.Player
+import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.textanimation.animation.*
 import java.util.regex.Pattern
 
-class AnimationHolder(private val message: String) {
+class AnimationHolder(private val announcerPlus: AnnouncerPlus, private val player: Player?, private val message: String) {
     companion object {
         private val pattern = Pattern.compile("\\{animate:/?([a-z][^}]*)/?}?")
     }
@@ -61,14 +63,14 @@ class AnimationHolder(private val message: String) {
                     } catch (e: Exception) {
                         6
                     }
-                    animations[matcher.group()] = Typewriter(text, ticks)
+                    animations[matcher.group()] = Typewriter(announcerPlus, player, text, ticks)
                 }
 
                 "randomcolor" -> {
                     val type = try {
                         RandomColor.Type.of(tokens[1])
-                    } catch (e: IllegalArgumentException) {
-                        throw IllegalArgumentException("No type provided. use one of ${RandomColor.Type.values()}")
+                    } catch (e: Exception) {
+                        RandomColor.Type.PULSE
                     }
                     val ticks = try {
                         tokens[2].toInt()
@@ -83,14 +85,14 @@ class AnimationHolder(private val message: String) {
                     val window = try {
                         tokens[2].toInt()
                     } catch (e: Exception) {
-                        throw IllegalArgumentException("Invalid window size Integer: ${tokens[2]}. Use a number")
+                        10
                     }
                     val ticks = try {
                         tokens[3].toInt()
                     } catch (e: Exception) {
                         4
                     }
-                    animations[matcher.group()] = ScrollingText(text, window, ticks)
+                    animations[matcher.group()] = ScrollingText(announcerPlus, player, text, window, ticks)
                 }
             }
         }
@@ -101,7 +103,7 @@ class AnimationHolder(private val message: String) {
         for (animation in animations) {
             msg = msg.replace(animation.key, animation.value.nextValue())
         }
-        return msg
+        return announcerPlus.configManager.parse(player, msg)
     }
 
     fun parseCurrent(text: String?): String {
@@ -109,6 +111,6 @@ class AnimationHolder(private val message: String) {
         for (animation in animations) {
             msg = msg.replace(animation.key, animation.value.getValue())
         }
-        return msg
+        return announcerPlus.configManager.parse(player, msg)
     }
 }

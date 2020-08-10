@@ -144,7 +144,7 @@ class JoinQuitConfig {
             announcerPlus.schedule(SynchronizationContext.ASYNC) {
                 join.title.displayIfEnabled(announcerPlus, player)
                 join.actionBar.displayIfEnabled(announcerPlus, player)
-                join.toast.displayIfEnabled(announcerPlus, player)
+                join.toast.queueDisplay(announcerPlus, player)
                 if (join.sounds != "") {
                     chat.playSounds(player, join.randomSound, join.sounds)
                 }

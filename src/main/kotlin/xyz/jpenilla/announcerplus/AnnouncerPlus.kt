@@ -10,6 +10,7 @@ import org.bukkit.plugin.RegisteredServiceProvider
 import xyz.jpenilla.announcerplus.command.CommandHelper
 import xyz.jpenilla.announcerplus.compatability.EssentialsHook
 import xyz.jpenilla.announcerplus.config.ConfigManager
+import xyz.jpenilla.announcerplus.task.ToastTask
 import xyz.jpenilla.announcerplus.util.UpdateChecker
 import xyz.jpenilla.jmplib.BasePlugin
 import java.util.concurrent.Callable
@@ -22,6 +23,7 @@ class AnnouncerPlus : BasePlugin() {
     var essentials: EssentialsHook? = null
     lateinit var configManager: ConfigManager; private set
     lateinit var commandHelper: CommandHelper
+    lateinit var toastTask: ToastTask
 
     override fun onPluginEnable() {
         instance = this
@@ -35,6 +37,7 @@ class AnnouncerPlus : BasePlugin() {
         }
         configManager = ConfigManager(this)
         commandHelper = CommandHelper(this)
+        toastTask = ToastTask(this)
         server.pluginManager.registerEvents(JoinQuitListener(this), this)
         broadcast()
         UpdateChecker(this, 81005).updateCheck()
@@ -56,6 +59,7 @@ class AnnouncerPlus : BasePlugin() {
     }
 
     override fun onDisable() {
+        toastTask.cancel()
     }
 
     private fun setupPermissions(): Boolean {
