@@ -94,7 +94,7 @@ class JoinQuitConfig {
                 "<gradient:green:blue:green:{animate:scroll:0.1}>|||||||||||||||||||||||||||||||||||||||</gradient>")
 
         @Setting(value = "toast-settings", comment = "Configure the Toast that will be showed to the joining player")
-        var toast = ToastSettings(Material.NETHERITE_INGOT, ToastSettings.FrameType.CHALLENGE,
+        var toast = ToastSettings(Material.DIAMOND, ToastSettings.FrameType.CHALLENGE,
                 "<gradient:green:blue><bold><italic>AnnouncerPlus", "<rainbow>Welcome to the server!")
     }
 

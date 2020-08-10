@@ -47,7 +47,7 @@ class MessageConfig {
                     "{prefix1} 1. <gradient:blue:green:blue>Multi-line test AnnouncerPlus broadcast",
                     "{prefix1} 2. <gradient:red:gold:red>Line number two of three",
                     "{prefix1} 3. <bold><rainbow>this is the last line (line 3)"))
-                    .toast(ToastSettings(Material.NETHERITE_INGOT, ToastSettings.FrameType.CHALLENGE,
+                    .toast(ToastSettings(Material.DIAMOND, ToastSettings.FrameType.CHALLENGE,
                             "<gradient:green:blue><bold><italic>AnnouncerPlus", "<rainbow>This is a Toast message!")),
             Message(arrayListOf("{prefix1} Test <gradient:blue:aqua>AnnouncerPlus</gradient> broadcast with sound<green>!"))
                     .sounds("minecraft:entity.strider.happy,minecraft:entity.villager.ambient,minecraft:block.note_block.cow_bell"),

@@ -23,7 +23,7 @@ class ToastSettings : MessageElement {
     }
 
     @Setting(value = "icon", comment = "The icon for the Toast/Advancement notification")
-    var icon = Material.NETHERITE_INGOT
+    var icon = Material.DIAMOND
 
     @Setting(value = "header", comment = "The text for the header of the Toast. If this and the footer are set to \"\" (empty string), the toast is disabled")
     var header = ""
@@ -75,7 +75,7 @@ class ToastSettings : MessageElement {
     }
 
     fun queueDisplay(announcerPlus: AnnouncerPlus, player: Player) {
-        announcerPlus.toastTask.queueToast(this, player)
+        announcerPlus.toastTask?.queueToast(this, player)
     }
 
     private fun getJson(announcerPlus: AnnouncerPlus, player: Player): String {
@@ -91,7 +91,12 @@ class ToastSettings : MessageElement {
         }
         icon.addProperty("nbt", nbtBuilder.toString())
         display.add("icon", icon)
-        val title = announcerPlus.jsonParser.parse(announcerPlus.gsonComponentSerializer.serialize(announcerPlus.miniMessage.parse(announcerPlus.configManager.parse(player, "$header<reset>\n$footer"))))
+        val titleComponent = announcerPlus.miniMessage.parse(announcerPlus.configManager.parse(player, "$header<reset>\n$footer"))
+        val title = announcerPlus.jsonParser.parse(if (announcerPlus.majorMinecraftVersion < 16) {
+            announcerPlus.downsamplingGsonComponentSerializer.serialize(titleComponent)
+        } else {
+            announcerPlus.gsonComponentSerializer.serialize(titleComponent)
+        })
         display.add("title", title)
         display.addProperty("description", "AnnouncerPlus Toast Description")
         display.addProperty("frame", frame.value)

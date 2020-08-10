@@ -1,7 +1,6 @@
 name: AnnouncerPlus
 version: ${project.version}
 main: xyz.jpenilla.announcerplus.AnnouncerPlus
-api-version: 1.16
 authors: [jmp]
 website: https://www.spigotmc.org/resources/announcer-plus.81005/
 depend: [Vault]

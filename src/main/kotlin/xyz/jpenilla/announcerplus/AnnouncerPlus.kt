@@ -13,17 +13,17 @@ import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.task.ToastTask
 import xyz.jpenilla.announcerplus.util.UpdateChecker
 import xyz.jpenilla.jmplib.BasePlugin
-import java.util.concurrent.Callable
 
 class AnnouncerPlus : BasePlugin() {
     val gson: Gson = GsonBuilder().create()
     val jsonParser = JsonParser()
     val gsonComponentSerializer = GsonComponentSerializer.gson()
+    val downsamplingGsonComponentSerializer = GsonComponentSerializer.colorDownsamplingGson()
     var perms: Permission? = null
     var essentials: EssentialsHook? = null
+    var toastTask: ToastTask? = null
     lateinit var configManager: ConfigManager; private set
     lateinit var commandHelper: CommandHelper
-    lateinit var toastTask: ToastTask
 
     override fun onPluginEnable() {
         instance = this
@@ -37,13 +37,17 @@ class AnnouncerPlus : BasePlugin() {
         }
         configManager = ConfigManager(this)
         commandHelper = CommandHelper(this)
-        toastTask = ToastTask(this)
+        if (majorMinecraftVersion > 12) {
+            toastTask = ToastTask(this)
+        } else {
+            logger.info("Sorry, but Toast/Achievement style messages do not work on this version. Update to 1.13 or newer to use this feature.")
+        }
         server.pluginManager.registerEvents(JoinQuitListener(this), this)
         broadcast()
         UpdateChecker(this, 81005).updateCheck()
         val metrics = Metrics(this, 8067)
-        metrics.addCustomChart(Metrics.SimplePie("join_quit_configs", Callable { configManager.joinQuitConfigs.size.toString() }))
-        metrics.addCustomChart(Metrics.SimplePie("message_configs", Callable { configManager.messageConfigs.size.toString() }))
+        metrics.addCustomChart(Metrics.SimplePie("join_quit_configs") { configManager.joinQuitConfigs.size.toString() })
+        metrics.addCustomChart(Metrics.SimplePie("message_configs") { configManager.messageConfigs.size.toString() })
     }
 
     private fun broadcast() {
@@ -59,7 +63,7 @@ class AnnouncerPlus : BasePlugin() {
     }
 
     override fun onDisable() {
-        toastTask.cancel()
+        toastTask?.cancel()
     }
 
     private fun setupPermissions(): Boolean {
