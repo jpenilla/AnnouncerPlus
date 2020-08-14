@@ -20,6 +20,7 @@ class CommandHelper(private val announcerPlus: AnnouncerPlus) {
     private val commandManager = PaperCommandManager(announcerPlus)
 
     init {
+        //commandManager.enableUnstableAPI("brigadier")
         commandManager.enableUnstableAPI("help")
         commandManager.defaultHelpPerPage = 4
         commandManager.registerDependency(ConfigManager::class.java, announcerPlus.configManager)
@@ -43,18 +44,13 @@ class CommandHelper(private val announcerPlus: AnnouncerPlus) {
         contexts.registerContext(QuotedString::class.java) {
             val args = it.args.joinToString(" ")
             val matcher = quotesPattern.matcher(args)
-            if (matcher.find() && args.startsWith(matcher.group(0))) {
-                val string = StringBuilder(matcher.group(0))
+            if (matcher.find() && args.startsWith(matcher.group())) {
+                it.args.clear()
+                it.args.addAll(args.replaceFirst(matcher.group(), "").trim().split(" "))
 
-                val argsList = args.replaceFirst(string.toString(), "").split(" ")
+                val string = StringBuilder(matcher.group())
                 string.deleteCharAt(string.lastIndex)
                 string.deleteCharAt(0)
-
-                for (arg in ImmutableList.copyOf(it.args)) {
-                    if (!argsList.contains(arg)) {
-                        it.args.remove(arg)
-                    }
-                }
 
                 QuotedString(string.toString().replace("\\\"", "\"").replace("\\ ", " "))
             } else {

@@ -2,6 +2,7 @@ name: AnnouncerPlus
 version: ${project.version}
 main: xyz.jpenilla.announcerplus.AnnouncerPlus
 authors: [jmp]
+api-version: 1.13
 website: https://www.spigotmc.org/resources/announcer-plus.81005/
 depend: [Vault]
 softdepend: [PlaceholderAPI, Prisma, Essentials]

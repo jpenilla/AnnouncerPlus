@@ -227,7 +227,7 @@
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>19.0.0</version>
+            <version>20.0.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -279,12 +279,12 @@
         <dependency>
             <groupId>org.spongepowered</groupId>
             <artifactId>configurate-hocon</artifactId>
-            <version>3.7</version>
+            <version>3.7.1</version>
         </dependency>
         <dependency>
             <groupId>org.spongepowered</groupId>
             <artifactId>configurate-ext-kotlin</artifactId>
-            <version>3.7</version>
+            <version>3.7.1</version>
         </dependency>
         <dependency>
             <groupId>net.kyori</groupId>

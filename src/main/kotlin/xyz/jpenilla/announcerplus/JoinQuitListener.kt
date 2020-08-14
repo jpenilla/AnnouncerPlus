@@ -12,7 +12,7 @@ class JoinQuitListener(private val announcerPlus: AnnouncerPlus) : Listener {
         if (announcerPlus.configManager.mainConfig.joinEvent) {
             event.joinMessage = ""
             for (entry in announcerPlus.configManager.mainConfig.randomJoinConfigs.entries) {
-                if (event.player.hasPermission("announcerplus.randomjoin.${entry.key}")) {
+                if (entry.key != "demo" && event.player.hasPermission("announcerplus.randomjoin.${entry.key}")) {
                     val weights = RandomCollection<String>()
                     for (pair in entry.value) {
                         weights.add(pair.weight, pair.configName)
@@ -31,7 +31,7 @@ class JoinQuitListener(private val announcerPlus: AnnouncerPlus) : Listener {
         if (announcerPlus.configManager.mainConfig.quitEvent) {
             event.quitMessage = ""
             for (entry in announcerPlus.configManager.mainConfig.randomQuitConfigs.entries) {
-                if (event.player.hasPermission("announcerplus.randomquit.${entry.key}")) {
+                if (entry.key != "demo" && event.player.hasPermission("announcerplus.randomquit.${entry.key}")) {
                     val weights = RandomCollection<String>()
                     for (pair in entry.value) {
                         weights.add(pair.weight, pair.configName)
