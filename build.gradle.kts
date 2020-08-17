@@ -11,6 +11,7 @@ configurations.all {
     exclude(group = "org.checkerframework")
 }
 
+val projectName = "AnnouncerPlus"
 group = "xyz.jpenilla"
 version = "1.1.2+{BUILD_NUMBER}-SNAPSHOT"
 
@@ -51,7 +52,7 @@ dependencies {
 }
 
 spigot {
-    name = "AnnouncerPlus"
+    name = projectName
     apiVersion = "1.13"
     description = "Announcement plugin with support for permissions. Supports Hex colors and clickable messages/hover text using MiniMessage."
     website = "https://www.spigotmc.org/resources/announcer-plus.81005/"
@@ -75,6 +76,7 @@ tasks {
     }
     withType<ShadowJar> {
         archiveClassifier.set("")
+        archiveFileName.set("$projectName-${project.version}.jar")
         dependsOn(autoRelocate)
         minimize()
     }
