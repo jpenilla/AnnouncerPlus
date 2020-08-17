@@ -1,5 +1,6 @@
 # User-specific stuff
 .idea/
+.gradle/
 
 *.iml
 *.ipr
@@ -18,7 +19,6 @@ out/
 *.ctxt
 
 # Package Files #
-*.jar
 *.war
 *.nar
 *.ear
@@ -96,6 +96,7 @@ $RECYCLE.BIN/
 *.lnk
 
 target/
+build/
 
 pom.xml.tag
 pom.xml.releaseBackup

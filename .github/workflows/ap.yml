@@ -13,14 +13,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - run: sed "s/{BUILDID}/$GITHUB_RUN_NUMBER/g" pom.xml > _pom.xml; rm pom.xml; mv _pom.xml pom.xml
+    - run: sed "s/{BUILDID}/$GITHUB_RUN_NUMBER/g" build.gradle.kts > _build.gradle.kts; rm build.gradle.kts; mv _build.gradle.kts build.gradle.kts
     - name: Set up JDK 1.8
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-    - name: Build with Maven
-      run: mvn clean package
-    - run: mkdir staging && cp target/AnnouncerPlus*.jar staging
+    - name: Build with Gradle
+      run: ./gradlew clean shadowJar
+    - run: mkdir staging && cp build/libs/AnnouncerPlus*.jar staging
     - uses: actions/upload-artifact@v1
       with:
         name: Package

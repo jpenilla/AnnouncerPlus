@@ -3,6 +3,7 @@ package xyz.jpenilla.announcerplus
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
+import kr.entree.spigradle.annotations.PluginMain
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer
 import net.milkbowl.vault.permission.Permission
 import org.bstats.bukkit.Metrics
@@ -14,6 +15,7 @@ import xyz.jpenilla.announcerplus.task.ToastTask
 import xyz.jpenilla.announcerplus.util.UpdateChecker
 import xyz.jpenilla.jmplib.BasePlugin
 
+@PluginMain
 class AnnouncerPlus : BasePlugin() {
     val gson: Gson = GsonBuilder().create()
     val jsonParser = JsonParser()
