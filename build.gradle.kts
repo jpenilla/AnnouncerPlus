@@ -12,7 +12,7 @@ configurations.all {
 }
 
 group = "xyz.jpenilla"
-version = "1.1.2+{BUILDID}-SNAPSHOT"
+version = "1.1.2+{BUILD_NUMBER}-SNAPSHOT"
 
 repositories {
     mavenLocal()
@@ -34,12 +34,14 @@ dependencies {
     implementation("co.aikar", "acf-paper", "0.5.0-SNAPSHOT")
     implementation("com.okkero.skedule", "skedule", "1.2.6")
     implementation("org.bstats", "bstats-bukkit", "1.7")
-    implementation("net.kyori", "adventure-text-minimessage", "3.0.0-SNAPSHOT.jmp")
-    implementation("xyz.jpenilla", "jmplib", "1.0.0-SNAPSHOT.90")
+    implementation("com.github.jmanpenilla", "adventure-text-minimessage", "2cb5077c9d")
     compileOnly("org.spigotmc", "spigot-api", "1.13.2-R0.1-SNAPSHOT")
     compileOnly("com.github.MilkBowl", "VaultAPI", "1.7")
     compileOnly("net.ess3", "EssentialsX", "2.17.2")
 
+    implementation("xyz.jpenilla", "jmplib", "1.0.0-SNAPSHOT.90") {
+        exclude(group = "net.kyori", module = "adventure-text-minimessage")
+    }
     implementation("org.spongepowered", "configurate-hocon", "3.7.1") {
         exclude(group = "com.google.guava", module = "guava")
     }
@@ -49,6 +51,7 @@ dependencies {
 }
 
 spigot {
+    name = "AnnouncerPlus"
     apiVersion = "1.13"
     description = "Announcement plugin with support for permissions. Supports Hex colors and clickable messages/hover text using MiniMessage."
     website = "https://www.spigotmc.org/resources/announcer-plus.81005/"
