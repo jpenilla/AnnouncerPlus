@@ -18,6 +18,8 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
     - name: Build with Gradle
       run: ./gradlew clean shadowJar
     - run: mkdir staging && cp build/libs/AnnouncerPlus*.jar staging
