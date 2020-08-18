@@ -13,7 +13,7 @@ configurations.all {
 
 val projectName = "AnnouncerPlus"
 group = "xyz.jpenilla"
-version = "1.1.2+{BUILD_NUMBER}-SNAPSHOT"
+version = "1.1.3+{BUILD_NUMBER}-SNAPSHOT"
 
 repositories {
     mavenLocal()
