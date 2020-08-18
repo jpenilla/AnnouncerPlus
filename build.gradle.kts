@@ -31,10 +31,7 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation("xyz.jpenilla", "jmplib", "1.0.0+97-SNAPSHOT")
-    implementation("com.github.jmanpenilla", "adventure-text-minimessage", "2cb5077c9d")
-    implementation("net.kyori", "adventure-platform-bukkit", "4.0.0-SNAPSHOT")
-    implementation("net.kyori", "adventure-text-feature-pagination", "4.0.0-SNAPSHOT")
+    implementation("xyz.jpenilla", "jmplib", "1.0.0+98-SNAPSHOT")
     implementation("co.aikar", "acf-paper", "0.5.0-SNAPSHOT")
     implementation("com.okkero.skedule", "skedule", "1.2.6")
     implementation("org.bstats", "bstats-bukkit", "1.7")
