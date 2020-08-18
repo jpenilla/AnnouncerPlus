@@ -23,7 +23,7 @@ repositories {
     maven(url = "https://repo.spongepowered.org/maven")
     maven(url = "https://repo.aikar.co/content/groups/aikar/")
     maven(url = "https://nexus.okkero.com/repository/maven-releases/")
-    maven(url = "https://mvn.jpenilla.xyz/repository/internal")
+    maven(url = "https://repo.jpenilla.xyz/snapshots")
     maven(url = "https://ci.ender.zone/plugin/repository/everything/")
     maven(url = "https://repo.codemc.org/repository/maven-public")
     maven(url = "https://jitpack.io")
@@ -31,18 +31,17 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib"))
+    implementation("xyz.jpenilla", "jmplib", "1.0.0+97-SNAPSHOT")
+    implementation("com.github.jmanpenilla", "adventure-text-minimessage", "2cb5077c9d")
+    implementation("net.kyori", "adventure-platform-bukkit", "4.0.0-SNAPSHOT")
     implementation("net.kyori", "adventure-text-feature-pagination", "4.0.0-SNAPSHOT")
     implementation("co.aikar", "acf-paper", "0.5.0-SNAPSHOT")
     implementation("com.okkero.skedule", "skedule", "1.2.6")
     implementation("org.bstats", "bstats-bukkit", "1.7")
-    implementation("com.github.jmanpenilla", "adventure-text-minimessage", "2cb5077c9d")
     compileOnly("org.spigotmc", "spigot-api", "1.13.2-R0.1-SNAPSHOT")
     compileOnly("com.github.MilkBowl", "VaultAPI", "1.7")
     compileOnly("net.ess3", "EssentialsX", "2.17.2")
 
-    implementation("xyz.jpenilla", "jmplib", "1.0.0-SNAPSHOT.90") {
-        exclude(group = "net.kyori", module = "adventure-text-minimessage")
-    }
     implementation("org.spongepowered", "configurate-hocon", "3.7.1") {
         exclude(group = "com.google.guava", module = "guava")
     }
