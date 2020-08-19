@@ -1,5 +1,6 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
+import org.apache.commons.io.output.ByteArrayOutputStream
 
 plugins {
     kotlin("jvm") version "1.3.72"
@@ -13,7 +14,7 @@ configurations.all {
 
 val projectName = "AnnouncerPlus"
 group = "xyz.jpenilla"
-version = "1.1.3+{BUILD_NUMBER}-SNAPSHOT"
+version = "1.1.3+${getLastCommitHash()}-SNAPSHOT"
 
 repositories {
     mavenLocal()
@@ -64,11 +65,17 @@ val autoRelocate by tasks.register<ConfigureShadowRelocation>("configureShadowRe
 }
 
 tasks {
+    compileJava {
+        options.compilerArgs.add("-parameters")
+        options.isFork = true
+        options.forkOptions.executable = "javac"
+    }
     compileTestKotlin {
         kotlinOptions.jvmTarget = "1.8"
     }
     compileKotlin {
         kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions.javaParameters = true
     }
     withType<ShadowJar> {
         archiveClassifier.set("")
@@ -76,4 +83,13 @@ tasks {
         dependsOn(autoRelocate)
         minimize()
     }
+}
+
+fun getLastCommitHash(): String {
+    val byteOut = ByteArrayOutputStream()
+    project.exec {
+        commandLine = listOf("git", "rev-parse", "--short", "HEAD")
+        standardOutput = byteOut
+    }
+    return byteOut.toString().trim()
 }
