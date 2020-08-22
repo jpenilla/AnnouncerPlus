@@ -1,0 +1,15 @@
+pipeline {
+    agent any
+    stages {
+        stage('Gradle Build') {
+            steps {
+                sh './gradlew clean shadowJar'
+            }
+        }
+    }
+    post {
+        always {
+            step(artifacts: 'build/libs/*.jar', followSymlinks: false, $class: 'ArtifactArchiver')
+        }
+    }
+}
