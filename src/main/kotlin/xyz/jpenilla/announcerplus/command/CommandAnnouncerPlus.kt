@@ -27,7 +27,7 @@ import xyz.jpenilla.announcerplus.task.ActionBarUpdateTask
 import xyz.jpenilla.announcerplus.task.TitleUpdateTask
 import xyz.jpenilla.jmplib.Chat
 import java.util.*
-
+import kotlin.math.roundToInt
 
 @CommandAlias("announcerplus|announcer|ap")
 class CommandAnnouncerPlus : BaseCommand() {
@@ -65,13 +65,23 @@ class CommandAnnouncerPlus : BaseCommand() {
     @Description("Prints some information about AnnouncerPlus.")
     fun onAbout(sender: CommandSender) {
         randomColor()
+        val text = "<hover:show_text:'<rainbow>click me!'><click:open_url:${announcerPlus.description.website}>${announcerPlus.name} <color:$color>${announcerPlus.description.version}"
+        val header = "<gradient:white:$color:white><strikethrough>${repeat("-", (announcerPlus.miniMessage.stripTokens(text).length / 1.2).roundToInt() + 4)}"
         val m = listOf(
-                "<gradient:white:$color:white><strikethrough>---------------------------",
-                "<hover:show_text:'<rainbow>click me!'><click:open_url:${announcerPlus.description.website}>${announcerPlus.name} <color:$color>${announcerPlus.description.version}",
+                header,
+                text,
                 "By <color:$color>jmp",
-                "<gradient:white:$color:white><strikethrough>---------------------------"
+                header
         )
         sender.send(chat.getCenteredMessage(m))
+    }
+
+    private fun repeat(s: String, i: Int): String {
+        val b = StringBuilder()
+        repeat(i) {
+            b.append(s)
+        }
+        return b.toString()
     }
 
     @Subcommand("reload|r")

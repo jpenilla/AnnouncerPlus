@@ -16,6 +16,7 @@ import xyz.jpenilla.announcerplus.config.message.TitleSettings
 import xyz.jpenilla.announcerplus.config.message.ToastSettings
 import xyz.jpenilla.announcerplus.util.Constants
 import xyz.jpenilla.jmplib.Chat
+import java.awt.TextComponent
 
 @ConfigSerializable
 class JoinQuitConfig {
@@ -107,7 +108,7 @@ class JoinQuitConfig {
         var sounds = "minecraft:entity.enderman.teleport"
 
         @Setting(value = "quit-broadcasts", comment = "These messages will be sent to online players on player quit. Also known as quit messages")
-        val broadcasts = arrayListOf<String>()
+        val broadcasts = arrayListOf<String>("<hover:show_text:'<yellow>Username</yellow><gray>:</gray> {user}'>{nick}</hover> <yellow>left the game")
 
         @Setting(value = "quit-commands", comment = "These commands will be run by the console on Player quit.\n  Example: \"broadcast %player_name% left\"")
         val commands = arrayListOf<String>()
