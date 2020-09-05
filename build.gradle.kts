@@ -23,7 +23,6 @@ repositories {
     maven(url = "https://oss.sonatype.org/content/groups/public/")
     maven(url = "https://repo.spongepowered.org/maven")
     maven(url = "https://repo.aikar.co/content/groups/aikar/")
-    maven(url = "https://nexus.okkero.com/repository/maven-releases/")
     maven(url = "https://repo.jpenilla.xyz/snapshots")
     maven(url = "https://ci.ender.zone/plugin/repository/everything/")
     maven(url = "https://repo.codemc.org/repository/maven-public")
@@ -32,10 +31,9 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation("xyz.jpenilla", "jmplib", "1.0.0+99-SNAPSHOT")
+    implementation("xyz.jpenilla", "jmplib", "1.0.0+102-SNAPSHOT")
     implementation("co.aikar", "acf-paper", "0.5.0-SNAPSHOT")
     implementation("com.github.jmanpenilla", "Skedule", "7ae098d404")
-    implementation("com.okkero.skedule", "skedule", "1.2.6")
     implementation("org.bstats", "bstats-bukkit", "1.7")
     compileOnly("org.spigotmc", "spigot-api", "1.13.2-R0.1-SNAPSHOT")
     compileOnly("com.github.MilkBowl", "VaultAPI", "1.7")

@@ -262,16 +262,14 @@ class CommandAnnouncerPlus : BaseCommand() {
                     nextButton.style(Style.make { builder ->
                         builder.decorate(TextDecoration.BOLD)
                         builder.color(TextColor.fromHexString(color))
-                        val hover: HoverEventSource<Component> = HoverEvent.showText(TextComponent.of("Next Page", NamedTextColor.GREEN))
-                        builder.hoverEvent(hover)
+                        builder.hoverEvent(HoverEvent.showText(TextComponent.of("Next Page", NamedTextColor.GREEN)))
                     })
                 }
                 .previousButton { prevButton ->
                     prevButton.style(Style.make { builder ->
                         builder.decorate(TextDecoration.BOLD)
                         builder.color(TextColor.fromHexString(color))
-                        val hover: HoverEventSource<Component> = HoverEvent.showText(TextComponent.of("Previous Page", NamedTextColor.RED))
-                        builder.hoverEvent(hover)
+                        builder.hoverEvent(HoverEvent.showText(TextComponent.of("Previous Page", NamedTextColor.RED)))
                     })
                 }
                 .build<String>(TextComponent.of("Messages"),
