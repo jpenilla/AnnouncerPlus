@@ -1,13 +1,14 @@
 package xyz.jpenilla.announcerplus
 
 import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import xyz.jpenilla.announcerplus.util.RandomCollection
 
 class JoinQuitListener(private val announcerPlus: AnnouncerPlus) : Listener {
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     fun onJoin(event: PlayerJoinEvent) {
         if (announcerPlus.configManager.mainConfig.joinEvent) {
             event.joinMessage = ""
@@ -26,7 +27,7 @@ class JoinQuitListener(private val announcerPlus: AnnouncerPlus) : Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     fun onQuit(event: PlayerQuitEvent) {
         if (announcerPlus.configManager.mainConfig.quitEvent) {
             event.quitMessage = ""
