@@ -294,17 +294,7 @@ class CommandAnnouncerPlus : BaseCommand() {
         }
         val l = arrayListOf<Component>(announcerPlus.miniMessage.parse("Config<gray>:</gray> <color:$color>${config.name}</color:$color> <gray><italic><hover:show_text:'<italic>Click to copy'><click:copy_to_clipboard:announcerplus.messages.${config.name}><white>(</white>announcerplus.messages.${config.name}<white>)</white>"))
         l.addAll(pagination.render(messages, page ?: 1))
-        sendComponents(sender, l)
-    }
-
-    private fun sendComponents(sender: CommandSender, components: List<Component>) {
-        for (component in components) {
-            if (sender is Player) {
-                announcerPlus.audience.player(sender).sendMessage(component)
-            } else {
-                announcerPlus.audience.console().sendMessage(announcerPlus.miniMessage.parse(announcerPlus.miniMessage.stripTokens(announcerPlus.miniMessage.serialize(component))))
-            }
-        }
+        chat.send(sender, l)
     }
 
     companion object {

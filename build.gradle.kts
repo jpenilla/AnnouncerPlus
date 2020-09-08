@@ -31,7 +31,7 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation("xyz.jpenilla", "jmplib", "1.0.0+102-SNAPSHOT")
+    implementation("xyz.jpenilla", "jmplib", "1.0.0+103-SNAPSHOT")
     implementation("co.aikar", "acf-paper", "0.5.0-SNAPSHOT")
     implementation("com.github.jmanpenilla", "Skedule", "7ae098d404")
     implementation("org.bstats", "bstats-bukkit", "1.7")
