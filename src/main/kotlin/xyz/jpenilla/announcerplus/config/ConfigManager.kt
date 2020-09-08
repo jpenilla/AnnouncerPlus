@@ -20,12 +20,17 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
     private val mainConfigLoader: HoconConfigurationLoader
     lateinit var mainConfig: MainConfig
 
+    private val firstJoinConfigFile = File("${announcerPlus.dataFolder}/first-join.conf")
+    private val firstJoinConfigLoader: HoconConfigurationLoader
+    lateinit var firstJoinConfig: JoinQuitConfig
+
     val messageConfigs: HashMap<String, MessageConfig> = HashMap()
     val joinQuitConfigs: HashMap<String, JoinQuitConfig> = HashMap()
 
     init {
         configOptions = ConfigurationOptions.defaults().withSerializers(serializers)
         mainConfigLoader = HoconConfigurationLoader.builder().setFile(mainConfigFile).build()
+        firstJoinConfigLoader = HoconConfigurationLoader.builder().setFile(firstJoinConfigFile).build()
 
         announcerPlus.dataFolder.mkdir()
         load()
@@ -40,14 +45,37 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
             throw InvalidConfigurationException("Failed to load the main.conf config file. This is due to misconfiguration", e)
         }
 
+        val firstJoinConfigRoot = firstJoinConfigLoader.load(configOptions)
+        try {
+            firstJoinConfig = JoinQuitConfig.loadFrom(announcerPlus, firstJoinConfigRoot, null)
+        } catch (e: Exception) {
+            throw InvalidConfigurationException("Failed to load the main.conf config file. This is due to misconfiguration", e)
+        }
+
         loadMessageConfigs()
         loadJoinQuitConfigs()
     }
 
     fun save() {
-        val mainConfigRoot = CommentedConfigurationNode.root(configOptions)
+        val mainConfigRoot = CommentedConfigurationNode.root(configOptions.withHeader(""" 
+     ___                                                 ____  __               __    
+    /   |  ____  ____  ____  __  ______  ________  _____/ __ \/ /_  _______  __/ /_
+   / /| | / __ \/ __ \/ __ \/ / / / __ \/ ___/ _ \/ ___/ /_/ / / / / / ___/ /_  __/
+  / ___ |/ / / / / / / /_/ / /_/ / / / / /__/  __/ /  / ____/ / /_/ (__  )   /_/   
+ /_/  |_/_/ /_/_/ /_/\____/\__,_/_/ /_/\___/\___/_/  /_/   /_/\__,_/____/  
+ 
+     v${announcerPlus.description.version}
+"""))
         mainConfig.saveTo(mainConfigRoot)
         mainConfigLoader.save(mainConfigRoot)
+
+        val firstJoinConfigRoot = CommentedConfigurationNode.root(configOptions.withHeader(
+                "If enabled in main.conf, this join config will be used when players join the server for the first time.\n" +
+                        "All other join configs will be skipped for first-join if this is enabled."
+        ))
+        firstJoinConfig.saveTo(firstJoinConfigRoot)
+        firstJoinConfigRoot.removeChild("quit-section")
+        firstJoinConfigLoader.save(firstJoinConfigRoot)
     }
 
     private fun loadJoinQuitConfigs() {

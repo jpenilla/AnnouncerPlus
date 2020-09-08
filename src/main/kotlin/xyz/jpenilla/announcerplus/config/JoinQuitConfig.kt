@@ -16,17 +16,14 @@ import xyz.jpenilla.announcerplus.config.message.TitleSettings
 import xyz.jpenilla.announcerplus.config.message.ToastSettings
 import xyz.jpenilla.announcerplus.util.Constants
 import xyz.jpenilla.jmplib.Chat
-import java.awt.TextComponent
 
 @ConfigSerializable
 class JoinQuitConfig {
     companion object {
         private val MAPPER = ObjectMapper.forClass(JoinQuitConfig::class.java)
 
-        fun loadFrom(announcerPlus: AnnouncerPlus, node: CommentedConfigurationNode, name: String): JoinQuitConfig {
-            val temp = MAPPER.bindToNew().populate(node)
-            temp.populate(announcerPlus, name)
-            return temp
+        fun loadFrom(announcerPlus: AnnouncerPlus, node: CommentedConfigurationNode, name: String?): JoinQuitConfig {
+            return MAPPER.bindToNew().populate(node).populate(announcerPlus, name)
         }
     }
 
@@ -34,14 +31,15 @@ class JoinQuitConfig {
         MAPPER.bind(this).serialize(node)
     }
 
-    fun populate(announcerPlus: AnnouncerPlus, name: String) {
+    fun populate(announcerPlus: AnnouncerPlus, name: String?): JoinQuitConfig {
         this.announcerPlus = announcerPlus
         this.chat = announcerPlus.chat
         this.name = name
+        return this
     }
 
     private lateinit var announcerPlus: AnnouncerPlus
-    private lateinit var name: String
+    private var name: String? = null
     private lateinit var chat: Chat
 
     @Setting(value = "visible-permission", comment = "If set to something other than \"\", this setting's value will be the permission required to see these join/quit messages when they are broadcasted for a player")
@@ -115,7 +113,7 @@ class JoinQuitConfig {
     }
 
     fun onJoin(player: Player) {
-        if (player.hasPermission("announcerplus.join.$name")) {
+        if (name == null || player.hasPermission("announcerplus.join.$name")) {
             chat.send(player, announcerPlus.configManager.parse(player, join.messages))
             announcerPlus.schedule {
                 waitFor(3L)
@@ -154,6 +152,9 @@ class JoinQuitConfig {
     }
 
     fun onQuit(player: Player) {
+        if (name == null) {
+            return
+        }
         if (player.hasPermission("announcerplus.quit.$name") && !isVanished(player)) {
             val players = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
             val m = announcerPlus.configManager.parse(player, quit.broadcasts)

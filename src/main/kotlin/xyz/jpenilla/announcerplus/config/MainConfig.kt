@@ -33,6 +33,10 @@ class MainConfig {
     @Setting(value = "quit-features", comment = "This setting enables or disables all Quit event features")
     var quitEvent = true
 
+    @Setting(value = "first-join-config-enabled", comment = "This setting enables or disables the first-join.conf\n" +
+            "If enabled, on a player's first join the first-join.conf will be used instead of any other join configs.")
+    var firstJoinEnabled = false
+
     @Setting(value = "random-join-configs", comment = "Here you can define randomized join configs.\n" +
             "  To assign randomized join configs, give the announcerplus.randomjoin.demo permission, replacing demo with your randomized config\n" +
             "  WARNING: If you are OP make sure to negate the appropriate permissions so that you do not get duplicate join/quit messages")
