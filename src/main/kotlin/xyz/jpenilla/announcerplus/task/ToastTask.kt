@@ -4,10 +4,9 @@ import com.okkero.skedule.schedule
 import org.bukkit.entity.Player
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.message.ToastSettings
-import java.util.*
 
 class ToastTask(announcerPlus: AnnouncerPlus) {
-    private val queuedToasts = LinkedList<Pair<Player, ToastSettings>>()
+    private val queuedToasts = ArrayDeque<Pair<Player, ToastSettings>>()
 
     private val toastTask = announcerPlus.schedule {
         repeating(1L)

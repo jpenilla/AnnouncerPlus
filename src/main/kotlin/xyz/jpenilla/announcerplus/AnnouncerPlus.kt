@@ -7,7 +7,6 @@ import kr.entree.spigradle.annotations.PluginMain
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer
 import net.milkbowl.vault.permission.Permission
 import org.bstats.bukkit.Metrics
-import org.bukkit.plugin.RegisteredServiceProvider
 import xyz.jpenilla.announcerplus.command.CommandHelper
 import xyz.jpenilla.announcerplus.compatability.EssentialsHook
 import xyz.jpenilla.announcerplus.config.ConfigManager
@@ -46,10 +45,10 @@ class AnnouncerPlus : BasePlugin() {
         }
         server.pluginManager.registerEvents(JoinQuitListener(this), this)
         broadcast()
-        UpdateChecker(this, 81005).updateCheck()
+        UpdateChecker(this, "jmanpenilla/AnnouncerPlus").updateCheck()
         val metrics = Metrics(this, 8067)
-        metrics.addCustomChart(Metrics.SimplePie("join_quit_configs") { configManager.joinQuitConfigs.size.toString() })
-        metrics.addCustomChart(Metrics.SimplePie("message_configs") { configManager.messageConfigs.size.toString() })
+        metrics.addCustomChart(Metrics.SimplePie("join_quit_configs", configManager.joinQuitConfigs.size::toString))
+        metrics.addCustomChart(Metrics.SimplePie("message_configs", configManager.messageConfigs.size::toString))
     }
 
     private fun broadcast() {
@@ -69,7 +68,7 @@ class AnnouncerPlus : BasePlugin() {
     }
 
     private fun setupPermissions(): Boolean {
-        val rsp: RegisteredServiceProvider<Permission>? = server.servicesManager.getRegistration(Permission::class.java)
+        val rsp = server.servicesManager.getRegistration(Permission::class.java)
         if (rsp != null) {
             perms = rsp.provider
         }

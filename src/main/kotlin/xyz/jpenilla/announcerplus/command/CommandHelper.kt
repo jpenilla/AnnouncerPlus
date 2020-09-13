@@ -15,12 +15,10 @@ import xyz.jpenilla.jmplib.Chat
 import java.util.regex.Pattern
 import kotlin.math.ceil
 
-
 class CommandHelper(private val announcerPlus: AnnouncerPlus) {
     private val commandManager = PaperCommandManager(announcerPlus)
 
     init {
-        //commandManager.enableUnstableAPI("brigadier")
         commandManager.enableUnstableAPI("help")
         commandManager.defaultHelpPerPage = 4
         commandManager.registerDependency(ConfigManager::class.java, announcerPlus.configManager)
