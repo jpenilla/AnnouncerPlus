@@ -7,17 +7,6 @@ import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable
 
 @ConfigSerializable
 class MainConfig {
-    companion object {
-        private val MAPPER = ObjectMapper.forClass(MainConfig::class.java)
-
-        fun loadFrom(node: CommentedConfigurationNode): MainConfig {
-            return MAPPER.bindToNew().populate(node)
-        }
-    }
-
-    fun saveTo(node: CommentedConfigurationNode) {
-        MAPPER.bind(this).serialize(node)
-    }
 
     @Setting(value = "custom-placeholders", comment = "Here you can define custom placeholders for use in plugin messages\n  These placeholders can be used like \"{placeholder}\", i.e. \"{nick}\" or \"{r}rainbow text{rc}\"")
     val placeholders = hashMapOf(
@@ -69,5 +58,17 @@ class MainConfig {
 
         @Setting(value = "config-weight", comment = "The weight of this config for random selection, 0.0-1.0")
         var weight = 0.1
+    }
+
+    companion object {
+        private val MAPPER = ObjectMapper.forClass(MainConfig::class.java)
+
+        fun loadFrom(node: CommentedConfigurationNode): MainConfig {
+            return MAPPER.bindToNew().populate(node)
+        }
+    }
+
+    fun saveTo(node: CommentedConfigurationNode) {
+        MAPPER.bind(this).serialize(node)
     }
 }

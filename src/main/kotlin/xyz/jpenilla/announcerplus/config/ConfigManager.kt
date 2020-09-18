@@ -24,8 +24,8 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
     private val firstJoinConfigLoader: HoconConfigurationLoader
     lateinit var firstJoinConfig: JoinQuitConfig
 
-    val messageConfigs: HashMap<String, MessageConfig> = HashMap()
-    val joinQuitConfigs: HashMap<String, JoinQuitConfig> = HashMap()
+    val messageConfigs = hashMapOf<String, MessageConfig>()
+    val joinQuitConfigs = hashMapOf<String, JoinQuitConfig>()
 
     init {
         configOptions = ConfigurationOptions.defaults().withSerializers(serializers)
@@ -47,7 +47,7 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
 
         val firstJoinConfigRoot = firstJoinConfigLoader.load(configOptions)
         try {
-            firstJoinConfig = JoinQuitConfig.loadFrom(announcerPlus, firstJoinConfigRoot, null)
+            firstJoinConfig = JoinQuitConfig.loadFrom(firstJoinConfigRoot, null)
         } catch (e: Exception) {
             throw InvalidConfigurationException("Failed to load the main.conf config file. This is due to misconfiguration", e)
         }
@@ -105,7 +105,7 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
             val name = configFile.nameWithoutExtension
             try {
                 root = configLoader.load(configOptions)
-                joinQuitConfigs[name] = JoinQuitConfig.loadFrom(announcerPlus, root, name)
+                joinQuitConfigs[name] = JoinQuitConfig.loadFrom(root, name)
 
                 joinQuitConfigs[name]?.saveTo(root)
                 configLoader.save(root)
@@ -146,7 +146,7 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
             var root: ConfigurationNode
             try {
                 root = configLoader.load(configOptions)
-                messageConfigs[name] = MessageConfig.loadFrom(announcerPlus, root, name)
+                messageConfigs[name] = MessageConfig.loadFrom(root, name)
 
                 messageConfigs[name]?.saveTo(root)
                 configLoader.save(root)

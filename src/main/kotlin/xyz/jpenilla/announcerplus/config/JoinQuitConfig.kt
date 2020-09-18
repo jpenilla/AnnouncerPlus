@@ -10,6 +10,8 @@ import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.message.ActionBarSettings
 import xyz.jpenilla.announcerplus.config.message.TitleSettings
@@ -18,29 +20,7 @@ import xyz.jpenilla.announcerplus.util.Constants
 import xyz.jpenilla.jmplib.Chat
 
 @ConfigSerializable
-class JoinQuitConfig {
-    companion object {
-        private val MAPPER = ObjectMapper.forClass(JoinQuitConfig::class.java)
-
-        fun loadFrom(announcerPlus: AnnouncerPlus, node: CommentedConfigurationNode, name: String?): JoinQuitConfig {
-            return MAPPER.bindToNew().populate(node).populate(announcerPlus, name)
-        }
-    }
-
-    fun saveTo(node: CommentedConfigurationNode) {
-        MAPPER.bind(this).serialize(node)
-    }
-
-    fun populate(announcerPlus: AnnouncerPlus, name: String?): JoinQuitConfig {
-        this.announcerPlus = announcerPlus
-        this.chat = announcerPlus.chat
-        this.name = name
-        return this
-    }
-
-    private lateinit var announcerPlus: AnnouncerPlus
-    private var name: String? = null
-    private lateinit var chat: Chat
+class JoinQuitConfig : KoinComponent {
 
     @Setting(value = "visible-permission", comment = "If set to something other than \"\", this setting's value will be the permission required to see these join/quit messages when they are broadcasted for a player")
     var permission = ""
@@ -106,11 +86,32 @@ class JoinQuitConfig {
         var sounds = "minecraft:entity.enderman.teleport"
 
         @Setting(value = "quit-broadcasts", comment = "These messages will be sent to online players on player quit. Also known as quit messages")
-        val broadcasts = arrayListOf<String>("<hover:show_text:'<yellow>Username</yellow><gray>:</gray> {user}'>{nick}</hover> <yellow>left the game")
+        val broadcasts = arrayListOf("<hover:show_text:'<yellow>Username</yellow><gray>:</gray> {user}'>{nick}</hover> <yellow>left the game")
 
         @Setting(value = "quit-commands", comment = "These commands will be run by the console on Player quit.\n  Example: \"broadcast %player_name% left\"")
         val commands = arrayListOf<String>()
     }
+
+    companion object {
+        private val MAPPER = ObjectMapper.forClass(JoinQuitConfig::class.java)
+
+        fun loadFrom(node: CommentedConfigurationNode, name: String?): JoinQuitConfig {
+            return MAPPER.bindToNew().populate(node).populate(name)
+        }
+    }
+
+    fun saveTo(node: CommentedConfigurationNode) {
+        MAPPER.bind(this).serialize(node)
+    }
+
+    fun populate(name: String?): JoinQuitConfig {
+        this.name = name
+        return this
+    }
+
+    private val announcerPlus: AnnouncerPlus by inject()
+    private val chat: Chat by inject()
+    private var name: String? = null
 
     fun onJoin(player: Player) {
         if (name == null || player.hasPermission("announcerplus.join.$name")) {
@@ -141,9 +142,9 @@ class JoinQuitConfig {
                 }
             }
             announcerPlus.schedule(SynchronizationContext.ASYNC) {
-                join.title.displayIfEnabled(announcerPlus, player)
-                join.actionBar.displayIfEnabled(announcerPlus, player)
-                join.toast.queueDisplay(announcerPlus, player)
+                join.title.displayIfEnabled(player)
+                join.actionBar.displayIfEnabled(player)
+                join.toast.queueDisplay(player)
                 if (join.sounds != "") {
                     chat.playSounds(player, join.randomSound, join.sounds)
                 }

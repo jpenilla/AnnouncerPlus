@@ -1,6 +1,8 @@
 package xyz.jpenilla.announcerplus.textanimation
 
-interface TextAnimation {
+import org.koin.core.KoinComponent
+
+interface TextAnimation: KoinComponent {
     fun getValue(): String
     fun nextValue(): String
 }

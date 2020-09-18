@@ -3,12 +3,15 @@ package xyz.jpenilla.announcerplus.command
 import co.aikar.commands.*
 import com.okkero.skedule.schedule
 import org.bukkit.command.ConsoleCommandSender
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.command.CommandAnnouncerPlus.Companion.color
 import xyz.jpenilla.jmplib.TextUtil
 
 
-class HelpFormatter(private val announcerPlus: AnnouncerPlus, manager: PaperCommandManager) : CommandHelpFormatter(manager) {
+class HelpFormatter(manager: PaperCommandManager) : CommandHelpFormatter(manager), KoinComponent {
+    private val announcerPlus: AnnouncerPlus by inject()
     var loaded = false
 
     override fun printDetailedHelpHeader(help: CommandHelp, issuer: CommandIssuer, entry: HelpEntry) {

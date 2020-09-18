@@ -3,11 +3,10 @@ package xyz.jpenilla.announcerplus.config.message
 import ninja.leaping.configurate.objectmapping.Setting
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable
 import org.bukkit.entity.Player
-import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.task.TitleUpdateTask
 
 @ConfigSerializable
-class TitleSettings: MessageElement {
+class TitleSettings : MessageElement {
     constructor()
     constructor(fadeInSeconds: Int, durationSeconds: Int, fadeOutSeconds: Int, title: String, subTitle: String) {
         this.fadeInSeconds = fadeInSeconds
@@ -40,7 +39,7 @@ class TitleSettings: MessageElement {
         }
     }
 
-    override fun display(announcerPlus: AnnouncerPlus, player: Player) {
-        TitleUpdateTask(announcerPlus, player, fadeInSeconds, durationSeconds, fadeOutSeconds, title, subTitle).start()
+    override fun display(player: Player) {
+        TitleUpdateTask(player, fadeInSeconds, durationSeconds, fadeOutSeconds, title, subTitle).start()
     }
 }

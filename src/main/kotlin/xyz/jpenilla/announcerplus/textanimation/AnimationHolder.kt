@@ -3,15 +3,18 @@ package xyz.jpenilla.announcerplus.textanimation
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.entity.Player
-import xyz.jpenilla.announcerplus.AnnouncerPlus
+import org.koin.core.KoinComponent
+import org.koin.core.inject
+import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.textanimation.animation.*
 import java.util.regex.Pattern
 
-class AnimationHolder(private val announcerPlus: AnnouncerPlus, private val player: Player?, private val message: String) {
+class AnimationHolder(private val player: Player?, private val message: String) : KoinComponent {
     companion object {
         private val pattern = Pattern.compile("\\{animate:/?([a-z][^}]*)/?}?")
     }
 
+    private val configManager: ConfigManager by inject()
     private val matcher = pattern.matcher(message)
     private val animations = HashMap<String, TextAnimation>()
 
@@ -63,7 +66,7 @@ class AnimationHolder(private val announcerPlus: AnnouncerPlus, private val play
                     } catch (e: Exception) {
                         6
                     }
-                    animations[matcher.group()] = Typewriter(announcerPlus, player, text, ticks)
+                    animations[matcher.group()] = Typewriter(player, text, ticks)
                 }
 
                 "randomcolor" -> {
@@ -92,7 +95,7 @@ class AnimationHolder(private val announcerPlus: AnnouncerPlus, private val play
                     } catch (e: Exception) {
                         4
                     }
-                    animations[matcher.group()] = ScrollingText(announcerPlus, player, text, window, ticks)
+                    animations[matcher.group()] = ScrollingText(player, text, window, ticks)
                 }
             }
         }
@@ -103,7 +106,7 @@ class AnimationHolder(private val announcerPlus: AnnouncerPlus, private val play
         for (animation in animations) {
             msg = msg.replace(animation.key, animation.value.nextValue())
         }
-        return announcerPlus.configManager.parse(player, msg)
+        return configManager.parse(player, msg)
     }
 
     fun parseCurrent(text: String?): String {
@@ -111,6 +114,6 @@ class AnimationHolder(private val announcerPlus: AnnouncerPlus, private val play
         for (animation in animations) {
             msg = msg.replace(animation.key, animation.value.getValue())
         }
-        return announcerPlus.configManager.parse(player, msg)
+        return configManager.parse(player, msg)
     }
 }

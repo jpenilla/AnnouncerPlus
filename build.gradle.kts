@@ -14,11 +14,12 @@ configurations.all {
 
 val projectName = "AnnouncerPlus"
 group = "xyz.jpenilla"
-version = "1.1.4+${getLastCommitHash()}-SNAPSHOT"
+version = "1.1.5+${getLastCommitHash()}-SNAPSHOT"
 
 repositories {
     mavenLocal()
     mavenCentral()
+    jcenter()
     maven(url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
     maven(url = "https://oss.sonatype.org/content/groups/public/")
     maven(url = "https://repo.spongepowered.org/maven")
@@ -31,6 +32,7 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib"))
+    implementation("org.koin", "koin-core", "2.1.6")
     implementation("xyz.jpenilla", "jmplib", "1.0.1+3-SNAPSHOT")
     implementation("co.aikar", "acf-paper", "0.5.0-SNAPSHOT")
     implementation("com.github.jmanpenilla", "Skedule", "7ae098d404")
@@ -51,7 +53,7 @@ spigot {
     name = projectName
     apiVersion = "1.13"
     description = "Announcement plugin with support for permissions. Supports Hex colors and clickable messages/hover text using MiniMessage."
-    website = "https://www.spigotmc.org/resources/announcer-plus.81005/"
+    website = "https://github.com/jmanpenilla/AnnouncerPlus"
     authors("jmp")
     depends("Vault")
     softDepends("PlaceholderAPI", "Prisma", "Essentials")

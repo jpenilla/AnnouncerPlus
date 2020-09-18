@@ -1,15 +1,15 @@
 package xyz.jpenilla.announcerplus.config.message
 
 import org.bukkit.entity.Player
-import xyz.jpenilla.announcerplus.AnnouncerPlus
+import org.koin.core.KoinComponent
 
-abstract class MessageElement {
-    abstract fun isEnabled(): Boolean
-    abstract fun display(announcerPlus: AnnouncerPlus, player: Player)
+interface MessageElement : KoinComponent {
+    fun isEnabled(): Boolean
+    fun display(player: Player)
 
-    fun displayIfEnabled(announcerPlus: AnnouncerPlus, player: Player) {
+    fun displayIfEnabled(player: Player) {
         if (isEnabled()) {
-            display(announcerPlus, player)
+            display(player)
         }
     }
 }

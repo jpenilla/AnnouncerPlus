@@ -6,10 +6,6 @@ import xyz.jpenilla.announcerplus.util.Constants
 
 @ConfigSerializable
 class Message {
-    constructor()
-    constructor(text: List<String>) {
-        this.text.addAll(text)
-    }
 
     @Setting(value = "message-text", comment = "The lines of text for this message. Can be empty for no chat messages.")
     val text = arrayListOf<String>()
@@ -37,6 +33,11 @@ class Message {
 
     @Setting(value = "as-player-commands", comment = "These commands will run once per player, as the player on broadcast. Example: \"ap about\"")
     val asPlayerCommands = arrayListOf<String>()
+
+    constructor()
+    constructor(text: List<String>) {
+        this.text.addAll(text)
+    }
 
     fun sounds(sounds: String): Message {
         this.sounds = sounds

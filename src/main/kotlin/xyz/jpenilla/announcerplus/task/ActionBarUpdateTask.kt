@@ -2,21 +2,23 @@ package xyz.jpenilla.announcerplus.task
 
 import com.okkero.skedule.SynchronizationContext
 import org.bukkit.entity.Player
-import xyz.jpenilla.announcerplus.AnnouncerPlus
+import org.koin.core.inject
 import xyz.jpenilla.announcerplus.textanimation.AnimationHolder
+import xyz.jpenilla.jmplib.Chat
 
-class ActionBarUpdateTask(private val announcerPlus: AnnouncerPlus, private val player: Player, private val lifeTime: Long, private val shouldFade: Boolean, private val text: String) : UpdateTask(announcerPlus) {
-    private val animationHolder = AnimationHolder(announcerPlus, player, text)
+class ActionBarUpdateTask(private val player: Player, private val lifeTime: Long, private val shouldFade: Boolean, private val text: String) : UpdateTask() {
+    private val chat: Chat by inject()
+    private val animationHolder = AnimationHolder(player, text)
 
     override fun stop() {
         super.stop()
         if (!shouldFade) {
-            announcerPlus.chat.sendActionBar(player, "")
+            chat.sendActionBar(player, "")
         }
     }
 
     override fun update() {
-        announcerPlus.chat.sendActionBar(player, animationHolder.parseNext(text))
+        chat.sendActionBar(player, animationHolder.parseNext(text))
     }
 
     override fun shouldContinue(): Boolean {

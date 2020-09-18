@@ -10,35 +10,14 @@ import ninja.leaping.configurate.objectmapping.Setting
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable
 import org.bukkit.Bukkit
 import org.bukkit.Material
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 import xyz.jpenilla.announcerplus.AnnouncerPlus
+import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.jmplib.Chat
 
 @ConfigSerializable
-class MessageConfig {
-    companion object {
-        private val MAPPER = ObjectMapper.forClass(MessageConfig::class.java)
-
-        fun loadFrom(announcerPlus: AnnouncerPlus, node: CommentedConfigurationNode, name: String): MessageConfig {
-            val temp = MAPPER.bindToNew().populate(node)
-            temp.populate(announcerPlus, name)
-            return temp
-        }
-    }
-
-    fun saveTo(node: CommentedConfigurationNode) {
-        MAPPER.bind(this).serialize(node)
-    }
-
-    fun populate(announcerPlus: AnnouncerPlus, name: String) {
-        this.announcerPlus = announcerPlus
-        this.chat = announcerPlus.chat
-        this.name = name
-    }
-
-    private var broadcastTask: CoroutineTask? = null
-    private lateinit var announcerPlus: AnnouncerPlus
-    lateinit var name: String
-    private lateinit var chat: Chat
+class MessageConfig : KoinComponent {
 
     @Setting(value = "messages", comment = "The list of messages for a config")
     val messages = arrayListOf(
@@ -76,6 +55,30 @@ class MessageConfig {
     @Setting(value = "random-message-order", comment = "Should the messages be sent in order of the config or in random order")
     var randomOrder = false
 
+    companion object {
+        private val MAPPER = ObjectMapper.forClass(MessageConfig::class.java)
+
+        fun loadFrom(node: CommentedConfigurationNode, name: String): MessageConfig {
+            val temp = MAPPER.bindToNew().populate(node)
+            temp.populate(name)
+            return temp
+        }
+    }
+
+    fun saveTo(node: CommentedConfigurationNode) {
+        MAPPER.bind(this).serialize(node)
+    }
+
+    fun populate(name: String) {
+        this.name = name
+    }
+
+    private var broadcastTask: CoroutineTask? = null
+    lateinit var name: String
+    private val announcerPlus: AnnouncerPlus by inject()
+    private val configManager: ConfigManager by inject()
+    private val chat: Chat by inject()
+
     fun broadcast() {
         stop()
         broadcastTask = announcerPlus.schedule(SynchronizationContext.ASYNC) {
@@ -97,35 +100,35 @@ class MessageConfig {
                     }
                     if (announcerPlus.perms!!.playerHas(player, "${announcerPlus.name}.messages.$name")) {
                         if (message.text.size != 0) {
-                            chat.send(player, announcerPlus.configManager.parse(player, message.text))
+                            chat.send(player, configManager.parse(player, message.text))
                         }
                         chat.playSounds(player, message.randomSound, message.sounds)
-                        message.actionBar.displayIfEnabled(announcerPlus, player)
-                        message.title.displayIfEnabled(announcerPlus, player)
-                        message.toast.queueDisplay(announcerPlus, player)
+                        message.actionBar.displayIfEnabled(player)
+                        message.title.displayIfEnabled(player)
+                        message.toast.queueDisplay(player)
 
                         switchContext(SynchronizationContext.SYNC)
                         for (command in message.perPlayerCommands) {
-                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), announcerPlus.configManager.parse(player, command))
+                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), configManager.parse(player, command))
                         }
                         for (command in message.asPlayerCommands) {
-                            Bukkit.dispatchCommand(player, announcerPlus.configManager.parse(player, command))
+                            Bukkit.dispatchCommand(player, configManager.parse(player, command))
                         }
                         for (command in perPlayerCommands) {
-                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), announcerPlus.configManager.parse(player, command))
+                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), configManager.parse(player, command))
                         }
                         for (command in asPlayerCommands) {
-                            Bukkit.dispatchCommand(player, announcerPlus.configManager.parse(player, command))
+                            Bukkit.dispatchCommand(player, configManager.parse(player, command))
                         }
                         switchContext(SynchronizationContext.ASYNC)
                     }
                 }
                 switchContext(SynchronizationContext.SYNC)
                 for (command in message.commands) {
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), announcerPlus.configManager.parse(null, command))
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), configManager.parse(null, command))
                 }
                 for (command in commands) {
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), announcerPlus.configManager.parse(null, command))
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), configManager.parse(null, command))
                 }
                 switchContext(SynchronizationContext.ASYNC)
                 yield()

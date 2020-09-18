@@ -18,6 +18,8 @@ import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Material
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.config.message.MessageConfig
@@ -29,16 +31,10 @@ import java.util.*
 import kotlin.math.roundToInt
 
 @CommandAlias("announcerplus|announcer|ap")
-class CommandAnnouncerPlus : BaseCommand() {
-
-    @Dependency
-    private lateinit var configManager: ConfigManager
-
-    @Dependency
-    private lateinit var announcerPlus: AnnouncerPlus
-
-    @Dependency
-    private lateinit var chat: Chat
+class CommandAnnouncerPlus : BaseCommand(), KoinComponent {
+    private val configManager: ConfigManager by inject()
+    private val announcerPlus: AnnouncerPlus by inject()
+    private val chat: Chat by inject()
 
     init {
         randomColor()
@@ -77,9 +73,7 @@ class CommandAnnouncerPlus : BaseCommand() {
 
     private fun repeat(s: String, i: Int): String {
         val b = StringBuilder()
-        repeat(i) {
-            b.append(s)
-        }
+        repeat(i) { b.append(s) }
         return b.toString()
     }
 
@@ -88,12 +82,12 @@ class CommandAnnouncerPlus : BaseCommand() {
     @CommandPermission("announcerplus.reload")
     fun onReload(sender: CommandSender) {
         randomColor()
-        sender.send(chat.getCenteredMessage("<color:$color>Reloading ${announcerPlus.name} config..."))
+        sender.send("<gradient:$color:${colors.random()}>Reloading ${announcerPlus.name} config...")
         try {
             announcerPlus.reload()
-            sender.send(chat.getCenteredMessage("<green>Done."))
+            sender.send("<green>Done.")
         } catch (e: Exception) {
-            sender.send(chat.getCenteredMessage("<gradient:red:gold>I'm sorry, but there was an error reloading the plugin. This is most likely due to misconfiguration. Check console for more info."))
+            sender.send("<gradient:red:gold>I'm sorry, but there was an error reloading the plugin. This is most likely due to misconfiguration. Check console for more info.")
             e.printStackTrace()
         }
     }
@@ -115,7 +109,7 @@ class CommandAnnouncerPlus : BaseCommand() {
     fun onBroadcastToast(sender: CommandSender, world: CommandHelper.WorldPlayers, icon: Material, frame: ToastSettings.FrameType, header: CommandHelper.QuotedString, body: CommandHelper.QuotedString) {
         val toast = ToastSettings(icon, frame, header.string, body.string)
         for (player in world.players) {
-            toast.queueDisplay(announcerPlus, player)
+            toast.queueDisplay(player)
         }
     }
 
@@ -125,7 +119,7 @@ class CommandAnnouncerPlus : BaseCommand() {
     @CommandCompletion("* @numbers_by_5 * *")
     fun onBroadcastTitle(sender: CommandSender, world: CommandHelper.WorldPlayers, seconds: Int, title: CommandHelper.QuotedString, subTitle: CommandHelper.QuotedString) {
         for (player in world.players) {
-            TitleUpdateTask(announcerPlus, player, 0, seconds, 1, title.string, subTitle.string).start()
+            TitleUpdateTask(player, 0, seconds, 1, title.string, subTitle.string).start()
         }
     }
 
@@ -135,7 +129,7 @@ class CommandAnnouncerPlus : BaseCommand() {
     @CommandCompletion("* @numbers_by_5 *")
     fun onBroadcastActionBar(sender: CommandSender, world: CommandHelper.WorldPlayers, seconds: Int, text: String) {
         for (player in world.players) {
-            ActionBarUpdateTask(announcerPlus, player, seconds * 20L, true, text).start()
+            ActionBarUpdateTask(player, seconds * 20L, true, text).start()
         }
     }
 
@@ -156,7 +150,7 @@ class CommandAnnouncerPlus : BaseCommand() {
     fun onSendToast(sender: CommandSender, players: Array<OnlinePlayer>, icon: Material, frame: ToastSettings.FrameType, header: CommandHelper.QuotedString, body: CommandHelper.QuotedString) {
         val toast = ToastSettings(icon, frame, header.string, body.string)
         for (player in players) {
-            toast.queueDisplay(announcerPlus, player.player)
+            toast.queueDisplay(player.player)
         }
     }
 
@@ -166,7 +160,7 @@ class CommandAnnouncerPlus : BaseCommand() {
     @CommandCompletion("* @numbers_by_5 * *")
     fun onSendTitle(sender: CommandSender, players: Array<OnlinePlayer>, seconds: Int, title: CommandHelper.QuotedString, subTitle: CommandHelper.QuotedString) {
         for (player in players) {
-            TitleUpdateTask(announcerPlus, player.player, 0, seconds, 1, title.string, subTitle.string).start()
+            TitleUpdateTask(player.player, 0, seconds, 1, title.string, subTitle.string).start()
         }
     }
 
@@ -176,7 +170,7 @@ class CommandAnnouncerPlus : BaseCommand() {
     @CommandCompletion("* @numbers_by_5 *")
     fun onSendActionBar(sender: CommandSender, players: Array<OnlinePlayer>, seconds: Int, text: String) {
         for (player in players) {
-            ActionBarUpdateTask(announcerPlus, player.player, seconds * 20L, true, text).start()
+            ActionBarUpdateTask(player.player, seconds * 20L, true, text).start()
         }
     }
 
@@ -192,8 +186,8 @@ class CommandAnnouncerPlus : BaseCommand() {
     @CommandPermission("announcerplus.parseanimation")
     @CommandCompletion("@numbers_by_5 *")
     fun onParseAnimation(sender: Player, seconds: Int, message: String) {
-        TitleUpdateTask(announcerPlus, sender, 0, seconds, 0, message, message).start()
-        ActionBarUpdateTask(announcerPlus, sender, seconds * 20L, false, message).start()
+        TitleUpdateTask(sender, 0, seconds, 0, message, message).start()
+        ActionBarUpdateTask(sender, seconds * 20L, false, message).start()
     }
 
     @Subcommand("parsetoast|pto")
@@ -201,7 +195,7 @@ class CommandAnnouncerPlus : BaseCommand() {
     @CommandPermission("announcerplus.parsetoast")
     @CommandCompletion("* * * *")
     fun onParseToast(sender: Player, icon: Material, frame: ToastSettings.FrameType, header: CommandHelper.QuotedString, body: CommandHelper.QuotedString) {
-        ToastSettings(icon, frame, header.string, body.string).queueDisplay(announcerPlus, sender)
+        ToastSettings(icon, frame, header.string, body.string).queueDisplay(sender)
     }
 
     @Subcommand("parsetitle|ptitle|pti")
@@ -209,7 +203,7 @@ class CommandAnnouncerPlus : BaseCommand() {
     @Description("Parses a Title and Subtitle style message and displays it back.")
     @CommandCompletion("@numbers_by_5 * *")
     fun onParseTitle(sender: Player, seconds: Int, title: CommandHelper.QuotedString, subTitle: CommandHelper.QuotedString) {
-        TitleUpdateTask(announcerPlus, sender, 0, seconds, 1, title.string, subTitle.string).start()
+        TitleUpdateTask(sender, 0, seconds, 1, title.string, subTitle.string).start()
     }
 
     @Subcommand("parseactionbar|pactionbar|pab")
@@ -217,7 +211,7 @@ class CommandAnnouncerPlus : BaseCommand() {
     @Description("Parses an Action Bar style message and displays it back.")
     @CommandCompletion("@numbers_by_5 *")
     fun onParseActionBar(sender: Player, seconds: Int, text: String) {
-        ActionBarUpdateTask(announcerPlus, sender, seconds * 20L, true, text).start()
+        ActionBarUpdateTask(sender, seconds * 20L, true, text).start()
     }
 
     @Subcommand("list|l")
@@ -271,12 +265,9 @@ class CommandAnnouncerPlus : BaseCommand() {
                         builder.hoverEvent(HoverEvent.showText(TextComponent.of("Previous Page", NamedTextColor.RED)))
                     })
                 }
-                .build<String>(TextComponent.of("Messages"),
-                        { value: String?, index: Int ->
-                            Collections.singleton(
-                                    value?.let { announcerPlus.miniMessage.parse(it) }
-                            )
-                        }) { p: Int -> "/announcerplus list ${config.name} $p" }
+                .build<String>(TextComponent.of(" Messages "),
+                        { value, _ -> Collections.singleton(value?.let { announcerPlus.miniMessage.parse(it) }) },
+                        { "/announcerplus list ${config.name} $it" })
 
         val messages = arrayListOf<String>()
         for (msg in config.messages) {

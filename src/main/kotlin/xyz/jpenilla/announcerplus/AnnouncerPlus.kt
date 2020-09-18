@@ -7,55 +7,70 @@ import kr.entree.spigradle.annotations.PluginMain
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer
 import net.milkbowl.vault.permission.Permission
 import org.bstats.bukkit.Metrics
+import org.koin.core.KoinComponent
+import org.koin.core.context.startKoin
+import org.koin.core.inject
+import org.koin.dsl.module
 import xyz.jpenilla.announcerplus.command.CommandHelper
 import xyz.jpenilla.announcerplus.compatability.EssentialsHook
 import xyz.jpenilla.announcerplus.config.ConfigManager
+import xyz.jpenilla.announcerplus.config.message.MessageConfig
 import xyz.jpenilla.announcerplus.task.ToastTask
 import xyz.jpenilla.announcerplus.util.UpdateChecker
 import xyz.jpenilla.jmplib.BasePlugin
 
 @PluginMain
-class AnnouncerPlus : BasePlugin() {
+class AnnouncerPlus : BasePlugin(), KoinComponent {
     val gson: Gson = GsonBuilder().create()
     val jsonParser = JsonParser()
     val gsonComponentSerializer = GsonComponentSerializer.gson()
     val downsamplingGsonComponentSerializer = GsonComponentSerializer.colorDownsamplingGson()
+    val configManager: ConfigManager by inject()
+
     var perms: Permission? = null
     var essentials: EssentialsHook? = null
     var toastTask: ToastTask? = null
-    lateinit var configManager: ConfigManager; private set
     lateinit var commandHelper: CommandHelper
 
     override fun onPluginEnable() {
-        instance = this
         if (!setupPermissions()) {
             logger.warning("Permissions plugin not found. AnnouncerPlus will not work.")
             server.pluginManager.disablePlugin(this)
             return
         }
         if (server.pluginManager.isPluginEnabled("Essentials")) {
-            essentials = EssentialsHook(this)
+            essentials = EssentialsHook()
         }
-        configManager = ConfigManager(this)
-        commandHelper = CommandHelper(this)
+
+        startKoin {
+            modules(module {
+                single { this@AnnouncerPlus }
+                single { GsonBuilder().create() }
+                single { JsonParser() }
+                single { ConfigManager(get()) }
+                single { chat }
+            })
+        }
+
+        commandHelper = CommandHelper()
+
         if (majorMinecraftVersion > 12) {
-            toastTask = ToastTask(this)
+            toastTask = ToastTask()
         } else {
             logger.info("Sorry, but Toast/Achievement style messages do not work on this version. Update to 1.13 or newer to use this feature.")
         }
-        server.pluginManager.registerEvents(JoinQuitListener(this), this)
+
+        server.pluginManager.registerEvents(JoinQuitListener(), this)
         broadcast()
+
         UpdateChecker(this, "jmanpenilla/AnnouncerPlus").updateCheck()
+
         val metrics = Metrics(this, 8067)
         metrics.addCustomChart(Metrics.SimplePie("join_quit_configs", configManager.joinQuitConfigs.size::toString))
         metrics.addCustomChart(Metrics.SimplePie("message_configs", configManager.messageConfigs.size::toString))
     }
 
-    private fun broadcast() {
-        for (c in configManager.messageConfigs.values) {
-            c.broadcast()
-        }
-    }
+    private fun broadcast() = configManager.messageConfigs.values.forEach(MessageConfig::broadcast)
 
     fun reload() {
         configManager.load()
@@ -73,9 +88,5 @@ class AnnouncerPlus : BasePlugin() {
             perms = rsp.provider
         }
         return perms != null
-    }
-
-    companion object {
-        lateinit var instance: AnnouncerPlus
     }
 }

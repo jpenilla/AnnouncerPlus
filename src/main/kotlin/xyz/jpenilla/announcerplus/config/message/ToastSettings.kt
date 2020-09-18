@@ -8,19 +8,13 @@ import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
+import org.koin.core.inject
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import java.util.concurrent.ThreadLocalRandom
 
 
 @ConfigSerializable
 class ToastSettings : MessageElement {
-    constructor()
-    constructor(icon: Material, frameType: FrameType, header: String, footer: String) {
-        this.icon = icon
-        this.frame = frameType
-        this.header = header
-        this.footer = footer
-    }
 
     @Setting(value = "icon", comment = "The icon for the Toast/Advancement notification")
     var icon = Material.DIAMOND
@@ -40,21 +34,25 @@ class ToastSettings : MessageElement {
     @Setting(value = "icon-custom-model-data", comment = "Enter custom model data for the icon item. -1 to disable")
     var customModelData = -1
 
-    enum class FrameType(val value: String) {
-        CHALLENGE("challenge"),
-        GOAL("goal"),
-        TASK("task"),
+    constructor()
+    constructor(icon: Material, frameType: FrameType, header: String, footer: String) {
+        this.icon = icon
+        this.frame = frameType
+        this.header = header
+        this.footer = footer
     }
+
+    private val announcerPlus: AnnouncerPlus by inject()
 
     override fun isEnabled(): Boolean {
         return header != "" || footer != ""
     }
 
-    override fun display(announcerPlus: AnnouncerPlus, player: Player) {
+    override fun display(player: Player) {
         announcerPlus.schedule {
             val key = NamespacedKey(announcerPlus, "announcerPlus${ThreadLocalRandom.current().nextInt(1000000)}")
             try {
-                Bukkit.getUnsafe().loadAdvancement(key, getJson(announcerPlus, player))
+                Bukkit.getUnsafe().loadAdvancement(key, getJson(player))
             } catch (e: Exception) {
             }
             val advancement = Bukkit.getAdvancement(key)!!
@@ -74,11 +72,11 @@ class ToastSettings : MessageElement {
         }
     }
 
-    fun queueDisplay(announcerPlus: AnnouncerPlus, player: Player) {
+    fun queueDisplay(player: Player) {
         announcerPlus.toastTask?.queueToast(this, player)
     }
 
-    private fun getJson(announcerPlus: AnnouncerPlus, player: Player): String {
+    private fun getJson(player: Player): String {
         val json = JsonObject()
         val display = JsonObject()
         val icon = JsonObject()
@@ -110,5 +108,11 @@ class ToastSettings : MessageElement {
         json.add("criteria", criteria)
         json.add("display", display)
         return announcerPlus.gson.toJson(json)
+    }
+
+    enum class FrameType(val value: String) {
+        CHALLENGE("challenge"),
+        GOAL("goal"),
+        TASK("task"),
     }
 }

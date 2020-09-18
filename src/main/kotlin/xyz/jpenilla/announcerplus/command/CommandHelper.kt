@@ -8,22 +8,21 @@ import co.aikar.commands.bukkit.contexts.OnlinePlayer
 import com.google.common.collect.ImmutableList
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 import xyz.jpenilla.announcerplus.AnnouncerPlus
-import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.config.message.MessageConfig
-import xyz.jpenilla.jmplib.Chat
 import java.util.regex.Pattern
 import kotlin.math.ceil
 
-class CommandHelper(private val announcerPlus: AnnouncerPlus) {
+class CommandHelper : KoinComponent {
+    private val announcerPlus: AnnouncerPlus by inject()
     private val commandManager = PaperCommandManager(announcerPlus)
 
     init {
         commandManager.enableUnstableAPI("help")
         commandManager.defaultHelpPerPage = 4
-        commandManager.registerDependency(ConfigManager::class.java, announcerPlus.configManager)
-        commandManager.registerDependency(Chat::class.java, announcerPlus.chat)
-        commandManager.helpFormatter = HelpFormatter(announcerPlus, commandManager)
+        commandManager.helpFormatter = HelpFormatter(commandManager)
         registerContexts()
         registerCompletions()
         reload()

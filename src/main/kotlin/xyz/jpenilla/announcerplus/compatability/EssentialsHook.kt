@@ -2,11 +2,11 @@ package xyz.jpenilla.announcerplus.compatability
 
 import net.ess3.api.IEssentials
 import net.ess3.api.IUser
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
-import xyz.jpenilla.announcerplus.AnnouncerPlus
 
-class EssentialsHook(announcerPlus: AnnouncerPlus) {
-    val essentials = announcerPlus.server.pluginManager.getPlugin("Essentials") as IEssentials
+class EssentialsHook {
+    val essentials = Bukkit.getServer().pluginManager.getPlugin("Essentials") as IEssentials
 
     fun isAfk(player: Player): Boolean {
         return user(player).isAfk

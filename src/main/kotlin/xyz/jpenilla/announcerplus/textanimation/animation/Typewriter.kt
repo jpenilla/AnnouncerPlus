@@ -1,10 +1,12 @@
 package xyz.jpenilla.announcerplus.textanimation.animation
 
 import org.bukkit.entity.Player
+import org.koin.core.inject
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.textanimation.TextAnimation
 
-class Typewriter(private val announcerPlus: AnnouncerPlus, private val player: Player?, private val text: String, private val ticks: Int) : TextAnimation {
+class Typewriter(private val player: Player?, private val text: String, private val ticks: Int) : TextAnimation {
+    private val announcerPlus: AnnouncerPlus by inject()
     private var index = 0
     private var ticksLived = 0
     private var showUnderscore = true
@@ -17,11 +19,7 @@ class Typewriter(private val announcerPlus: AnnouncerPlus, private val player: P
             index = 0
             announcerPlus.configManager.parse(player, text).substring(0, index)
         }
-        return "$s${if (showUnderscore) {
-            "_"
-        } else {
-            " "
-        }}"
+        return "$s${if (showUnderscore) "_" else " "}"
     }
 
     override fun nextValue(): String {

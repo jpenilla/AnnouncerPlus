@@ -2,19 +2,21 @@ package xyz.jpenilla.announcerplus.task
 
 import com.okkero.skedule.schedule
 import org.bukkit.entity.Player
+import org.koin.core.KoinComponent
+import org.koin.core.get
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.message.ToastSettings
 
-class ToastTask(announcerPlus: AnnouncerPlus) {
+class ToastTask: KoinComponent {
     private val queuedToasts = ArrayDeque<Pair<Player, ToastSettings>>()
 
-    private val toastTask = announcerPlus.schedule {
+    private val toastTask = get<AnnouncerPlus>().schedule {
         repeating(1L)
         while (true) {
             if (queuedToasts.isNotEmpty()) {
                 val toast = queuedToasts.removeFirst()
                 if (toast.first.isOnline) {
-                    toast.second.displayIfEnabled(announcerPlus, toast.first)
+                    toast.second.displayIfEnabled(toast.first)
                     yield()
                 }
             } else {

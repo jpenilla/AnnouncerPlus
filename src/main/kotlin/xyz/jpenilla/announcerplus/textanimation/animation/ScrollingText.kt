@@ -1,10 +1,12 @@
 package xyz.jpenilla.announcerplus.textanimation.animation
 
 import org.bukkit.entity.Player
+import org.koin.core.inject
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.textanimation.TextAnimation
 
-class ScrollingText(private val announcerPlus: AnnouncerPlus, private val player: Player?, text: String, private val windowSize: Int, private val ticks: Int) : TextAnimation {
+class ScrollingText(private val player: Player?, text: String, private val windowSize: Int, private val ticks: Int) : TextAnimation {
+    private val announcerPlus: AnnouncerPlus by inject()
     private val spaces = getSpaces(windowSize)
     private val text = "$spaces$text$spaces"
     private var index = 0
