@@ -2,11 +2,11 @@ package xyz.jpenilla.announcerplus.textanimation.animation
 
 import org.bukkit.entity.Player
 import org.koin.core.inject
-import xyz.jpenilla.announcerplus.AnnouncerPlus
+import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.textanimation.TextAnimation
 
 class ScrollingText(private val player: Player?, text: String, private val windowSize: Int, private val ticks: Int) : TextAnimation {
-    private val announcerPlus: AnnouncerPlus by inject()
+    private val configManager: ConfigManager by inject()
     private val spaces = getSpaces(windowSize)
     private val text = "$spaces$text$spaces"
     private var index = 0
@@ -22,11 +22,11 @@ class ScrollingText(private val player: Player?, text: String, private val windo
 
     override fun getValue(): String {
         return try {
-            announcerPlus.configManager.parse(player, text).substring(index, index + windowSize)
+            configManager.parse(player, text).substring(index, index + windowSize)
         } catch (e: Exception) {
             //if the placeholders changed in a way that causes us to out of bounds
             index = 0
-            announcerPlus.configManager.parse(player, text).substring(index, index + windowSize)
+            configManager.parse(player, text).substring(index, index + windowSize)
         }
     }
 
@@ -34,7 +34,7 @@ class ScrollingText(private val player: Player?, text: String, private val windo
         ticksLived++
         if (ticksLived % ticks == 0) {
             index++
-            if (index > announcerPlus.configManager.parse(player, text).length - windowSize) {
+            if (index > configManager.parse(player, text).length - windowSize) {
                 index = 0
             }
         }

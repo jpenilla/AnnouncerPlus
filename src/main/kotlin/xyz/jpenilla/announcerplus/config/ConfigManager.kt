@@ -163,19 +163,14 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
             null
         }
 
-        var msg = announcerPlus.chat.parse(p, message, mainConfig.placeholders)
+        val msg = announcerPlus.chat.parse(p, message, mainConfig.placeholders)
         if (msg.startsWith("<center>")) {
-            msg = announcerPlus.chat.getCenteredMessage(msg.replace("<center>", ""))
+            return announcerPlus.chat.getCenteredMessage(msg.replace("<center>", ""))
         }
 
         return msg
     }
 
-    fun parse(player: CommandSender?, messages: List<String>): List<String> {
-        val tempMessages = ArrayList<String>()
-        for (message in messages) {
-            tempMessages.add(parse(player, message))
-        }
-        return tempMessages
-    }
+    fun parse(player: CommandSender?, messages: List<String>): List<String> =
+            messages.map { parse(player, it) }
 }

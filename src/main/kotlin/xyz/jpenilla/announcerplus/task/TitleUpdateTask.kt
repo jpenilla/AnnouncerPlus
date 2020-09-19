@@ -27,9 +27,7 @@ class TitleUpdateTask(private val player: Player, private val fadeIn: Int, priva
         when (fadeIn) {
             0 -> chat.showTitle(player, chat.getTitle(configManager.parse(player, titleAnimation.parseNext(title)), subTitleAnimation.parseNext(subTitle), ChronoUnit.SECONDS, 0, ChronoUnit.MILLIS, 200, ChronoUnit.SECONDS, 0))
             else -> when (ticksLived) {
-                0L -> {
-                    chat.showTitle(player, chat.getTitle(configManager.parse(player, titleAnimation.parseNext(title)), subTitleAnimation.parseNext(subTitle), ChronoUnit.SECONDS, fadeIn, ChronoUnit.MILLIS, 200, ChronoUnit.SECONDS, 0))
-                }
+                0L -> chat.showTitle(player, chat.getTitle(configManager.parse(player, titleAnimation.parseNext(title)), subTitleAnimation.parseNext(subTitle), ChronoUnit.SECONDS, fadeIn, ChronoUnit.MILLIS, 200, ChronoUnit.SECONDS, 0))
                 else -> if (ticksLived > fadeIn * 20L) {
                     chat.showTitle(player, chat.getTitle(configManager.parse(player, titleAnimation.parseNext(title)), subTitleAnimation.parseNext(subTitle), ChronoUnit.SECONDS, 0, ChronoUnit.MILLIS, 200, ChronoUnit.SECONDS, 0))
                 }
@@ -41,7 +39,5 @@ class TitleUpdateTask(private val player: Player, private val fadeIn: Int, priva
         return ticksLived < 20L * (fadeIn + duration) && player.isOnline
     }
 
-    override fun getSynchronizationContext(): SynchronizationContext {
-        return SynchronizationContext.ASYNC
-    }
+    override fun getSynchronizationContext() = SynchronizationContext.ASYNC
 }

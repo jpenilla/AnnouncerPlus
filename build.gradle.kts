@@ -31,7 +31,6 @@ repositories {
 }
 
 dependencies {
-    implementation(kotlin("stdlib"))
     implementation("org.koin", "koin-core", "2.1.6")
     implementation("xyz.jpenilla", "jmplib", "1.0.1+3-SNAPSHOT")
     implementation("co.aikar", "acf-paper", "0.5.0-SNAPSHOT")
