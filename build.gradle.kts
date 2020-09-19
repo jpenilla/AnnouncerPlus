@@ -4,8 +4,8 @@ import org.apache.commons.io.output.ByteArrayOutputStream
 
 plugins {
     kotlin("jvm") version "1.4.10"
-    id("com.github.johnrengelman.shadow") version "5.2.0"
-    id("kr.entree.spigradle") version "2.1.1"
+    id("com.github.johnrengelman.shadow") version "6.0.0"
+    id("kr.entree.spigradle") version "2.2.3"
 }
 
 configurations.all {
