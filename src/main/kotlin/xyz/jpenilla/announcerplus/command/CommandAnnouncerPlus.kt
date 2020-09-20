@@ -3,9 +3,9 @@ package xyz.jpenilla.announcerplus.command
 import co.aikar.commands.BaseCommand
 import co.aikar.commands.CommandHelp
 import co.aikar.commands.annotation.*
-import co.aikar.commands.annotation.Optional
 import co.aikar.commands.bukkit.contexts.OnlinePlayer
 import com.google.common.collect.ImmutableList
+import net.kyori.adventure.bossbar.BossBar
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.event.ClickEvent
@@ -25,6 +25,7 @@ import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.config.message.MessageConfig
 import xyz.jpenilla.announcerplus.config.message.ToastSettings
 import xyz.jpenilla.announcerplus.task.ActionBarUpdateTask
+import xyz.jpenilla.announcerplus.task.BossBarUpdateTask
 import xyz.jpenilla.announcerplus.task.TitleUpdateTask
 import xyz.jpenilla.jmplib.Chat
 import java.util.*
@@ -133,6 +134,16 @@ class CommandAnnouncerPlus : BaseCommand(), KoinComponent {
         }
     }
 
+    @Subcommand("broadcastbossbar|bcbossbar|bcbb")
+    @CommandPermission("announcerplus.broadcastbossbar")
+    @Description("Parses and broadcasts a Boss Bar style message to the specified world or all worlds.")
+    @CommandCompletion("* @numbers_by_5 * * *")
+    fun onBroadcastBossBar(sender: CommandSender, world: CommandHelper.WorldPlayers, seconds: Int, overlay: BossBar.Overlay, fillMode: BossBarUpdateTask.FillMode, color: BossBar.Color, text: String) {
+        for (player in world.players) {
+            BossBarUpdateTask(player, seconds, overlay, fillMode, color.name, text).start()
+        }
+    }
+
     @Subcommand("send")
     @CommandPermission("announcerplus.send")
     @Description("Parses a message and sends it to the specified players.")
@@ -171,6 +182,16 @@ class CommandAnnouncerPlus : BaseCommand(), KoinComponent {
     fun onSendActionBar(sender: CommandSender, players: Array<OnlinePlayer>, seconds: Int, text: String) {
         for (player in players) {
             ActionBarUpdateTask(player.player, seconds * 20L, true, text).start()
+        }
+    }
+
+    @Subcommand("sendbossbar|sbossbar|sbb")
+    @CommandPermission("announcerplus.sendbossbar")
+    @Description("Parses and sends a Boss Bar style message to the specified players.")
+    @CommandCompletion("* @numbers_by_5 * * * *")
+    fun onSendBossBar(sender: CommandSender, players: Array<OnlinePlayer>, seconds: Int, overlay: BossBar.Overlay, fillMode: BossBarUpdateTask.FillMode, color: BossBar.Color, text: String) {
+        for (player in players) {
+            BossBarUpdateTask(player.player, seconds, overlay, fillMode, color.name, text).start()
         }
     }
 
@@ -214,11 +235,19 @@ class CommandAnnouncerPlus : BaseCommand(), KoinComponent {
         ActionBarUpdateTask(sender, seconds * 20L, true, text).start()
     }
 
+    @Subcommand("parsebossbar|pbossbar|pbb")
+    @CommandPermission("announcerplus.parsebossbar")
+    @Description("Parses a Boss Bar style message and displays it back.")
+    @CommandCompletion("@numbers_by_5 * * * *")
+    fun onParseBossBar(sender: Player, seconds: Int, overlay: BossBar.Overlay, fillMode: BossBarUpdateTask.FillMode, color: BossBar.Color, text: String) {
+        BossBarUpdateTask(sender, seconds, overlay, fillMode, color.name, text).start()
+    }
+
     @Subcommand("list|l")
     @CommandCompletion("* @message_config_pages")
     @Description("Lists the messages of a config")
     @CommandPermission("announcerplus.list")
-    fun onList(sender: CommandSender, config: MessageConfig, @Optional @Values("@message_config_pages") page: Int?) {
+    fun onList(sender: CommandSender, config: MessageConfig, @Default("1") @Values("@message_config_pages") page: Int) {
         randomColor()
         val pagination = Pagination.builder()
                 .resultsPerPage(17)
@@ -283,7 +312,7 @@ class CommandAnnouncerPlus : BaseCommand(), KoinComponent {
             }
         }
         val l = arrayListOf<Component>(announcerPlus.miniMessage.parse("Config<gray>:</gray> <color:$color>${config.name}</color:$color> <gray><italic><hover:show_text:'<italic>Click to copy'><click:copy_to_clipboard:announcerplus.messages.${config.name}><white>(</white>announcerplus.messages.${config.name}<white>)</white>"))
-        l.addAll(pagination.render(messages, page ?: 1))
+        l.addAll(pagination.render(messages, page))
         chat.send(sender, l)
     }
 

@@ -14,6 +14,7 @@ import org.koin.core.KoinComponent
 import org.koin.core.inject
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.message.ActionBarSettings
+import xyz.jpenilla.announcerplus.config.message.BossBarSettings
 import xyz.jpenilla.announcerplus.config.message.TitleSettings
 import xyz.jpenilla.announcerplus.config.message.ToastSettings
 import xyz.jpenilla.announcerplus.util.Constants
@@ -71,6 +72,9 @@ class JoinQuitConfig : KoinComponent {
         @Setting(value = "action-bar-settings", comment = "Settings relating to showing an Action Bar to the joining Player")
         var actionBar = ActionBarSettings(false, 8,
                 "<gradient:green:blue:green:{animate:scroll:0.1}>|||||||||||||||||||||||||||||||||||||||</gradient>")
+
+        @Setting(value = "boss-bar-settings", comment = "Settings relating to showing a Boss Bar to the joining Player")
+        var bossBar = BossBarSettings()
 
         @Setting(value = "toast-settings", comment = "Configure the Toast that will be showed to the joining player")
         var toast = ToastSettings(Material.DIAMOND, ToastSettings.FrameType.CHALLENGE,
@@ -144,6 +148,7 @@ class JoinQuitConfig : KoinComponent {
             announcerPlus.schedule(SynchronizationContext.ASYNC) {
                 join.title.displayIfEnabled(player)
                 join.actionBar.displayIfEnabled(player)
+                join.bossBar.displayIfEnabled(player)
                 join.toast.queueDisplay(player)
                 if (join.sounds != "") {
                     chat.playSounds(player, join.randomSound, join.sounds)

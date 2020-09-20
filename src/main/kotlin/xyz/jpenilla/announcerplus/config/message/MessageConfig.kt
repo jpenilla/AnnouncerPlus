@@ -22,6 +22,8 @@ class MessageConfig : KoinComponent {
     @Setting(value = "messages", comment = "The list of messages for a config")
     val messages = arrayListOf(
             Message(arrayListOf("<center><rainbow>Test AnnouncerPlus broadcast!")),
+            Message().bossBar(BossBarSettings(25, "{animate:flash:YELLOW:PURPLE:40}",
+                    "<green>-| <white>{animate:scrolltext:Hello this is an example Boss Bar announcement:20:3}</white> |-")),
             Message(arrayListOf(
                     "{prefix1} 1. <gradient:blue:green:blue>Multi-line test AnnouncerPlus broadcast",
                     "{prefix1} 2. <gradient:red:gold:red>Line number two of three",
@@ -35,6 +37,8 @@ class MessageConfig : KoinComponent {
             Message(arrayListOf("<bold><italic>Hello, </bold></italic> {nick} {prefix1} {r}!!!!!!!!!{rc}"))
                     .title(TitleSettings(1, 13, 2, "<gradient:green:blue:green:{animate:scroll:0.1}>||||||||||||||||||||||||||||||||||||||||||||", "<{animate:pulse:red:blue:10}>{animate:type:This is a test... typing...:6}")),
             Message(arrayListOf("<center><gradient:red:blue>Centered text Example"))
+                    .bossBar(BossBarSettings(25, "PINK",
+                            "<bold>This is an example <italic><gradient:blue:light_purple>Boss Bar"))
     )
 
     @Setting(value = "every-broadcast-commands", comment = "These commands will run as console once each interval\n  Example: \"broadcast This is a test\"")
@@ -104,6 +108,7 @@ class MessageConfig : KoinComponent {
                         }
                         chat.playSounds(player, message.randomSound, message.sounds)
                         message.actionBar.displayIfEnabled(player)
+                        message.bossBar.displayIfEnabled(player)
                         message.title.displayIfEnabled(player)
                         message.toast.queueDisplay(player)
 

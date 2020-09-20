@@ -13,6 +13,9 @@ class Message {
     @Setting(value = "action-bar", comment = "Configure the Action Bar for this message")
     var actionBar = ActionBarSettings()
 
+    @Setting(value = "boss-bar", comment = "Configure the Boss Bar for this message")
+    var bossBar = BossBarSettings()
+
     @Setting(value = "title", comment = "Configure the Title for this message")
     var title = TitleSettings()
 
@@ -46,6 +49,11 @@ class Message {
 
     fun actionBar(actionBar: ActionBarSettings): Message {
         this.actionBar = actionBar
+        return this
+    }
+
+    fun bossBar(bossBar: BossBarSettings): Message {
+        this.bossBar = bossBar
         return this
     }
 

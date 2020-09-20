@@ -45,10 +45,12 @@ class AnnouncerPlus : BasePlugin(), KoinComponent {
         startKoin {
             modules(module {
                 single { this@AnnouncerPlus }
+                single { audience }
+                single { miniMessage }
+                single { chat }
+                single { ConfigManager(get()) }
                 single { GsonBuilder().create() }
                 single { JsonParser() }
-                single { ConfigManager(get()) }
-                single { chat }
             })
         }
 
