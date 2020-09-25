@@ -12,7 +12,7 @@ class PulsingColor(colors: List<TextColor>, ticks: Int) : TextAnimation {
         this.colors.add(this.colors[0])
     }
     private var color = this.colors[0].asHexString()
-    private val factorStep: Float = 1.0f / ticks
+    private val factorStep = 1.0f / ticks
 
     override fun getValue(): String {
         return color

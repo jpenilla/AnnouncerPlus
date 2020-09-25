@@ -115,7 +115,7 @@ class CommandHelper : KoinComponent {
         completions.registerAsyncCompletion("quoted_string") {
             val input = it.input
             if (input.length > 1 && input.startsWith("\"") && input.endsWith("\"") && !input.endsWith("\\\"")) {
-                ImmutableList.of("")
+                emptyList()
             } else {
                 ImmutableList.of("$input\"")
             }
@@ -149,13 +149,19 @@ class CommandHelper : KoinComponent {
     private fun getCommaSeparatedCompletion(input: String, names: List<String>): List<String> {
         val completion = arrayListOf<String>()
         completion.addAll(names)
-        if (input.endsWith(",") && !input.startsWith(",")) {
-            completion.addAll(names.map { name -> "$input$name" })
-        }
         if (input.isNotEmpty()) {
             val i = input.split(",")
+            i.forEachIndexed { index, s ->
+                if (i.lastIndex != index && !names.contains(s)) {
+                    return completion
+                }
+            }
             if (names.contains(i.last())) {
                 completion.add("$input,")
+            }
+            if (i.size > 1) {
+                val trimmed = input.substringBeforeLast(",")
+                completion.addAll(names.map { name -> "$trimmed,$name" })
             }
         }
         for (string in ImmutableList.copyOf(completion)) {
