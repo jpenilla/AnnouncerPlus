@@ -9,9 +9,8 @@ import org.bukkit.event.player.PlayerQuitEvent
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import xyz.jpenilla.announcerplus.config.ConfigManager
-import xyz.jpenilla.announcerplus.util.RandomCollection
-import java.util.*
-import kotlin.collections.ArrayList
+import xyz.jpenilla.jmplib.RandomCollection
+import java.util.UUID
 
 class JoinQuitListener : Listener, KoinComponent {
     private val configManager: ConfigManager by inject()

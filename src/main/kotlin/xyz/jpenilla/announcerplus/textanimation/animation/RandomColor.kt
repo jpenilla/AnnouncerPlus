@@ -23,7 +23,7 @@ class RandomColor(type: Type, ticks: Int) : TextAnimation {
     }
 
     private fun getRandomColor(): TextColor {
-        return TextColor.of(Random.nextInt(256), Random.nextInt(256), Random.nextInt(256))
+        return TextColor.color(Random.nextInt(256), Random.nextInt(256), Random.nextInt(256))
     }
 
     private fun getRandomColors(amount: Int): List<TextColor> {

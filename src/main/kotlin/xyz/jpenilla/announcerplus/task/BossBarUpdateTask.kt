@@ -3,7 +3,7 @@ package xyz.jpenilla.announcerplus.task
 import com.okkero.skedule.SynchronizationContext
 import net.kyori.adventure.bossbar.BossBar
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
-import net.kyori.adventure.text.TextComponent
+import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.entity.Player
 import org.koin.core.get
@@ -17,7 +17,7 @@ class BossBarUpdateTask(private val player: Player, private val lifeTime: Int, o
     private val audience = get<BukkitAudiences>().player(player)
     private val textAnimation = AnimationHolder(player, text)
     private val colorAnimation = AnimationHolder(player, color)
-    private val bar = BossBar.of(TextComponent.empty(), 0.5f, BossBar.Color.BLUE, overlay)
+    private val bar = BossBar.bossBar(Component.empty(), 0.5f, BossBar.Color.BLUE, overlay)
 
     override fun stop() {
         super.stop()

@@ -2,12 +2,18 @@ package xyz.jpenilla.announcerplus.command
 
 import co.aikar.commands.BaseCommand
 import co.aikar.commands.CommandHelp
-import co.aikar.commands.annotation.*
+import co.aikar.commands.annotation.CommandAlias
+import co.aikar.commands.annotation.CommandCompletion
+import co.aikar.commands.annotation.CommandPermission
+import co.aikar.commands.annotation.Default
+import co.aikar.commands.annotation.Description
+import co.aikar.commands.annotation.HelpCommand
+import co.aikar.commands.annotation.Subcommand
+import co.aikar.commands.annotation.Values
 import co.aikar.commands.bukkit.contexts.OnlinePlayer
 import com.google.common.collect.ImmutableList
 import net.kyori.adventure.bossbar.BossBar
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.event.ClickEvent
 import net.kyori.adventure.text.event.HoverEvent
 import net.kyori.adventure.text.feature.pagination.Pagination
@@ -28,7 +34,7 @@ import xyz.jpenilla.announcerplus.task.ActionBarUpdateTask
 import xyz.jpenilla.announcerplus.task.BossBarUpdateTask
 import xyz.jpenilla.announcerplus.task.TitleUpdateTask
 import xyz.jpenilla.jmplib.Chat
-import java.util.*
+import java.util.Collections
 import kotlin.math.roundToInt
 
 @CommandAlias("announcerplus|announcer|ap")
@@ -254,47 +260,47 @@ class CommandAnnouncerPlus : BaseCommand(), KoinComponent {
                 .width(53)
                 .line { line ->
                     line.character('-')
-                    line.style(Style.make { builder ->
+                    line.style(Style.style { builder ->
                         builder.color(TextColor.fromHexString(color))
                         builder.decorate(TextDecoration.STRIKETHROUGH)
                     })
                 }
                 .renderer(object : Pagination.Renderer {
                     override fun renderNextPageButton(character: Char, style: Style, clickEvent: ClickEvent): Component {
-                        return TextComponent.builder()
-                                .append(TextComponent.space())
-                                .append(TextComponent.of("[", NamedTextColor.WHITE))
-                                .append(TextComponent.of(character, style.clickEvent(clickEvent)))
-                                .append(TextComponent.of("]", NamedTextColor.WHITE))
-                                .append(TextComponent.space())
+                        return Component.text()
+                                .append(Component.space())
+                                .append(Component.text("[", NamedTextColor.WHITE))
+                                .append(Component.text(character, style.clickEvent(clickEvent)))
+                                .append(Component.text("]", NamedTextColor.WHITE))
+                                .append(Component.space())
                                 .build()
                     }
 
                     override fun renderPreviousPageButton(character: Char, style: Style, clickEvent: ClickEvent): Component {
-                        return TextComponent.builder()
-                                .append(TextComponent.space())
-                                .append(TextComponent.of("[", NamedTextColor.WHITE))
-                                .append(TextComponent.of(character, style.clickEvent(clickEvent)))
-                                .append(TextComponent.of("]", NamedTextColor.WHITE))
-                                .append(TextComponent.space())
+                        return Component.text()
+                                .append(Component.space())
+                                .append(Component.text("[", NamedTextColor.WHITE))
+                                .append(Component.text(character, style.clickEvent(clickEvent)))
+                                .append(Component.text("]", NamedTextColor.WHITE))
+                                .append(Component.space())
                                 .build()
                     }
                 })
                 .nextButton { nextButton ->
-                    nextButton.style(Style.make { builder ->
+                    nextButton.style(Style.style { builder ->
                         builder.decorate(TextDecoration.BOLD)
                         builder.color(TextColor.fromHexString(color))
-                        builder.hoverEvent(HoverEvent.showText(TextComponent.of("Next Page", NamedTextColor.GREEN)))
+                        builder.hoverEvent(HoverEvent.showText(Component.text("Next Page", NamedTextColor.GREEN)))
                     })
                 }
                 .previousButton { prevButton ->
-                    prevButton.style(Style.make { builder ->
+                    prevButton.style(Style.style { builder ->
                         builder.decorate(TextDecoration.BOLD)
                         builder.color(TextColor.fromHexString(color))
-                        builder.hoverEvent(HoverEvent.showText(TextComponent.of("Previous Page", NamedTextColor.RED)))
+                        builder.hoverEvent(HoverEvent.showText(Component.text("Previous Page", NamedTextColor.RED)))
                     })
                 }
-                .build<String>(TextComponent.of(" Messages "),
+                .build<String>(Component.text(" Messages "),
                         { value, _ -> Collections.singleton(value?.let { announcerPlus.miniMessage.parse(it) }) },
                         { "/announcerplus list ${config.name} $it" })
 

@@ -6,7 +6,12 @@ import org.bukkit.entity.Player
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import xyz.jpenilla.announcerplus.config.ConfigManager
-import xyz.jpenilla.announcerplus.textanimation.animation.*
+import xyz.jpenilla.announcerplus.textanimation.animation.FlashingText
+import xyz.jpenilla.announcerplus.textanimation.animation.PulsingColor
+import xyz.jpenilla.announcerplus.textanimation.animation.RandomColor
+import xyz.jpenilla.announcerplus.textanimation.animation.ScrollingGradient
+import xyz.jpenilla.announcerplus.textanimation.animation.ScrollingText
+import xyz.jpenilla.announcerplus.textanimation.animation.Typewriter
 import java.util.regex.Pattern
 
 class AnimationHolder(private val player: Player?, private val message: String) : KoinComponent {

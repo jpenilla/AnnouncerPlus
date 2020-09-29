@@ -8,8 +8,7 @@ import xyz.jpenilla.announcerplus.AnnouncerPlus
 import java.io.IOException
 import java.io.InputStreamReader
 import java.net.URL
-import java.util.*
-import kotlin.collections.LinkedHashMap
+import java.util.LinkedList
 
 class UpdateChecker(private val announcerPlus: AnnouncerPlus, private val githubRepo: String) {
     private val parser = JsonParser()
