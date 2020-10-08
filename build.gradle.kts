@@ -4,12 +4,8 @@ import org.apache.commons.io.output.ByteArrayOutputStream
 
 plugins {
     kotlin("jvm") version "1.4.10"
-    id("com.github.johnrengelman.shadow") version "6.0.0"
+    id("com.github.johnrengelman.shadow") version "6.1.0"
     id("kr.entree.spigradle") version "2.2.3"
-}
-
-configurations.all {
-    exclude(group = "org.checkerframework")
 }
 
 val projectName = "AnnouncerPlus"
@@ -31,20 +27,21 @@ repositories {
 }
 
 dependencies {
-    implementation("org.koin", "koin-core", "2.1.6")
-    implementation("xyz.jpenilla", "jmplib", "1.0.1+7-SNAPSHOT")
-    implementation("co.aikar", "acf-paper", "0.5.0-SNAPSHOT")
-    implementation("com.github.jmanpenilla", "Skedule", "7ae098d404")
-    implementation("org.bstats", "bstats-bukkit", "1.7")
     compileOnly("org.spigotmc", "spigot-api", "1.13.2-R0.1-SNAPSHOT")
     compileOnly("com.github.MilkBowl", "VaultAPI", "1.7")
     compileOnly("net.ess3", "EssentialsX", "2.17.2")
 
+    implementation("org.koin", "koin-core", "2.1.6")
+    implementation("xyz.jpenilla", "jmplib", "1.0.1+12-SNAPSHOT")
+    implementation("com.github.jmanpenilla", "Skedule", "7ae098d404")
+    implementation("org.bstats", "bstats-bukkit", "1.7")
+    implementation("co.aikar", "acf-paper", "0.5.0-SNAPSHOT")
+
     implementation("org.spongepowered", "configurate-hocon", "3.7.1") {
-        exclude(group = "com.google.guava", module = "guava")
+        exclude("com.google.guava", "guava")
     }
     implementation("org.spongepowered", "configurate-ext-kotlin", "3.7.1") {
-        exclude(group = "com.google.guava", module = "guava")
+        exclude("com.google.guava", "guava")
     }
 }
 
@@ -58,24 +55,18 @@ spigot {
     softDepends("PlaceholderAPI", "Prisma", "Essentials")
 }
 
-val autoRelocate by tasks.register<ConfigureShadowRelocation>("configureShadowRelocation", ConfigureShadowRelocation::class) {
-    target = tasks.getByName("shadowJar") as ShadowJar
+val autoRelocate by tasks.register("configureShadowRelocation", ConfigureShadowRelocation::class) {
+    target = tasks.shadowJar.get()
     val packageName = "${project.group}.${project.name.toLowerCase()}"
     prefix = "$packageName.shaded"
 }
 
 tasks {
-    compileJava {
-        options.compilerArgs.add("-parameters")
-        options.isFork = true
-        options.forkOptions.executable = "javac"
-    }
-    compileTestKotlin {
-        kotlinOptions.jvmTarget = "1.8"
+    build {
+        dependsOn(shadowJar)
     }
     compileKotlin {
         kotlinOptions.jvmTarget = "1.8"
-        kotlinOptions.javaParameters = true
     }
     withType<ShadowJar> {
         archiveClassifier.set("")
@@ -91,5 +82,5 @@ fun getLastCommitHash(): String {
         commandLine = listOf("git", "rev-parse", "--short", "HEAD")
         standardOutput = byteOut
     }
-    return byteOut.toString().trim()
+    return byteOut.toString(Charsets.UTF_8).trim()
 }

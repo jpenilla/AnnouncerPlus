@@ -53,7 +53,7 @@ class ToastSettings : MessageElement {
             val key = NamespacedKey(announcerPlus, "announcerPlus${ThreadLocalRandom.current().nextInt(1000000)}")
             try {
                 Bukkit.getUnsafe().loadAdvancement(key, getJson(player))
-            } catch (e: Exception) {
+            } catch (ignored: Exception) {
             }
             val advancement = Bukkit.getAdvancement(key)!!
             val progress = player.getAdvancementProgress(advancement)
