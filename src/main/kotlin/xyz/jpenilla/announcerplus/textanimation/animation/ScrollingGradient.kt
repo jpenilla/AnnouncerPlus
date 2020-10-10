@@ -6,7 +6,7 @@ class ScrollingGradient(private val increment: Float) : TextAnimation {
     private var phase = -1f
 
     override fun getValue(): String {
-        return phase.toString()
+        return phase.coerceIn(-1.0f..1.0f).toString()
     }
 
     override fun nextValue(): String {

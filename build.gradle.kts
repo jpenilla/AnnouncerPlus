@@ -1,5 +1,4 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.apache.commons.io.output.ByteArrayOutputStream
 
 plugins {
@@ -32,7 +31,7 @@ dependencies {
     compileOnly("net.ess3", "EssentialsX", "2.17.2")
 
     implementation("org.koin", "koin-core", "2.1.6")
-    implementation("xyz.jpenilla", "jmplib", "1.0.1+12-SNAPSHOT")
+    implementation("xyz.jpenilla", "jmplib", "1.0.1+14-SNAPSHOT")
     implementation("com.github.jmanpenilla", "Skedule", "7ae098d404")
     implementation("org.bstats", "bstats-bukkit", "1.7")
     implementation("co.aikar", "acf-paper", "0.5.0-SNAPSHOT")
@@ -68,11 +67,11 @@ tasks {
     compileKotlin {
         kotlinOptions.jvmTarget = "1.8"
     }
-    withType<ShadowJar> {
+    shadowJar {
+        minimize()
+        dependsOn(autoRelocate)
         archiveClassifier.set("")
         archiveFileName.set("$projectName-${project.version}.jar")
-        dependsOn(autoRelocate)
-        minimize()
     }
 }
 
