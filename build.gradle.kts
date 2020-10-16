@@ -31,10 +31,13 @@ dependencies {
     compileOnly("net.ess3", "EssentialsX", "2.17.2")
 
     implementation("org.koin", "koin-core", "2.1.6")
-    implementation("xyz.jpenilla", "jmplib", "1.0.1+14-SNAPSHOT")
+    implementation("xyz.jpenilla", "jmplib", "1.0.1+21-SNAPSHOT")
     implementation("com.github.jmanpenilla", "Skedule", "7ae098d404")
     implementation("org.bstats", "bstats-bukkit", "1.7")
-    implementation("co.aikar", "acf-paper", "0.5.0-SNAPSHOT")
+
+    val cloudVersion = "1.0.1"
+    implementation("cloud.commandframework", "cloud-paper", cloudVersion)
+    implementation("cloud.commandframework", "cloud-minecraft-extras", cloudVersion)
 
     implementation("org.spongepowered", "configurate-hocon", "3.7.1") {
         exclude("com.google.guava", "guava")

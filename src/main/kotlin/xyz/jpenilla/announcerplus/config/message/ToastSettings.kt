@@ -12,7 +12,6 @@ import org.koin.core.inject
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import java.util.concurrent.ThreadLocalRandom
 
-
 @ConfigSerializable
 class ToastSettings : MessageElement {
 
