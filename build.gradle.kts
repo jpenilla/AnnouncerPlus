@@ -31,11 +31,11 @@ dependencies {
     compileOnly("net.ess3", "EssentialsX", "2.17.2")
 
     implementation("org.koin", "koin-core", "2.1.6")
-    implementation("xyz.jpenilla", "jmplib", "1.0.1+21-SNAPSHOT")
+    implementation("xyz.jpenilla", "jmplib", "1.0.1+23-SNAPSHOT")
     implementation("com.github.jmanpenilla", "Skedule", "7ae098d404")
     implementation("org.bstats", "bstats-bukkit", "1.7")
 
-    val cloudVersion = "1.0.1"
+    val cloudVersion = "1.0.2"
     implementation("cloud.commandframework", "cloud-paper", cloudVersion)
     implementation("cloud.commandframework", "cloud-minecraft-extras", cloudVersion)
 
