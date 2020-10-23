@@ -29,10 +29,9 @@ class ArgumentFactory : KoinComponent {
                 .build()
     }
 
-    fun positiveInteger(name: String): CommandArgument<CommandSender, Int> {
+    fun positiveInteger(name: String): IntegerArgument.Builder<CommandSender> {
         return IntegerArgument.newBuilder<CommandSender>(name)
                 .withMin(1)
-                .build()
     }
 
     fun messageConfig(name: String): CommandArgument<CommandSender, MessageConfig> {
@@ -55,7 +54,7 @@ class ArgumentFactory : KoinComponent {
     fun worldPlayers(name: String): CommandArgument<CommandSender, WorldPlayers> {
         return commandManager.argumentBuilder(WorldPlayers::class.java, name)
                 .withSuggestionsProvider { _, _ ->
-                    val suggestions = ArrayList(Bukkit.getWorlds().map { it.name })
+                    val suggestions = Bukkit.getWorlds().map { it.name }.toMutableList()
                     suggestions.add("all")
                     suggestions
                 }

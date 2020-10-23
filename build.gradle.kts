@@ -9,7 +9,7 @@ plugins {
 
 val projectName = "AnnouncerPlus"
 group = "xyz.jpenilla"
-version = "1.1.5+${getLastCommitHash()}-SNAPSHOT"
+version = "1.2.0+${getLastCommitHash()}-SNAPSHOT"
 
 repositories {
     mavenLocal()

@@ -12,11 +12,10 @@ import xyz.jpenilla.announcerplus.textanimation.animation.RandomColor
 import xyz.jpenilla.announcerplus.textanimation.animation.ScrollingGradient
 import xyz.jpenilla.announcerplus.textanimation.animation.ScrollingText
 import xyz.jpenilla.announcerplus.textanimation.animation.Typewriter
-import java.util.regex.Pattern
 
 class AnimationHolder(private val player: Player?, private val message: String) : KoinComponent {
     companion object {
-        private val pattern = Pattern.compile("\\{animate:/?([a-z][^}]*)/?}?")
+        private val pattern = "\\{animate:/?([a-z][^}]*)/?}?".toPattern()
     }
 
     private val configManager: ConfigManager by inject()

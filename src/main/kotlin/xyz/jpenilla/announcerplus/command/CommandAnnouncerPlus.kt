@@ -59,7 +59,7 @@ class CommandAnnouncerPlus : BaseCommand {
                     commandBuilder("ap", metaWithDescription("Displays the chat messages of a message config to the command sender."))
                             .literal("list")
                             .argument(argumentFactory.messageConfig("config"))
-                            .argument(argumentFactory.positiveInteger("page"))
+                            .argument(argumentFactory.positiveInteger("page").asOptional())
                             .permission("announcerplus.list")
                             .handler(::executeList)
             )
@@ -96,7 +96,7 @@ class CommandAnnouncerPlus : BaseCommand {
     private fun executeList(ctx: CommandContext<CommandSender>) {
         val color = randomColor()
         val config = ctx.get<MessageConfig>("config")
-        val page = ctx.getOrDefault("page", 1)!!
+        val page = ctx.getOrDefault("page", 1) ?: 1
         val pagination = Pagination.builder()
                 .resultsPerPage(17)
                 .width(53)
