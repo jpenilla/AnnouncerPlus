@@ -11,7 +11,7 @@ import org.koin.core.KoinComponent
 import org.koin.core.context.startKoin
 import org.koin.core.inject
 import org.koin.dsl.module
-import xyz.jpenilla.announcerplus.command.CommandHelper
+import xyz.jpenilla.announcerplus.command.CommandManager
 import xyz.jpenilla.announcerplus.compatability.EssentialsHook
 import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.config.message.MessageConfig
@@ -30,7 +30,7 @@ class AnnouncerPlus : BasePlugin(), KoinComponent {
     var perms: Permission? = null
     var essentials: EssentialsHook? = null
     var toastTask: ToastTask? = null
-    lateinit var commandHelper: CommandHelper
+    lateinit var commandManager: CommandManager
 
     override fun onPluginEnable() {
         if (!setupPermissions()) {
@@ -49,12 +49,12 @@ class AnnouncerPlus : BasePlugin(), KoinComponent {
                 single { miniMessage }
                 single { chat }
                 single { ConfigManager(get()) }
-                single { GsonBuilder().create() }
-                single { JsonParser() }
+                single { gson }
+                single { jsonParser }
             })
         }
 
-        commandHelper = CommandHelper()
+        commandManager = CommandManager(this)
 
         if (majorMinecraftVersion > 12) {
             toastTask = ToastTask()
@@ -76,7 +76,6 @@ class AnnouncerPlus : BasePlugin(), KoinComponent {
 
     fun reload() {
         configManager.load()
-        commandHelper.reload()
         broadcast()
     }
 

@@ -58,14 +58,14 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
 
     fun save() {
         val mainConfigRoot = CommentedConfigurationNode.root(configOptions.withHeader(""" 
-     ___                                                 ____  __               __    
-    /   |  ____  ____  ____  __  ______  ________  _____/ __ \/ /_  _______  __/ /_
-   / /| | / __ \/ __ \/ __ \/ / / / __ \/ ___/ _ \/ ___/ /_/ / / / / / ___/ /_  __/
-  / ___ |/ / / / / / / /_/ / /_/ / / / / /__/  __/ /  / ____/ / /_/ (__  )   /_/   
- /_/  |_/_/ /_/_/ /_/\____/\__,_/_/ /_/\___/\___/_/  /_/   /_/\__,_/____/  
- 
-     v${announcerPlus.description.version}
-"""))
+            |     ___                                                 ____  __               __    
+            |    /   |  ____  ____  ____  __  ______  ________  _____/ __ \/ /_  _______  __/ /_
+            |   / /| | / __ \/ __ \/ __ \/ / / / __ \/ ___/ _ \/ ___/ /_/ / / / / / ___/ /_  __/
+            |  / ___ |/ / / / / / / /_/ / /_/ / / / / /__/  __/ /  / ____/ / /_/ (__  )   /_/   
+            | /_/  |_/_/ /_/_/ /_/\____/\__,_/_/ /_/\___/\___/_/  /_/   /_/\__,_/____/  
+            | 
+            |     v${announcerPlus.description.version}
+            """.trimMargin()))
         mainConfig.saveTo(mainConfigRoot)
         mainConfigLoader.save(mainConfigRoot)
 
@@ -133,9 +133,9 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
             val defaultConfig = File("$path/demo.conf")
             val defaultConfigLoader = HoconConfigurationLoader.builder().setFile(defaultConfig).build()
             val defaultConfigRoot = CommentedConfigurationNode.root(configOptions.withHeader(
-                    "For a player to get these messages give them the announcerplus.messages.demo permission\n" +
-                            "  If EssentialsX is installed, then giving a player the announcerplus.messages.demo.afk permission\n" +
-                            "  will stop them from receiving these messages while afk"))
+                    """For a player to get these messages give them the announcerplus.messages.demo permission
+                      |  If EssentialsX is installed, then giving a player the announcerplus.messages.demo.afk permission
+                      |  will stop them from receiving these messages while afk""".trimMargin()))
             MessageConfig().saveTo(defaultConfigRoot)
             defaultConfigLoader.save(defaultConfigRoot)
         }
