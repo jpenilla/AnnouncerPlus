@@ -9,7 +9,7 @@ plugins {
 
 val projectName = "AnnouncerPlus"
 group = "xyz.jpenilla"
-version = "1.2.0+${getLastCommitHash()}-SNAPSHOT"
+version = "1.2.1+${getLastCommitHash()}-SNAPSHOT"
 
 repositories {
     mavenLocal()
@@ -35,7 +35,7 @@ dependencies {
     implementation("com.github.jmanpenilla", "Skedule", "7ae098d404")
     implementation("org.bstats", "bstats-bukkit", "1.7")
 
-    val cloudVersion = "1.0.2"
+    val cloudVersion = "1.1.0"
     implementation("cloud.commandframework", "cloud-paper", cloudVersion)
     implementation("cloud.commandframework", "cloud-minecraft-extras", cloudVersion)
 
