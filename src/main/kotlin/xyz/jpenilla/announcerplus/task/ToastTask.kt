@@ -17,11 +17,9 @@ class ToastTask: KoinComponent {
                 val toast = queuedToasts.removeFirst()
                 if (toast.first.isOnline) {
                     toast.second.displayIfEnabled(toast.first)
-                    yield()
                 }
-            } else {
-                yield()
             }
+            yield()
         }
     }
 

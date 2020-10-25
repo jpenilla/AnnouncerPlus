@@ -118,6 +118,7 @@ class JoinQuitConfig : KoinComponent {
     private var name: String? = null
 
     fun onJoin(player: Player) {
+        /* name is null for first-join config */
         if (name == null || player.hasPermission("announcerplus.join.$name")) {
             chat.send(player, announcerPlus.configManager.parse(player, join.messages))
             announcerPlus.schedule {

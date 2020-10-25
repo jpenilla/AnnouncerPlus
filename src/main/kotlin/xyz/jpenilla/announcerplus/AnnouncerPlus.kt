@@ -75,7 +75,12 @@ class AnnouncerPlus : BasePlugin(), KoinComponent {
     private fun broadcast() = configManager.messageConfigs.values.forEach(MessageConfig::broadcast)
 
     fun reload() {
+        if (toastTask != null) {
+            toastTask?.cancel()
+            toastTask = ToastTask()
+        }
         configManager.load()
+        configManager.save()
         broadcast()
     }
 

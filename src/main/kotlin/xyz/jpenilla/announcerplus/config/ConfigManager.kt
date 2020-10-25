@@ -1,6 +1,5 @@
 package xyz.jpenilla.announcerplus.config
 
-import ninja.leaping.configurate.ConfigurationNode
 import ninja.leaping.configurate.ConfigurationOptions
 import ninja.leaping.configurate.commented.CommentedConfigurationNode
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader
@@ -10,17 +9,18 @@ import org.bukkit.configuration.InvalidConfigurationException
 import org.bukkit.entity.Player
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.message.MessageConfig
-import java.io.File
+import java.nio.file.Files
+import kotlin.streams.toList
 
 class ConfigManager(private val announcerPlus: AnnouncerPlus) {
     private val serializers = TypeSerializerCollection.defaults().newChild()
     private val configOptions: ConfigurationOptions
 
-    private val mainConfigFile = File("${announcerPlus.dataFolder}/main.conf")
+    private val mainConfigPath = announcerPlus.dataFolder.toPath().resolve("main.conf")
     private val mainConfigLoader: HoconConfigurationLoader
     lateinit var mainConfig: MainConfig
 
-    private val firstJoinConfigFile = File("${announcerPlus.dataFolder}/first-join.conf")
+    private val firstJoinConfigPath = announcerPlus.dataFolder.toPath().resolve("first-join.conf")
     private val firstJoinConfigLoader: HoconConfigurationLoader
     lateinit var firstJoinConfig: JoinQuitConfig
 
@@ -29,15 +29,16 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
 
     init {
         configOptions = ConfigurationOptions.defaults().withSerializers(serializers)
-        mainConfigLoader = HoconConfigurationLoader.builder().setFile(mainConfigFile).build()
-        firstJoinConfigLoader = HoconConfigurationLoader.builder().setFile(firstJoinConfigFile).build()
+        mainConfigLoader = HoconConfigurationLoader.builder().setPath(mainConfigPath).build()
+        firstJoinConfigLoader = HoconConfigurationLoader.builder().setPath(firstJoinConfigPath).build()
 
-        announcerPlus.dataFolder.mkdir()
         load()
         save()
     }
 
     fun load() {
+        Files.createDirectories(announcerPlus.dataFolder.toPath())
+
         val mainConfigRoot = mainConfigLoader.load(configOptions)
         try {
             mainConfig = MainConfig.loadFrom(mainConfigRoot)
@@ -80,58 +81,50 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
 
     private fun loadJoinQuitConfigs() {
         joinQuitConfigs.clear()
-        val path = "${announcerPlus.dataFolder}/join-quit-configs"
-        val folder = File(path)
-        if (!folder.exists()) {
-            if (folder.mkdir()) {
-                announcerPlus.logger.info("Creating messages folder")
-            }
+        val path = announcerPlus.dataFolder.toPath().resolve("join-quit-configs")
+        if (!Files.exists(path)) {
+            announcerPlus.logger.info("Creating join quit config folder")
+            Files.createDirectories(path)
         }
-        if (folder.listFiles().isEmpty()) {
+        if (Files.list(path).toList().isEmpty()) {
             announcerPlus.logger.info("No join/quit configs found, creating default.conf")
 
-            val defaultConfig = File("$path/default.conf")
-            val defaultConfigLoader = HoconConfigurationLoader.builder().setFile(defaultConfig).build()
+            val defaultConfig = path.resolve("default.conf")
+            val defaultConfigLoader = HoconConfigurationLoader.builder().setPath(defaultConfig).build()
             val defaultConfigRoot = CommentedConfigurationNode.root(configOptions.withHeader(
                     "To give a player these join/quit messages give them the announcerplus.join.default\n" +
                             "  and announcerplus.quit.default permissions"))
             JoinQuitConfig().saveTo(defaultConfigRoot)
             defaultConfigLoader.save(defaultConfigRoot)
         }
-        val joinQuitConfigFiles = File(path).listFiles()
-        for (configFile in joinQuitConfigFiles) {
-            val configLoader = HoconConfigurationLoader.builder().setFile(configFile).build()
-            var root: ConfigurationNode
-            val name = configFile.nameWithoutExtension
+        Files.list(path).forEach {
+            val configLoader = HoconConfigurationLoader.builder().setPath(it).build()
+            val name = it.toFile().nameWithoutExtension
             try {
-                root = configLoader.load(configOptions)
+                val root = configLoader.load(configOptions)
                 joinQuitConfigs[name] = JoinQuitConfig.loadFrom(root, name)
 
                 joinQuitConfigs[name]?.saveTo(root)
                 configLoader.save(root)
             } catch (e: Exception) {
-                throw InvalidConfigurationException("Failed to load message config: ${configFile.name}. This is due to an invalid config file.", e)
+                throw InvalidConfigurationException("Failed to load message config: ${it.fileName}. This is due to an invalid config file.", e)
             }
         }
     }
 
     private fun loadMessageConfigs() {
-        for (mC in messageConfigs.values) {
-            mC.stop()
-        }
+        messageConfigs.values.forEach(MessageConfig::stop)
         messageConfigs.clear()
-        val path = "${announcerPlus.dataFolder}/message-configs"
-        val folder = File(path)
-        if (!folder.exists()) {
-            if (folder.mkdir()) {
-                announcerPlus.logger.info("Creating messages folder")
-            }
+        val path = announcerPlus.dataFolder.toPath().resolve("message-configs")
+        if (!Files.exists(path)) {
+            announcerPlus.logger.info("Creating message config folder")
+            Files.createDirectories(path)
         }
-        if (folder.listFiles().isEmpty()) {
+        if (Files.list(path).toList().isEmpty()) {
             announcerPlus.logger.info("No message configs found, creating demo.conf")
 
-            val defaultConfig = File("$path/demo.conf")
-            val defaultConfigLoader = HoconConfigurationLoader.builder().setFile(defaultConfig).build()
+            val defaultConfig = path.resolve("demo.conf")
+            val defaultConfigLoader = HoconConfigurationLoader.builder().setPath(defaultConfig).build()
             val defaultConfigRoot = CommentedConfigurationNode.root(configOptions.withHeader(
                     """For a player to get these messages give them the announcerplus.messages.demo permission
                       |  If EssentialsX is installed, then giving a player the announcerplus.messages.demo.afk permission
@@ -139,19 +132,17 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
             MessageConfig().saveTo(defaultConfigRoot)
             defaultConfigLoader.save(defaultConfigRoot)
         }
-        val messageConfigFiles = File(path).listFiles()
-        for (configFile in messageConfigFiles) {
-            val configLoader = HoconConfigurationLoader.builder().setFile(configFile).build()
-            val name = configFile.nameWithoutExtension
-            var root: ConfigurationNode
+        Files.list(path).forEach {
+            val configLoader = HoconConfigurationLoader.builder().setPath(it).build()
+            val name = it.toFile().nameWithoutExtension
             try {
-                root = configLoader.load(configOptions)
+                val root = configLoader.load(configOptions)
                 messageConfigs[name] = MessageConfig.loadFrom(root, name)
 
                 messageConfigs[name]?.saveTo(root)
                 configLoader.save(root)
             } catch (e: Exception) {
-                throw InvalidConfigurationException("Failed to load join/quit config: ${configFile.name}. This is due to an invalid config file.", e)
+                throw InvalidConfigurationException("Failed to load join/quit config: ${it.fileName}. This is due to an invalid config file.", e)
             }
         }
     }
