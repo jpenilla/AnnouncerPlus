@@ -33,15 +33,12 @@ dependencies {
     implementation("org.koin", "koin-core", "2.1.6")
     implementation("xyz.jpenilla", "jmplib", "1.0.1+23-SNAPSHOT")
     implementation("com.github.jmanpenilla", "Skedule", "7ae098d404")
+    implementation("org.spongepowered", "configurate-hocon", "4.0.0-SNAPSHOT")
     implementation("org.bstats", "bstats-bukkit", "1.7")
 
     val cloudVersion = "1.1.0"
     implementation("cloud.commandframework", "cloud-paper", cloudVersion)
     implementation("cloud.commandframework", "cloud-minecraft-extras", cloudVersion)
-
-    implementation("org.spongepowered", "configurate-hocon", "4.0.0-SNAPSHOT") {
-        exclude("com.google.guava", "guava")
-    }
 }
 
 spigot {

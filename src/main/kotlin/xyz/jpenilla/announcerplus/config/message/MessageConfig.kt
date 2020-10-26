@@ -16,6 +16,7 @@ import org.spongepowered.configurate.objectmapping.meta.NodeResolver
 import org.spongepowered.configurate.objectmapping.meta.Setting
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.ConfigManager
+import xyz.jpenilla.announcerplus.util.dispatchCommandAsConsole
 import xyz.jpenilla.jmplib.Chat
 
 @ConfigSerializable
@@ -94,56 +95,44 @@ class MessageConfig : KoinComponent {
     fun broadcast() {
         stop()
         broadcastTask = announcerPlus.schedule(SynchronizationContext.ASYNC) {
-            val tempMessages = messages
+            val tempMessages = messages.toMutableList()
             if (randomOrder) {
                 tempMessages.shuffle()
             }
             repeating(timeUnit.ticks * interval)
             for (message in tempMessages) {
                 switchContext(SynchronizationContext.SYNC)
-                val players = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
+                val onlinePlayers = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
                 switchContext(SynchronizationContext.ASYNC)
-
-                for (player in players) {
+                for (onlinePlayer in onlinePlayers) {
                     if (announcerPlus.essentials != null) {
-                        if (announcerPlus.essentials!!.isAfk(player) && announcerPlus.perms!!.playerHas(player, "${announcerPlus.name}.messages.$name.afk")) {
+                        if (announcerPlus.essentials!!.isAfk(onlinePlayer) && announcerPlus.perms!!.playerHas(onlinePlayer, "${announcerPlus.name}.messages.$name.afk")) {
                             continue
                         }
                     }
-                    if (announcerPlus.perms!!.playerHas(player, "${announcerPlus.name}.messages.$name")) {
-                        if (message.messageText.size != 0) {
-                            chat.send(player, configManager.parse(player, message.messageText))
+                    if (announcerPlus.perms!!.playerHas(onlinePlayer, "${announcerPlus.name}.messages.$name")) {
+                        with(message) {
+                            if (messageText.size != 0) {
+                                chat.send(onlinePlayer, configManager.parse(onlinePlayer, messageText))
+                            }
+                            chat.playSounds(onlinePlayer, soundsRandomized, sounds)
+                            actionBar.displayIfEnabled(onlinePlayer)
+                            bossBar.displayIfEnabled(onlinePlayer)
+                            title.displayIfEnabled(onlinePlayer)
+                            toast.queueDisplay(onlinePlayer)
                         }
-                        chat.playSounds(player, message.soundsRandomized, message.sounds)
-                        message.actionBar.displayIfEnabled(player)
-                        message.bossBar.displayIfEnabled(player)
-                        message.title.displayIfEnabled(player)
-                        message.toast.queueDisplay(player)
-
-                        switchContext(SynchronizationContext.SYNC)
-                        for (command in message.perPlayerCommands) {
-                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), configManager.parse(player, command))
+                        announcerPlus.schedule {
+                            message.perPlayerCommands.forEach { dispatchCommandAsConsole(configManager.parse(onlinePlayer, it)) }
+                            message.asPlayerCommands.forEach { onlinePlayer.performCommand(configManager.parse(onlinePlayer, it)) }
+                            perPlayerCommands.forEach { dispatchCommandAsConsole(configManager.parse(onlinePlayer, it)) }
+                            asPlayerCommands.forEach { onlinePlayer.performCommand(configManager.parse(onlinePlayer, it)) }
                         }
-                        for (command in message.asPlayerCommands) {
-                            Bukkit.dispatchCommand(player, configManager.parse(player, command))
-                        }
-                        for (command in perPlayerCommands) {
-                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), configManager.parse(player, command))
-                        }
-                        for (command in asPlayerCommands) {
-                            Bukkit.dispatchCommand(player, configManager.parse(player, command))
-                        }
-                        switchContext(SynchronizationContext.ASYNC)
                     }
                 }
-                switchContext(SynchronizationContext.SYNC)
-                for (command in message.commands) {
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), configManager.parse(null, command))
+                announcerPlus.schedule {
+                    message.commands.forEach { dispatchCommandAsConsole(configManager.parse(null, it)) }
+                    commands.forEach { dispatchCommandAsConsole(configManager.parse(null, it)) }
                 }
-                for (command in commands) {
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), configManager.parse(null, command))
-                }
-                switchContext(SynchronizationContext.ASYNC)
                 yield()
             }
             broadcast()

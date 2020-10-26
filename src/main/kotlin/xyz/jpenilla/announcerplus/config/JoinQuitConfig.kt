@@ -20,6 +20,7 @@ import xyz.jpenilla.announcerplus.config.message.BossBarSettings
 import xyz.jpenilla.announcerplus.config.message.TitleSettings
 import xyz.jpenilla.announcerplus.config.message.ToastSettings
 import xyz.jpenilla.announcerplus.util.Constants
+import xyz.jpenilla.announcerplus.util.dispatchCommandAsConsole
 import xyz.jpenilla.jmplib.Chat
 
 @ConfigSerializable
@@ -145,26 +146,21 @@ class JoinQuitConfig : KoinComponent {
             announcerPlus.schedule {
                 waitFor(3L)
                 if (!isVanished(player)) {
-                    val players = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
+                    val onlinePlayers = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
                     switchContext(SynchronizationContext.ASYNC)
-                    val m = announcerPlus.configManager.parse(player, join.broadcasts)
-                    for (p in players) {
-                        if (p.name != player.name) {
-                            if (announcerPlus.perms!!.playerHas(p, permission) || permission == "") {
-                                chat.send(p, m)
+                    onlinePlayers.forEach { onlinePlayer ->
+                        if (onlinePlayer.name != player.name) {
+                            if (announcerPlus.perms!!.playerHas(onlinePlayer, permission) || permission == "") {
+                                chat.send(onlinePlayer, announcerPlus.configManager.parse(player, join.broadcasts))
                                 if (join.broadcastSounds != "") {
-                                    chat.playSounds(p, join.randomBroadcastSound, join.broadcastSounds)
+                                    chat.playSounds(onlinePlayer, join.randomBroadcastSound, join.broadcastSounds)
                                 }
                             }
                         }
                     }
                     switchContext(SynchronizationContext.SYNC)
-                    for (command in join.commands) {
-                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), announcerPlus.configManager.parse(player, command))
-                    }
-                    for (command in join.asPlayerCommands) {
-                        Bukkit.dispatchCommand(player, announcerPlus.configManager.parse(player, command))
-                    }
+                    join.commands.forEach { dispatchCommandAsConsole(announcerPlus.configManager.parse(player, it)) }
+                    join.asPlayerCommands.forEach { player.performCommand(announcerPlus.configManager.parse(player, it)) }
                 }
             }
             announcerPlus.schedule(SynchronizationContext.ASYNC) {
@@ -184,21 +180,17 @@ class JoinQuitConfig : KoinComponent {
             return
         }
         if (player.hasPermission("announcerplus.quit.$name") && !isVanished(player)) {
-            val players = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
-            val m = announcerPlus.configManager.parse(player, quit.broadcasts)
-            for (p in players) {
-                if (p.name != player.name) {
-                    if (announcerPlus.perms!!.playerHas(p, permission) || permission == "") {
-                        chat.send(p, m)
+            ImmutableList.copyOf(Bukkit.getOnlinePlayers()).forEach { onlinePlayer ->
+                if (onlinePlayer.name != player.name) {
+                    if (announcerPlus.perms!!.playerHas(onlinePlayer, permission) || permission == "") {
+                        chat.send(onlinePlayer, announcerPlus.configManager.parse(player, quit.broadcasts))
                         if (quit.sounds != "") {
-                            chat.playSounds(p, quit.randomSound, quit.sounds)
+                            chat.playSounds(onlinePlayer, quit.randomSound, quit.sounds)
                         }
                     }
                 }
             }
-            for (command in quit.commands) {
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), chat.papiParse(player, command))
-            }
+            quit.commands.forEach { dispatchCommandAsConsole(announcerPlus.configManager.parse(player, it)) }
         }
     }
 

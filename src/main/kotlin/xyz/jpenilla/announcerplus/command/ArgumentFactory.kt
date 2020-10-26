@@ -36,9 +36,7 @@ class ArgumentFactory : KoinComponent {
 
     fun messageConfig(name: String): CommandArgument<CommandSender, MessageConfig> {
         return commandManager.argumentBuilder(MessageConfig::class.java, name)
-                .withSuggestionsProvider { _, _ ->
-                    return@withSuggestionsProvider configManager.messageConfigs.keys.toList()
-                }
+                .withSuggestionsProvider { _, _ -> configManager.messageConfigs.keys.toList() }
                 .withParser { _, inputQueue ->
                     val input = inputQueue.peek()
                     val config = configManager.messageConfigs[input]
