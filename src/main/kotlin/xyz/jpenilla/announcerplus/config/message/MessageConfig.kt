@@ -95,12 +95,8 @@ class MessageConfig : KoinComponent {
     fun broadcast() {
         stop()
         broadcastTask = announcerPlus.schedule(SynchronizationContext.ASYNC) {
-            val tempMessages = messages.toMutableList()
-            if (randomOrder) {
-                tempMessages.shuffle()
-            }
             repeating(timeUnit.ticks * interval)
-            for (message in tempMessages) {
+            shuffledMessages().forEach { message ->
                 switchContext(SynchronizationContext.SYNC)
                 val onlinePlayers = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
                 switchContext(SynchronizationContext.ASYNC)
@@ -116,10 +112,7 @@ class MessageConfig : KoinComponent {
                                 chat.send(onlinePlayer, configManager.parse(onlinePlayer, messageText))
                             }
                             chat.playSounds(onlinePlayer, soundsRandomized, sounds)
-                            actionBar.displayIfEnabled(onlinePlayer)
-                            bossBar.displayIfEnabled(onlinePlayer)
-                            title.displayIfEnabled(onlinePlayer)
-                            toast.queueDisplay(onlinePlayer)
+                            messageElements().forEach { it.displayIfEnabled(onlinePlayer) }
                         }
                         announcerPlus.schedule {
                             message.perPlayerCommands.forEach { dispatchCommandAsConsole(configManager.parse(onlinePlayer, it)) }
@@ -137,6 +130,15 @@ class MessageConfig : KoinComponent {
             }
             broadcast()
         }
+    }
+
+    private fun shuffledMessages(): List<Message> {
+        if (randomOrder) {
+            val tempMessages = messages.toMutableList()
+            tempMessages.shuffle()
+            return tempMessages
+        }
+        return messages
     }
 
     fun stop() {

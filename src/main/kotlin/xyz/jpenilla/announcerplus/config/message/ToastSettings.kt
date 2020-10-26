@@ -1,16 +1,12 @@
 package xyz.jpenilla.announcerplus.config.message
 
 import com.google.gson.JsonObject
-import com.okkero.skedule.schedule
-import org.bukkit.Bukkit
 import org.bukkit.Material
-import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
 import org.koin.core.inject
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
 import org.spongepowered.configurate.objectmapping.meta.Comment
 import xyz.jpenilla.announcerplus.AnnouncerPlus
-import java.util.concurrent.ThreadLocalRandom
 
 @ConfigSerializable
 class ToastSettings : MessageElement {
@@ -48,36 +44,11 @@ class ToastSettings : MessageElement {
         return header != "" || footer != ""
     }
 
-    @Suppress("deprecation")
     override fun display(player: Player) {
-        announcerPlus.schedule {
-            val key = NamespacedKey(announcerPlus, "announcerPlus${ThreadLocalRandom.current().nextInt(1000000)}")
-            try {
-                Bukkit.getUnsafe().loadAdvancement(key, getJson(player))
-            } catch (ignored: Exception) {
-            }
-            val advancement = Bukkit.getAdvancement(key)!!
-            val progress = player.getAdvancementProgress(advancement)
-            if (!progress.isDone) {
-                for (criteria in progress.remainingCriteria) {
-                    progress.awardCriteria(criteria)
-                }
-            }
-            waitFor(20L)
-            if (progress.isDone) {
-                for (criteria in progress.awardedCriteria) {
-                    progress.revokeCriteria(criteria)
-                }
-            }
-            Bukkit.getUnsafe().removeAdvancement(key)
-        }
-    }
-
-    fun queueDisplay(player: Player) {
         announcerPlus.toastTask?.queueToast(this, player)
     }
 
-    private fun getJson(player: Player): String {
+    fun getJson(player: Player): String {
         val json = JsonObject()
         val display = JsonObject()
         val icon = JsonObject()

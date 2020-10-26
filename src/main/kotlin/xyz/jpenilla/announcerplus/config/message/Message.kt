@@ -1,5 +1,6 @@
 package xyz.jpenilla.announcerplus.config.message
 
+import com.google.common.collect.ImmutableList
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
 import org.spongepowered.configurate.objectmapping.meta.Comment
 import xyz.jpenilla.announcerplus.util.Constants
@@ -41,6 +42,13 @@ class Message {
     constructor(text: List<String>) {
         this.messageText.addAll(text)
     }
+
+    fun messageElements(): Collection<MessageElement> = ImmutableList.of(
+            actionBar,
+            bossBar,
+            title,
+            toast
+    )
 
     fun sounds(sounds: String): Message {
         this.sounds = sounds

@@ -95,7 +95,7 @@ class CommandParse : BaseCommand {
 
     private fun executeParseToast(ctx: CommandContext<CommandSender>) {
         val toast = ToastSettings(ctx.get("icon"), ctx.get("frame"), ctx.get("header"), ctx.get("body"))
-        toast.queueDisplay(ctx.sender as Player)
+        toast.displayIfEnabled(ctx.sender as Player)
     }
 
     private fun executeParseTitle(ctx: CommandContext<CommandSender>) {

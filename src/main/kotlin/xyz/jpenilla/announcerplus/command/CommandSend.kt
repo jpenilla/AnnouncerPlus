@@ -90,7 +90,7 @@ class CommandSend : BaseCommand {
     private fun executeSendToast(ctx: CommandContext<CommandSender>) {
         val toast = ToastSettings(ctx.get("icon"), ctx.get("frame"), ctx.get("header"), ctx.get("body"))
         for (player in ctx.get<MultiplePlayerSelector>("players").players) {
-            toast.queueDisplay(player)
+            toast.displayIfEnabled(player)
         }
     }
 

@@ -17,6 +17,7 @@ import org.spongepowered.configurate.objectmapping.meta.Setting
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.message.ActionBarSettings
 import xyz.jpenilla.announcerplus.config.message.BossBarSettings
+import xyz.jpenilla.announcerplus.config.message.MessageElement
 import xyz.jpenilla.announcerplus.config.message.TitleSettings
 import xyz.jpenilla.announcerplus.config.message.ToastSettings
 import xyz.jpenilla.announcerplus.util.Constants
@@ -97,6 +98,13 @@ class JoinQuitConfig : KoinComponent {
         @Comment("Configure the Toast that will be showed to the joining player")
         var toast = ToastSettings(Material.DIAMOND, ToastSettings.FrameType.CHALLENGE,
                 "<gradient:green:blue><bold><italic>AnnouncerPlus", "<rainbow>Welcome to the server!")
+
+        fun messageElements(): Collection<MessageElement> = ImmutableList.of(
+                actionBar,
+                bossBar,
+                title,
+                toast
+        )
     }
 
     @ConfigSerializable
@@ -164,10 +172,7 @@ class JoinQuitConfig : KoinComponent {
                 }
             }
             announcerPlus.schedule(SynchronizationContext.ASYNC) {
-                join.title.displayIfEnabled(player)
-                join.actionBar.displayIfEnabled(player)
-                join.bossBar.displayIfEnabled(player)
-                join.toast.queueDisplay(player)
+                join.messageElements().forEach { it.displayIfEnabled(player) }
                 if (join.sounds != "") {
                     chat.playSounds(player, join.randomSound, join.sounds)
                 }

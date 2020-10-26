@@ -88,7 +88,7 @@ class CommandBroadcast : BaseCommand {
     private fun executeBroadcastToast(ctx: CommandContext<CommandSender>) {
         val toast = ToastSettings(ctx.get("icon"), ctx.get("frame"), ctx.get("header"), ctx.get("body"))
         for (player in ctx.get<ArgumentFactory.WorldPlayers>("world").players) {
-            toast.queueDisplay(player)
+            toast.displayIfEnabled(player)
         }
     }
 
