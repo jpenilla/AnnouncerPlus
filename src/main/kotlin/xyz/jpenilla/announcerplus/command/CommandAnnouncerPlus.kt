@@ -148,9 +148,9 @@ class CommandAnnouncerPlus : BaseCommand {
 
         val messages = arrayListOf<String>()
         for (msg in config.messages) {
-            for (line in msg.text) {
+            for (line in msg.messageText) {
                 val b = StringBuilder()
-                if (msg.text.indexOf(line) == 0) {
+                if (msg.messageText.indexOf(line) == 0) {
                     b.append(" <color:$color>-</color:$color> ")
                 } else {
                     b.append("   <color:$color>-</color:$color> ")

@@ -3,15 +3,17 @@ package xyz.jpenilla.announcerplus.config
 import com.google.common.collect.ImmutableList
 import com.okkero.skedule.SynchronizationContext
 import com.okkero.skedule.schedule
-import ninja.leaping.configurate.commented.CommentedConfigurationNode
-import ninja.leaping.configurate.objectmapping.ObjectMapper
-import ninja.leaping.configurate.objectmapping.Setting
-import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.koin.core.KoinComponent
 import org.koin.core.inject
+import org.spongepowered.configurate.CommentedConfigurationNode
+import org.spongepowered.configurate.objectmapping.ConfigSerializable
+import org.spongepowered.configurate.objectmapping.ObjectMapper
+import org.spongepowered.configurate.objectmapping.meta.Comment
+import org.spongepowered.configurate.objectmapping.meta.NodeResolver
+import org.spongepowered.configurate.objectmapping.meta.Setting
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.message.ActionBarSettings
 import xyz.jpenilla.announcerplus.config.message.BossBarSettings
@@ -23,30 +25,38 @@ import xyz.jpenilla.jmplib.Chat
 @ConfigSerializable
 class JoinQuitConfig : KoinComponent {
 
-    @Setting(value = "visible-permission", comment = "If set to something other than \"\", this setting's value will be the permission required to see these join/quit messages when they are broadcasted for a player")
+    @Setting("visible-permission")
+    @Comment("If set to something other than \"\", this setting's value will be the permission required to see these join/quit messages when they are broadcasted for a player")
     var permission = ""
 
-    @Setting(value = "join-section", comment = "Player Join related settings")
+    @Setting("join-section")
+    @Comment("Player Join related settings")
     var join = JoinSection()
 
-    @Setting(value = "quit-section", comment = "Player Quit related settings")
+    @Setting("quit-section")
+    @Comment("Player Quit related settings")
     var quit = QuitSection()
 
     @ConfigSerializable
     class JoinSection {
-        @Setting(value = "randomize-join-sounds", comment = Constants.CONFIG_COMMENT_SOUNDS_RANDOM)
+        @Setting("randomize-join-sounds")
+        @Comment(Constants.CONFIG_COMMENT_SOUNDS_RANDOM)
         var randomSound = true
 
-        @Setting(value = "randomize-join-broadcast-sounds", comment = Constants.CONFIG_COMMENT_SOUNDS_RANDOM)
+        @Setting("randomize-join-broadcast-sounds")
+        @Comment(Constants.CONFIG_COMMENT_SOUNDS_RANDOM)
         var randomBroadcastSound = true
 
-        @Setting(value = "join-sounds", comment = "These sound(s) will be played to the joining player.\n  ${Constants.CONFIG_COMMENT_SOUNDS_LINE2}")
+        @Setting("join-sounds")
+        @Comment("These sound(s) will be played to the joining player.\n  ${Constants.CONFIG_COMMENT_SOUNDS_LINE2}")
         var sounds = "minecraft:entity.strider.happy,minecraft:entity.villager.ambient,minecraft:block.note_block.cow_bell"
 
-        @Setting(value = "join-broadcast-sounds", comment = "These sound(s) will be played to the joining player.\n  ${Constants.CONFIG_COMMENT_SOUNDS_LINE2}")
+        @Setting("join-broadcast-sounds")
+        @Comment("These sound(s) will be played to the joining player.\n  ${Constants.CONFIG_COMMENT_SOUNDS_LINE2}")
         var broadcastSounds = "minecraft:entity.enderman.teleport"
 
-        @Setting(value = "join-messages", comment = "These messages will be sent to the joining Player. These messages are sometimes called a \"Message of the Day\" or a \"MotD\"")
+        @Setting("join-messages")
+        @Comment("These messages will be sent to the joining Player. These messages are sometimes called a \"Message of the Day\" or a \"MotD\"")
         val messages = arrayListOf(
                 "<hover:show_text:'<yellow>Username</yellow><gray>:</gray> {user}'>{nick}</hover> <yellow>joined the game",
                 "<center><rainbow><italic>Welcome,</rainbow> {user}<yellow>!",
@@ -55,57 +65,68 @@ class JoinQuitConfig : KoinComponent {
                 "<gradient:green:white>Configure these messages by editing the config files!"
         )
 
-        @Setting(value = "join-broadcasts", comment = "These messages will be sent to every Player online except the joining Player. Also known as join messages.")
+        @Setting("join-broadcasts")
+        @Comment("These messages will be sent to every Player online except the joining Player. Also known as join messages.")
         val broadcasts = arrayListOf("<hover:show_text:'<yellow>Username</yellow><gray>:</gray> {user}'>{nick}</hover> <yellow>joined the game")
 
-        @Setting(value = "join-commands", comment = "These commands will be run by the console on Player join.\n  Example: \"minecraft:give %player_name% dirt\"")
+        @Setting("join-commands")
+        @Comment("These commands will be run by the console on Player join.\n  Example: \"minecraft:give %player_name% dirt\"")
         val commands = arrayListOf<String>()
 
-        @Setting(value = "as-player-join-commands", comment = "These commands will be run as the Player on Player join.\n  Example: \"ap about\"")
+        @Setting("as-player-join-commands")
+        @Comment("These commands will be run as the Player on Player join.\n  Example: \"ap about\"")
         val asPlayerCommands = arrayListOf<String>()
 
-        @Setting(value = "title-settings", comment = "Settings relating to showing a title to the joining Player")
+        @Setting("title-settings")
+        @Comment("Settings relating to showing a title to the joining Player")
         var title = TitleSettings(1, 7, 1,
                 "<bold><italic><gradient:green:blue:green:{animate:scroll:0.1}>Welcome</gradient><yellow>{animate:flash:!:!!:!!!:10}",
                 "<{animate:pulse:red:blue:yellow:green:10}>{user}")
 
-        @Setting(value = "action-bar-settings", comment = "Settings relating to showing an Action Bar to the joining Player")
+        @Setting("action-bar-settings")
+        @Comment("Settings relating to showing an Action Bar to the joining Player")
         var actionBar = ActionBarSettings(false, 8,
                 "<gradient:green:blue:green:{animate:scroll:0.1}>|||||||||||||||||||||||||||||||||||||||</gradient>")
 
-        @Setting(value = "boss-bar-settings", comment = "Settings relating to showing a Boss Bar to the joining Player")
+        @Setting("boss-bar-settings")
+        @Comment("Settings relating to showing a Boss Bar to the joining Player")
         var bossBar = BossBarSettings()
 
-        @Setting(value = "toast-settings", comment = "Configure the Toast that will be showed to the joining player")
+        @Setting("toast-settings")
+        @Comment("Configure the Toast that will be showed to the joining player")
         var toast = ToastSettings(Material.DIAMOND, ToastSettings.FrameType.CHALLENGE,
                 "<gradient:green:blue><bold><italic>AnnouncerPlus", "<rainbow>Welcome to the server!")
     }
 
     @ConfigSerializable
     class QuitSection {
-        @Setting(value = "randomize-quit-sounds", comment = Constants.CONFIG_COMMENT_SOUNDS_RANDOM)
+        @Setting("randomize-quit-sounds")
+        @Comment(Constants.CONFIG_COMMENT_SOUNDS_RANDOM)
         var randomSound = true
 
-        @Setting(value = "quit-sounds", comment = "These sound(s) will be played to online players on player quit\n  ${Constants.CONFIG_COMMENT_SOUNDS_LINE2}")
+        @Setting("quit-sounds")
+        @Comment("These sound(s) will be played to online players on player quit\n  ${Constants.CONFIG_COMMENT_SOUNDS_LINE2}")
         var sounds = "minecraft:entity.enderman.teleport"
 
-        @Setting(value = "quit-broadcasts", comment = "These messages will be sent to online players on player quit. Also known as quit messages")
+        @Setting("quit-broadcasts")
+        @Comment("These messages will be sent to online players on player quit. Also known as quit messages")
         val broadcasts = arrayListOf("<hover:show_text:'<yellow>Username</yellow><gray>:</gray> {user}'>{nick}</hover> <yellow>left the game")
 
-        @Setting(value = "quit-commands", comment = "These commands will be run by the console on Player quit.\n  Example: \"broadcast %player_name% left\"")
+        @Setting("quit-commands")
+        @Comment("These commands will be run by the console on Player quit.\n  Example: \"broadcast %player_name% left\"")
         val commands = arrayListOf<String>()
     }
 
     companion object {
-        private val MAPPER = ObjectMapper.forClass(JoinQuitConfig::class.java)
+        private val MAPPER = ObjectMapper.factoryBuilder().addNodeResolver(NodeResolver.onlyWithSetting()).build().get(JoinQuitConfig::class.java)
 
         fun loadFrom(node: CommentedConfigurationNode, name: String?): JoinQuitConfig {
-            return MAPPER.bindToNew().populate(node).populate(name)
+            return MAPPER.load(node).populate(name)
         }
     }
 
     fun saveTo(node: CommentedConfigurationNode) {
-        MAPPER.bind(this).serialize(node)
+        MAPPER.save(this, node)
     }
 
     fun populate(name: String?): JoinQuitConfig {

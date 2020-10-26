@@ -2,36 +2,37 @@ package xyz.jpenilla.announcerplus.config.message
 
 import com.google.gson.JsonObject
 import com.okkero.skedule.schedule
-import ninja.leaping.configurate.objectmapping.Setting
-import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
 import org.koin.core.inject
+import org.spongepowered.configurate.objectmapping.ConfigSerializable
+import org.spongepowered.configurate.objectmapping.meta.Comment
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import java.util.concurrent.ThreadLocalRandom
 
 @ConfigSerializable
 class ToastSettings : MessageElement {
 
-    @Setting(value = "icon", comment = "The icon for the Toast/Advancement notification")
+    @Comment("The icon for the Toast/Advancement notification")
+    @Transient
     var icon = Material.DIAMOND
 
-    @Setting(value = "header", comment = "The text for the header of the Toast. If this and the footer are set to \"\" (empty string), the toast is disabled")
+    @Comment("Should the icon item be enchanted?")
+    var iconEnchanted = false
+
+    @Comment("Enter custom model data for the icon item. -1 to disable")
+    var iconCustomModelData = -1
+
+    @Comment("The text for the header of the Toast. If this and the footer are set to \"\" (empty string), the toast is disabled")
     var header = ""
 
-    @Setting(value = "footer", comment = "The text for the footer of the Toast. If this and the header are set to \"\" (empty string), the toast is disabled")
+    @Comment("The text for the footer of the Toast. If this and the header are set to \"\" (empty string), the toast is disabled")
     var footer = ""
 
-    @Setting(value = "frame", comment = "The frame for the Toast. Can be CHALLENGE, GOAL, or TASK")
+    @Comment("The frame for the Toast. Can be CHALLENGE, GOAL, or TASK")
     var frame = FrameType.GOAL
-
-    @Setting(value = "icon-enchanted", comment = "Should the icon item be enchanted?")
-    var enchanted = false
-
-    @Setting(value = "icon-custom-model-data", comment = "Enter custom model data for the icon item. -1 to disable")
-    var customModelData = -1
 
     constructor()
     constructor(icon: Material, frameType: FrameType, header: String, footer: String) {
@@ -47,6 +48,7 @@ class ToastSettings : MessageElement {
         return header != "" || footer != ""
     }
 
+    @Suppress("deprecation")
     override fun display(player: Player) {
         announcerPlus.schedule {
             val key = NamespacedKey(announcerPlus, "announcerPlus${ThreadLocalRandom.current().nextInt(1000000)}")
@@ -80,8 +82,8 @@ class ToastSettings : MessageElement {
         val display = JsonObject()
         val icon = JsonObject()
         icon.addProperty("item", this.icon.key.toString())
-        val nbtBuilder = StringBuilder("{CustomModelData:$customModelData")
-        if (enchanted) {
+        val nbtBuilder = StringBuilder("{CustomModelData:$iconCustomModelData")
+        if (iconEnchanted) {
             nbtBuilder.append(",Enchantments:[{id:\"aqua_affinity\",lvl:1}]}")
         } else {
             nbtBuilder.append("}")

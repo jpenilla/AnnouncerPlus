@@ -18,7 +18,7 @@ class JoinQuitListener : Listener, KoinComponent {
 
     @EventHandler(priority = EventPriority.LOWEST)
     fun onLogin(event: PlayerLoginEvent) {
-        if (configManager.mainConfig.joinEvent && configManager.mainConfig.firstJoinEnabled) {
+        if (configManager.mainConfig.joinFeatures && configManager.mainConfig.firstJoinConfigEnabled) {
             if (!event.player.hasPlayedBefore()) {
                 newPlayers.add(event.player.uniqueId)
             }
@@ -27,7 +27,7 @@ class JoinQuitListener : Listener, KoinComponent {
 
     @EventHandler(priority = EventPriority.LOWEST)
     fun onJoin(event: PlayerJoinEvent) {
-        if (configManager.mainConfig.joinEvent) {
+        if (configManager.mainConfig.joinFeatures) {
             event.joinMessage = ""
             if (newPlayers.remove(event.player.uniqueId)) {
                 configManager.firstJoinConfig.onJoin(event.player)
@@ -50,7 +50,7 @@ class JoinQuitListener : Listener, KoinComponent {
 
     @EventHandler(priority = EventPriority.LOWEST)
     fun onQuit(event: PlayerQuitEvent) {
-        if (configManager.mainConfig.quitEvent) {
+        if (configManager.mainConfig.quitFeatures) {
             event.quitMessage = ""
             for (entry in configManager.mainConfig.randomQuitConfigs.entries) {
                 if (entry.key != "demo" && event.player.hasPermission("announcerplus.randomquit.${entry.key}")) {

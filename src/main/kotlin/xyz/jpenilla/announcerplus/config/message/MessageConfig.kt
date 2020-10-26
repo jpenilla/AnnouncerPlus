@@ -4,14 +4,16 @@ import com.google.common.collect.ImmutableList
 import com.okkero.skedule.CoroutineTask
 import com.okkero.skedule.SynchronizationContext
 import com.okkero.skedule.schedule
-import ninja.leaping.configurate.commented.CommentedConfigurationNode
-import ninja.leaping.configurate.objectmapping.ObjectMapper
-import ninja.leaping.configurate.objectmapping.Setting
-import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.koin.core.KoinComponent
 import org.koin.core.inject
+import org.spongepowered.configurate.CommentedConfigurationNode
+import org.spongepowered.configurate.objectmapping.ConfigSerializable
+import org.spongepowered.configurate.objectmapping.ObjectMapper
+import org.spongepowered.configurate.objectmapping.meta.Comment
+import org.spongepowered.configurate.objectmapping.meta.NodeResolver
+import org.spongepowered.configurate.objectmapping.meta.Setting
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.jmplib.Chat
@@ -19,7 +21,8 @@ import xyz.jpenilla.jmplib.Chat
 @ConfigSerializable
 class MessageConfig : KoinComponent {
 
-    @Setting(value = "messages", comment = "The list of messages for a config")
+    @Setting
+    @Comment("The list of messages for a config")
     val messages = arrayListOf(
             Message(arrayListOf("<center><rainbow>Test AnnouncerPlus broadcast!")),
             Message().bossBar(BossBarSettings(25, "{animate:flash:YELLOW:PURPLE:40}",
@@ -41,40 +44,45 @@ class MessageConfig : KoinComponent {
                             "<bold>This is an example <italic><gradient:blue:light_purple>Boss Bar"))
     )
 
-    @Setting(value = "every-broadcast-commands", comment = "These commands will run as console once each interval\n  Example: \"broadcast This is a test\"")
+    @Setting("every-broadcast-commands")
+    @Comment("These commands will run as console once each interval\n  Example: \"broadcast This is a test\"")
     val commands = arrayListOf<String>()
 
-    @Setting(value = "every-broadcast-per-player-commands", comment = "These commands will run as console once per player each interval\n  Example: \"minecraft:give %player_name% dirt\"")
+    @Setting("every-broadcast-per-player-commands")
+    @Comment("These commands will run as console once per player each interval\n  Example: \"minecraft:give %player_name% dirt\"")
     val perPlayerCommands = arrayListOf<String>()
 
-    @Setting(value = "every-broadcast-as-player-commands", comment = "These commands will run once per player each interval, as the player\n  Example: \"ap about\"")
+    @Setting("every-broadcast-as-player-commands")
+    @Comment("These commands will run once per player each interval, as the player\n  Example: \"ap about\"")
     val asPlayerCommands = arrayListOf<String>()
 
-    @Setting(value = "interval-time-unit", comment = "The unit of time used for the interval\n  Can be SECONDS, MINUTES, or HOURS")
+    @Setting("interval-time-unit")
+    @Comment("The unit of time used for the interval\n  Can be SECONDS, MINUTES, or HOURS")
     var timeUnit = TimeUnit.MINUTES
 
-    @Setting(value = "interval-time-amount", comment = "The amount of time used for the interval")
+    @Setting("interval-time-amount")
+    @Comment("The amount of time used for the interval")
     var interval = 3
 
-    @Setting(value = "random-message-order", comment = "Should the messages be sent in order of the config or in random order")
+    @Setting("random-message-order")
+    @Comment("Should the messages be sent in order of the config or in random order")
     var randomOrder = false
 
     companion object {
-        private val MAPPER = ObjectMapper.forClass(MessageConfig::class.java)
+        private val MAPPER = ObjectMapper.factoryBuilder().addNodeResolver(NodeResolver.onlyWithSetting()).build().get(MessageConfig::class.java)
 
         fun loadFrom(node: CommentedConfigurationNode, name: String): MessageConfig {
-            val temp = MAPPER.bindToNew().populate(node)
-            temp.populate(name)
-            return temp
+            return MAPPER.load(node).populate(name)
         }
     }
 
     fun saveTo(node: CommentedConfigurationNode) {
-        MAPPER.bind(this).serialize(node)
+        MAPPER.save(this, node)
     }
 
-    fun populate(name: String) {
+    fun populate(name: String): MessageConfig {
         this.name = name
+        return this
     }
 
     private var broadcastTask: CoroutineTask? = null
@@ -103,10 +111,10 @@ class MessageConfig : KoinComponent {
                         }
                     }
                     if (announcerPlus.perms!!.playerHas(player, "${announcerPlus.name}.messages.$name")) {
-                        if (message.text.size != 0) {
-                            chat.send(player, configManager.parse(player, message.text))
+                        if (message.messageText.size != 0) {
+                            chat.send(player, configManager.parse(player, message.messageText))
                         }
-                        chat.playSounds(player, message.randomSound, message.sounds)
+                        chat.playSounds(player, message.soundsRandomized, message.sounds)
                         message.actionBar.displayIfEnabled(player)
                         message.bossBar.displayIfEnabled(player)
                         message.title.displayIfEnabled(player)

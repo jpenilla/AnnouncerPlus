@@ -39,10 +39,7 @@ dependencies {
     implementation("cloud.commandframework", "cloud-paper", cloudVersion)
     implementation("cloud.commandframework", "cloud-minecraft-extras", cloudVersion)
 
-    implementation("org.spongepowered", "configurate-hocon", "3.7.1") {
-        exclude("com.google.guava", "guava")
-    }
-    implementation("org.spongepowered", "configurate-ext-kotlin", "3.7.1") {
+    implementation("org.spongepowered", "configurate-hocon", "4.0.0-SNAPSHOT") {
         exclude("com.google.guava", "guava")
     }
 }

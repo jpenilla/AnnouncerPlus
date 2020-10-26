@@ -1,19 +1,20 @@
 package xyz.jpenilla.announcerplus.config
 
-import ninja.leaping.configurate.ConfigurationOptions
-import ninja.leaping.configurate.commented.CommentedConfigurationNode
-import ninja.leaping.configurate.hocon.HoconConfigurationLoader
-import ninja.leaping.configurate.objectmapping.serialize.TypeSerializerCollection
 import org.bukkit.command.CommandSender
 import org.bukkit.configuration.InvalidConfigurationException
 import org.bukkit.entity.Player
+import org.spongepowered.configurate.ConfigurationOptions
+import org.spongepowered.configurate.hocon.HoconConfigurationLoader
+import org.spongepowered.configurate.objectmapping.ObjectMapper
+import org.spongepowered.configurate.objectmapping.meta.NodeResolver
+import org.spongepowered.configurate.serialize.TypeSerializerCollection
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.message.MessageConfig
 import java.nio.file.Files
 import kotlin.streams.toList
 
 class ConfigManager(private val announcerPlus: AnnouncerPlus) {
-    private val serializers = TypeSerializerCollection.defaults().newChild()
+    private val serializers: TypeSerializerCollection
     private val configOptions: ConfigurationOptions
 
     private val mainConfigPath = announcerPlus.dataFolder.toPath().resolve("main.conf")
@@ -24,13 +25,26 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
     private val firstJoinConfigLoader: HoconConfigurationLoader
     lateinit var firstJoinConfig: JoinQuitConfig
 
+    private val mapperFactory: ObjectMapper.Factory = ObjectMapper.factoryBuilder()
+            .addNodeResolver { name, _ ->
+                /* We don't want to attempt serializing delegated properties, and they can't be @Transient */
+                if (name.endsWith("delegate")) {
+                    return@addNodeResolver NodeResolver.SKIP_FIELD
+                }
+                return@addNodeResolver null
+            }.build()
+
     val messageConfigs = hashMapOf<String, MessageConfig>()
     val joinQuitConfigs = hashMapOf<String, JoinQuitConfig>()
 
     init {
-        configOptions = ConfigurationOptions.defaults().withSerializers(serializers)
-        mainConfigLoader = HoconConfigurationLoader.builder().setPath(mainConfigPath).build()
-        firstJoinConfigLoader = HoconConfigurationLoader.builder().setPath(firstJoinConfigPath).build()
+        serializers = TypeSerializerCollection.defaults().childBuilder()
+                .registerAnnotatedObjects(mapperFactory)
+                .build()
+
+        configOptions = ConfigurationOptions.defaults().serializers(serializers)
+        mainConfigLoader = HoconConfigurationLoader.builder().path(mainConfigPath).build()
+        firstJoinConfigLoader = HoconConfigurationLoader.builder().path(firstJoinConfigPath).build()
 
         load()
         save()
@@ -58,7 +72,7 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
     }
 
     fun save() {
-        val mainConfigRoot = CommentedConfigurationNode.root(configOptions.withHeader(""" 
+        val mainConfigRoot = mainConfigLoader.createNode(configOptions.header(""" 
             |     ___                                                 ____  __               __    
             |    /   |  ____  ____  ____  __  ______  ________  _____/ __ \/ /_  _______  __/ /_
             |   / /| | / __ \/ __ \/ __ \/ / / / __ \/ ___/ _ \/ ___/ /_/ / / / / / ___/ /_  __/
@@ -70,7 +84,7 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
         mainConfig.saveTo(mainConfigRoot)
         mainConfigLoader.save(mainConfigRoot)
 
-        val firstJoinConfigRoot = CommentedConfigurationNode.root(configOptions.withHeader(
+        val firstJoinConfigRoot = firstJoinConfigLoader.createNode(configOptions.header(
                 "If enabled in main.conf, this join config will be used when players join the server for the first time.\n" +
                         "All other join configs will be skipped for first-join if this is enabled."
         ))
@@ -90,15 +104,15 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
             announcerPlus.logger.info("No join/quit configs found, creating default.conf")
 
             val defaultConfig = path.resolve("default.conf")
-            val defaultConfigLoader = HoconConfigurationLoader.builder().setPath(defaultConfig).build()
-            val defaultConfigRoot = CommentedConfigurationNode.root(configOptions.withHeader(
+            val defaultConfigLoader = HoconConfigurationLoader.builder().path(defaultConfig).build()
+            val defaultConfigRoot = defaultConfigLoader.createNode(configOptions.header(
                     "To give a player these join/quit messages give them the announcerplus.join.default\n" +
                             "  and announcerplus.quit.default permissions"))
             JoinQuitConfig().saveTo(defaultConfigRoot)
             defaultConfigLoader.save(defaultConfigRoot)
         }
         Files.list(path).forEach {
-            val configLoader = HoconConfigurationLoader.builder().setPath(it).build()
+            val configLoader = HoconConfigurationLoader.builder().path(it).build()
             val name = it.toFile().nameWithoutExtension
             try {
                 val root = configLoader.load(configOptions)
@@ -124,8 +138,8 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
             announcerPlus.logger.info("No message configs found, creating demo.conf")
 
             val defaultConfig = path.resolve("demo.conf")
-            val defaultConfigLoader = HoconConfigurationLoader.builder().setPath(defaultConfig).build()
-            val defaultConfigRoot = CommentedConfigurationNode.root(configOptions.withHeader(
+            val defaultConfigLoader = HoconConfigurationLoader.builder().path(defaultConfig).build()
+            val defaultConfigRoot = defaultConfigLoader.createNode(configOptions.header(
                     """For a player to get these messages give them the announcerplus.messages.demo permission
                       |  If EssentialsX is installed, then giving a player the announcerplus.messages.demo.afk permission
                       |  will stop them from receiving these messages while afk""".trimMargin()))
@@ -133,7 +147,7 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
             defaultConfigLoader.save(defaultConfigRoot)
         }
         Files.list(path).forEach {
-            val configLoader = HoconConfigurationLoader.builder().setPath(it).build()
+            val configLoader = HoconConfigurationLoader.builder().path(it).build()
             val name = it.toFile().nameWithoutExtension
             try {
                 val root = configLoader.load(configOptions)
@@ -154,7 +168,7 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
             null
         }
 
-        val msg = announcerPlus.chat.parse(p, message, mainConfig.placeholders)
+        val msg = announcerPlus.chat.parse(p, message, mainConfig.customPlaceholders)
         if (msg.startsWith("<center>")) {
             return announcerPlus.chat.getCenteredMessage(msg.replace("<center>", ""))
         }
