@@ -4,32 +4,20 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
-import org.bukkit.event.player.PlayerLoginEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.jmplib.RandomCollection
-import java.util.UUID
 
 class JoinQuitListener : Listener, KoinComponent {
     private val configManager: ConfigManager by inject()
-    private val newPlayers = ArrayList<UUID>()
-
-    @EventHandler(priority = EventPriority.LOWEST)
-    fun onLogin(event: PlayerLoginEvent) {
-        if (configManager.mainConfig.joinFeatures && configManager.mainConfig.firstJoinConfigEnabled) {
-            if (!event.player.hasPlayedBefore()) {
-                newPlayers.add(event.player.uniqueId)
-            }
-        }
-    }
 
     @EventHandler(priority = EventPriority.LOWEST)
     fun onJoin(event: PlayerJoinEvent) {
         if (configManager.mainConfig.joinFeatures) {
             event.joinMessage = ""
-            if (newPlayers.remove(event.player.uniqueId)) {
+            if (configManager.mainConfig.firstJoinConfigEnabled && !event.player.hasPlayedBefore()) {
                 configManager.firstJoinConfig.onJoin(event.player)
                 return
             }
