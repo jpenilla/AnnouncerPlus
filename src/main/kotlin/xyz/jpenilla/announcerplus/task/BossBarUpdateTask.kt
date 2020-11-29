@@ -28,10 +28,10 @@ class BossBarUpdateTask(private val player: Player, private val lifeTime: Int, o
         bar.color(BossBar.Color.NAMES.value(colorAnimation.parseNext(color).toLowerCase()) ?: BossBar.Color.BLUE)
         bar.name(miniMessage.parse(configManager.parse(player, textAnimation.parseNext(text))))
         when (fillMode) {
-            FillMode.FILL -> bar.percent(ticksLived / (lifeTime * 20f))
-            FillMode.DRAIN -> bar.percent(1f - (ticksLived / (lifeTime * 20f)))
-            FillMode.FULL -> if (ticksLived == 0L) bar.percent(1f)
-            FillMode.EMPTY -> if (ticksLived == 0L) bar.percent(0f)
+            FillMode.FILL -> bar.progress(ticksLived / (lifeTime * 20f))
+            FillMode.DRAIN -> bar.progress(1f - (ticksLived / (lifeTime * 20f)))
+            FillMode.FULL -> if (ticksLived == 0L) bar.progress(1f)
+            FillMode.EMPTY -> if (ticksLived == 0L) bar.progress(0f)
         }
         if (ticksLived == 0L) audience.showBossBar(bar)
     }
@@ -40,7 +40,7 @@ class BossBarUpdateTask(private val player: Player, private val lifeTime: Int, o
         return ticksLived < lifeTime * 20L && player.isOnline
     }
 
-    override fun getSynchronizationContext() = SynchronizationContext.ASYNC
+    override fun synchronizationContext() = SynchronizationContext.ASYNC
 
     enum class FillMode {
         FILL, DRAIN, FULL, EMPTY

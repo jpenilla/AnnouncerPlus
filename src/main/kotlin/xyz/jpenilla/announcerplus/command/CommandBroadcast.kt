@@ -7,6 +7,7 @@ import cloud.commandframework.context.CommandContext
 import net.kyori.adventure.bossbar.BossBar
 import org.bukkit.command.CommandSender
 import org.koin.core.inject
+import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.config.message.ToastSettings
 import xyz.jpenilla.announcerplus.task.ActionBarUpdateTask
@@ -18,6 +19,7 @@ class CommandBroadcast : BaseCommand {
     private val commandManager: CommandManager by inject()
     private val configManager: ConfigManager by inject()
     private val argumentFactory: ArgumentFactory by inject()
+    private val announcerPlus: AnnouncerPlus by inject()
     private val chat: Chat by inject()
 
     override fun register() {
@@ -31,25 +33,27 @@ class CommandBroadcast : BaseCommand {
                             .handler(::executeBroadcast)
             )
 
-            command(
-                    commandBuilder("ap", metaWithDescription("Parses and broadcasts a Toast style message to the specified world or all worlds."))
-                            .literal("broadcasttoast")
-                            .argument(argumentFactory.worldPlayers("world"))
-                            .argument(MaterialArgument.of("icon"))
-                            .argument(EnumArgument.of(ToastSettings.FrameType::class.java, "frame"))
-                            .argument(StringArgument.quoted("header"))
-                            .argument(StringArgument.quoted("body"))
-                            .permission("announcerplus.broadcasttoast")
-                            .handler(::executeBroadcastToast)
-            )
+            if (announcerPlus.toastTask != null) {
+                command(
+                        commandBuilder("ap", metaWithDescription("Parses and broadcasts a Toast style message to the specified world or all worlds."))
+                                .literal("broadcasttoast")
+                                .argument(argumentFactory.worldPlayers("world"))
+                                .argument(MaterialArgument.of("icon"))
+                                .argument(EnumArgument.of(ToastSettings.FrameType::class.java, "frame"))
+                                .argument(StringArgument.quoted("header"), description("Quoted String"))
+                                .argument(StringArgument.quoted("body"), description("Quoted String"))
+                                .permission("announcerplus.broadcasttoast")
+                                .handler(::executeBroadcastToast)
+                )
+            }
 
             command(
                     commandBuilder("ap", metaWithDescription("Parses and broadcasts a Title and Subtitle style message to the specified world or all worlds."))
                             .literal("broadcasttitle")
                             .argument(argumentFactory.worldPlayers("world"))
                             .argument(argumentFactory.positiveInteger("seconds"))
-                            .argument(StringArgument.quoted("title"))
-                            .argument(StringArgument.quoted("subtitle"))
+                            .argument(StringArgument.quoted("title"), description("Quoted String"))
+                            .argument(StringArgument.quoted("subtitle"), description("Quoted String"))
                             .permission("announcerplus.broadcasttitle")
                             .handler(::executeBroadcastTitle)
             )

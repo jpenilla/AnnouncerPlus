@@ -8,6 +8,7 @@ import net.kyori.adventure.bossbar.BossBar
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.koin.core.inject
+import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.config.message.ToastSettings
 import xyz.jpenilla.announcerplus.task.ActionBarUpdateTask
@@ -19,6 +20,7 @@ class CommandParse : BaseCommand {
     private val commandManager: CommandManager by inject()
     private val configManager: ConfigManager by inject()
     private val argumentFactory: ArgumentFactory by inject()
+    private val announcerPlus: AnnouncerPlus by inject()
     private val chat: Chat by inject()
 
     override fun register() {
@@ -31,24 +33,26 @@ class CommandParse : BaseCommand {
                             .handler(::executeParse)
             )
 
-            command(
-                    commandBuilder("ap", metaWithDescription("Parses a Toast style message and displays it to the command sender."))
-                            .literal("parsetoast")
-                            .argument(MaterialArgument.of("icon"))
-                            .argument(EnumArgument.of(ToastSettings.FrameType::class.java, "frame"))
-                            .argument(StringArgument.quoted("header"))
-                            .argument(StringArgument.quoted("body"))
-                            .permission("announcerplus.parsetoast")
-                            .senderType(Player::class.java)
-                            .handler(::executeParseToast)
-            )
+            if (announcerPlus.toastTask != null) {
+                command(
+                        commandBuilder("ap", metaWithDescription("Parses a Toast style message and displays it to the command sender."))
+                                .literal("parsetoast")
+                                .argument(MaterialArgument.of("icon"))
+                                .argument(EnumArgument.of(ToastSettings.FrameType::class.java, "frame"))
+                                .argument(StringArgument.quoted("header"), description("Quoted String"))
+                                .argument(StringArgument.quoted("body"), description("Quoted String"))
+                                .permission("announcerplus.parsetoast")
+                                .senderType(Player::class.java)
+                                .handler(::executeParseToast)
+                )
+            }
 
             command(
                     commandBuilder("ap", metaWithDescription("Parses a Title and Subtitle style message and displays it to the command sender."))
                             .literal("parsetitle")
                             .argument(argumentFactory.positiveInteger("seconds"))
-                            .argument(StringArgument.quoted("title"))
-                            .argument(StringArgument.quoted("subtitle"))
+                            .argument(StringArgument.quoted("title"), description("Quoted String"))
+                            .argument(StringArgument.quoted("subtitle"), description("Quoted String"))
                             .permission("announcerplus.parsetitle")
                             .senderType(Player::class.java)
                             .handler(::executeParseTitle)

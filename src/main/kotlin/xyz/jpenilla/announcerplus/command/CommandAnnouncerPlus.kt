@@ -1,6 +1,5 @@
 package xyz.jpenilla.announcerplus.command
 
-import cloud.commandframework.Description
 import cloud.commandframework.context.CommandContext
 import cloud.commandframework.minecraft.extras.MinecraftHelp
 import com.google.common.collect.ImmutableList
@@ -38,7 +37,7 @@ class CommandAnnouncerPlus : BaseCommand {
                             "announcerplus", "announcer"
                     )
                             .literal("help")
-                            .argument(argumentFactory.helpQuery("query"), Description.of("Help Query"))
+                            .argument(argumentFactory.helpQuery("query"), description("Help Query"))
                             .handler(::executeHelp)
             )
 

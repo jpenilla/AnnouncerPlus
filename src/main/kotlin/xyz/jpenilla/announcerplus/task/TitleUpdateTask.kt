@@ -39,5 +39,5 @@ class TitleUpdateTask(private val player: Player, private val fadeIn: Int, priva
         return ticksLived < 20L * (fadeIn + duration) && player.isOnline
     }
 
-    override fun getSynchronizationContext() = SynchronizationContext.ASYNC
+    override fun synchronizationContext() = SynchronizationContext.ASYNC
 }

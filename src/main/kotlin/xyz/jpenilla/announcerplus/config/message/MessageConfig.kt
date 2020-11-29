@@ -72,19 +72,15 @@ class MessageConfig : KoinComponent {
     companion object {
         private val MAPPER = ObjectMapper.factoryBuilder().addNodeResolver(NodeResolver.onlyWithSetting()).build().get(MessageConfig::class.java)
 
-        fun loadFrom(node: CommentedConfigurationNode, name: String): MessageConfig {
-            return MAPPER.load(node).populate(name)
-        }
+        fun loadFrom(node: CommentedConfigurationNode, name: String): MessageConfig =
+                MAPPER.load(node).populate(name)
     }
 
-    fun saveTo(node: CommentedConfigurationNode) {
-        MAPPER.save(this, node)
-    }
+    fun saveTo(node: CommentedConfigurationNode) =
+            MAPPER.save(this, node)
 
-    fun populate(name: String): MessageConfig {
-        this.name = name
-        return this
-    }
+    fun populate(name: String): MessageConfig =
+            this.apply { this.name = name }
 
     private var broadcastTask: CoroutineTask? = null
     lateinit var name: String
@@ -95,7 +91,7 @@ class MessageConfig : KoinComponent {
     fun broadcast() {
         stop()
         broadcastTask = announcerPlus.schedule(SynchronizationContext.ASYNC) {
-            repeating(timeUnit.ticks * interval)
+            repeating(timeUnit.getTicks(interval))
             shuffledMessages().forEach { message ->
                 switchContext(SynchronizationContext.SYNC)
                 val onlinePlayers = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
@@ -134,9 +130,7 @@ class MessageConfig : KoinComponent {
 
     private fun shuffledMessages(): List<Message> {
         if (randomOrder) {
-            val tempMessages = messages.toMutableList()
-            tempMessages.shuffle()
-            return tempMessages
+            return messages.shuffled()
         }
         return messages
     }
@@ -149,5 +143,8 @@ class MessageConfig : KoinComponent {
         SECONDS(20L),
         MINUTES(1200L),
         HOURS(72000L);
+
+        fun getTicks(units: Int): Long =
+                ticks * units
     }
 }

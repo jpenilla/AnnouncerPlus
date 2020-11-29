@@ -9,6 +9,7 @@ import cloud.commandframework.context.CommandContext
 import net.kyori.adventure.bossbar.BossBar
 import org.bukkit.command.CommandSender
 import org.koin.core.inject
+import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.config.message.ToastSettings
 import xyz.jpenilla.announcerplus.task.ActionBarUpdateTask
@@ -20,6 +21,7 @@ class CommandSend : BaseCommand {
     private val commandManager: CommandManager by inject()
     private val configManager: ConfigManager by inject()
     private val argumentFactory: ArgumentFactory by inject()
+    private val announcerPlus: AnnouncerPlus by inject()
     private val chat: Chat by inject()
 
     override fun register() {
@@ -33,25 +35,27 @@ class CommandSend : BaseCommand {
                             .handler(::executeSend)
             )
 
-            command(
-                    commandBuilder("ap", metaWithDescription("Parses and sends a Toast style message to the specified players."))
-                            .literal("sendtoast")
-                            .argument(MultiplePlayerSelectorArgument.of("players"))
-                            .argument(MaterialArgument.of("icon"))
-                            .argument(EnumArgument.of(ToastSettings.FrameType::class.java, "frame"))
-                            .argument(StringArgument.quoted("header"))
-                            .argument(StringArgument.quoted("body"))
-                            .permission("announcerplus.sendtoast")
-                            .handler(::executeSendToast)
-            )
+            if (announcerPlus.toastTask != null) {
+                command(
+                        commandBuilder("ap", metaWithDescription("Parses and sends a Toast style message to the specified players."))
+                                .literal("sendtoast")
+                                .argument(MultiplePlayerSelectorArgument.of("players"))
+                                .argument(MaterialArgument.of("icon"))
+                                .argument(EnumArgument.of(ToastSettings.FrameType::class.java, "frame"))
+                                .argument(StringArgument.quoted("header"), description("Quoted String"))
+                                .argument(StringArgument.quoted("body"), description("Quoted String"))
+                                .permission("announcerplus.sendtoast")
+                                .handler(::executeSendToast)
+                )
+            }
 
             command(
                     commandBuilder("ap", metaWithDescription("Parses and sends a Title and Subtitle style message to the specified players."))
                             .literal("sendtitle")
                             .argument(MultiplePlayerSelectorArgument.of("players"))
                             .argument(argumentFactory.positiveInteger("seconds"))
-                            .argument(StringArgument.quoted("title"))
-                            .argument(StringArgument.quoted("subtitle"))
+                            .argument(StringArgument.quoted("title"), description("Quoted String"))
+                            .argument(StringArgument.quoted("subtitle"), description("Quoted String"))
                             .permission("announcerplus.sendtitle")
                             .handler(::executeSendTitle)
             )

@@ -129,19 +129,15 @@ class JoinQuitConfig : KoinComponent {
     companion object {
         private val MAPPER = ObjectMapper.factoryBuilder().addNodeResolver(NodeResolver.onlyWithSetting()).build().get(JoinQuitConfig::class.java)
 
-        fun loadFrom(node: CommentedConfigurationNode, name: String?): JoinQuitConfig {
-            return MAPPER.load(node).populate(name)
-        }
+        fun loadFrom(node: CommentedConfigurationNode, name: String?): JoinQuitConfig =
+                MAPPER.load(node).populate(name)
     }
 
-    fun saveTo(node: CommentedConfigurationNode) {
-        MAPPER.save(this, node)
-    }
+    fun saveTo(node: CommentedConfigurationNode) =
+            MAPPER.save(this, node)
 
-    fun populate(name: String?): JoinQuitConfig {
-        this.name = name
-        return this
-    }
+    fun populate(name: String?): JoinQuitConfig =
+            this.apply { this.name = name }
 
     private val announcerPlus: AnnouncerPlus by inject()
     private val chat: Chat by inject()

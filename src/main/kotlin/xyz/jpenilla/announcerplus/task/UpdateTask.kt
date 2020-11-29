@@ -13,7 +13,7 @@ abstract class UpdateTask : KoinComponent {
 
     open fun start(): UpdateTask {
         stop()
-        updateTask = get<AnnouncerPlus>().schedule(getSynchronizationContext()) {
+        updateTask = get<AnnouncerPlus>().schedule(synchronizationContext()) {
             repeating(1L)
             while (shouldContinue()) {
                 update()
@@ -34,5 +34,5 @@ abstract class UpdateTask : KoinComponent {
 
     abstract fun shouldContinue(): Boolean
 
-    abstract fun getSynchronizationContext(): SynchronizationContext
+    abstract fun synchronizationContext(): SynchronizationContext
 }

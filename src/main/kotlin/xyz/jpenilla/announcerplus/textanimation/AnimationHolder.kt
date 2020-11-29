@@ -58,7 +58,9 @@ class AnimationHolder(private val player: Player?, private val message: String) 
                         ticks = 10
                     }
                     val textColors = colors.map { color ->
-                        NamedTextColor.NAMES.value(color) ?: (TextColor.fromHexString(color) ?: NamedTextColor.WHITE)
+                        NamedTextColor.NAMES.value(color)
+                                ?: TextColor.fromHexString(color)
+                                ?: NamedTextColor.WHITE
                     }
                     animations[matcher.group()] = PulsingColor(textColors, ticks)
                 }
@@ -105,17 +107,17 @@ class AnimationHolder(private val player: Player?, private val message: String) 
         }
     }
 
-    fun parseNext(text: String?): String {
-        var msg = text ?: message
-        for (animation in animations) {
+    fun parseNext(text: String = message): String {
+        var msg = text
+        animations.forEach { animation ->
             msg = msg.replace(animation.key, animation.value.nextValue())
         }
         return configManager.parse(player, msg)
     }
 
-    fun parseCurrent(text: String?): String {
-        var msg = text ?: message
-        for (animation in animations) {
+    fun parseCurrent(text: String = message): String {
+        var msg = text
+        animations.forEach { animation ->
             msg = msg.replace(animation.key, animation.value.getValue())
         }
         return configManager.parse(player, msg)

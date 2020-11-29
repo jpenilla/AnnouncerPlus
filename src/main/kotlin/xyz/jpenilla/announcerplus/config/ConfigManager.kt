@@ -25,13 +25,14 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
     private val firstJoinConfigLoader: HoconConfigurationLoader
     lateinit var firstJoinConfig: JoinQuitConfig
 
-    private val mapperFactory: ObjectMapper.Factory = ObjectMapper.factoryBuilder()
+    private val mapperFactory = ObjectMapper.factoryBuilder()
             .addNodeResolver { name, _ ->
                 /* We don't want to attempt serializing delegated properties, and they can't be @Transient */
                 if (name.endsWith("delegate")) {
-                    return@addNodeResolver NodeResolver.SKIP_FIELD
+                    NodeResolver.SKIP_FIELD
+                } else {
+                    null
                 }
-                return@addNodeResolver null
             }.build()
 
     val messageConfigs = hashMapOf<String, MessageConfig>()
@@ -46,11 +47,15 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
         mainConfigLoader = HoconConfigurationLoader.builder().path(mainConfigPath).build()
         firstJoinConfigLoader = HoconConfigurationLoader.builder().path(firstJoinConfigPath).build()
 
+        reload()
+    }
+
+    fun reload() {
         load()
         save()
     }
 
-    fun load() {
+    private fun load() {
         Files.createDirectories(announcerPlus.dataFolder.toPath())
 
         val mainConfigRoot = mainConfigLoader.load(configOptions)
@@ -71,7 +76,7 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
         loadJoinQuitConfigs()
     }
 
-    fun save() {
+    private fun save() {
         val mainConfigRoot = mainConfigLoader.createNode(configOptions.header(""" 
             |     ___                                                 ____  __               __    
             |    /   |  ____  ____  ____  __  ______  ________  _____/ __ \/ /_  _______  __/ /_

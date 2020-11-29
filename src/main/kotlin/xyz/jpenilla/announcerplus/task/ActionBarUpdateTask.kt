@@ -25,5 +25,5 @@ class ActionBarUpdateTask(private val player: Player, private val lifeTime: Long
         return ticksLived < lifeTime && player.isOnline
     }
 
-    override fun getSynchronizationContext() = SynchronizationContext.ASYNC
+    override fun synchronizationContext() = SynchronizationContext.ASYNC
 }

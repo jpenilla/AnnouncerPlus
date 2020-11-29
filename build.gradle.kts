@@ -2,7 +2,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocatio
 import org.apache.commons.io.output.ByteArrayOutputStream
 
 plugins {
-    kotlin("jvm") version "1.4.10"
+    kotlin("jvm") version "1.4.20"
     id("com.github.johnrengelman.shadow") version "6.1.0"
     id("kr.entree.spigradle") version "2.2.3"
 }
@@ -31,12 +31,12 @@ dependencies {
     compileOnly("net.ess3", "EssentialsX", "2.17.2")
 
     implementation("org.koin", "koin-core", "2.1.6")
-    implementation("xyz.jpenilla", "jmplib", "1.0.1+23-SNAPSHOT")
+    implementation("xyz.jpenilla", "jmplib", "1.0.1+26-SNAPSHOT")
     implementation("com.github.jmanpenilla", "Skedule", "7ae098d404")
-    implementation("org.spongepowered", "configurate-hocon", "4.0.0-SNAPSHOT")
+    implementation("org.spongepowered", "configurate-hocon", "4.0.0")
     implementation("org.bstats", "bstats-bukkit", "1.7")
 
-    val cloudVersion = "1.1.0"
+    val cloudVersion = "1.2.0-SNAPSHOT"
     implementation("cloud.commandframework", "cloud-paper", cloudVersion)
     implementation("cloud.commandframework", "cloud-minecraft-extras", cloudVersion)
 }

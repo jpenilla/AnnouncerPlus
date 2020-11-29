@@ -30,12 +30,12 @@ class AnnouncerPlus : BasePlugin(), KoinComponent {
     var perms: Permission? = null
     var essentials: EssentialsHook? = null
     var toastTask: ToastTask? = null
-    lateinit var commandManager: CommandManager
+    private lateinit var commandManager: CommandManager
 
     override fun onPluginEnable() {
         if (!setupPermissions()) {
             logger.warning("Permissions plugin not found. AnnouncerPlus will not work.")
-            server.pluginManager.disablePlugin(this)
+            isEnabled = false
             return
         }
         if (server.pluginManager.isPluginEnabled("Essentials")) {
@@ -54,13 +54,12 @@ class AnnouncerPlus : BasePlugin(), KoinComponent {
             })
         }
 
-        commandManager = CommandManager(this)
-
-        if (majorMinecraftVersion > 12) {
+        if (majorMinecraftVersion > 11) {
             toastTask = ToastTask()
         } else {
-            logger.info("Sorry, but Toast/Achievement style messages do not work on this version. Update to 1.13 or newer to use this feature.")
+            logger.info("Sorry, but Toast/Achievement style messages do not work on this version. Update to 1.12 or newer to use this feature.")
         }
+        commandManager = CommandManager(this)
 
         server.pluginManager.registerEvents(JoinQuitListener(), this)
         broadcast()
@@ -79,8 +78,7 @@ class AnnouncerPlus : BasePlugin(), KoinComponent {
             toastTask?.cancel()
             toastTask = ToastTask()
         }
-        configManager.load()
-        configManager.save()
+        configManager.reload()
         broadcast()
     }
 
