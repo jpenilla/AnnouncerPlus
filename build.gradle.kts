@@ -18,7 +18,6 @@ repositories {
     maven(url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
     maven(url = "https://oss.sonatype.org/content/groups/public/")
     maven(url = "https://repo.spongepowered.org/maven")
-    maven(url = "https://repo.aikar.co/content/groups/aikar/")
     maven(url = "https://repo.jpenilla.xyz/snapshots")
     maven(url = "https://ci.ender.zone/plugin/repository/everything/")
     maven(url = "https://repo.codemc.org/repository/maven-public")
@@ -32,7 +31,7 @@ dependencies {
 
     implementation("org.koin", "koin-core", "2.1.6")
     implementation("xyz.jpenilla", "jmplib", "1.0.1+26-SNAPSHOT")
-    implementation("com.github.jmanpenilla", "Skedule", "7ae098d404")
+    implementation("com.okkero", "skedule", "1.2.7-SNAPSHOT")
     implementation("org.spongepowered", "configurate-hocon", "4.0.0")
     implementation("org.bstats", "bstats-bukkit", "1.7")
 
