@@ -183,7 +183,7 @@ class JoinQuitConfig : KoinComponent {
         if (player.hasPermission("announcerplus.quit.$name") && !isVanished(player)) {
             ImmutableList.copyOf(Bukkit.getOnlinePlayers()).forEach { onlinePlayer ->
                 if (onlinePlayer.name != player.name) {
-                    if (announcerPlus.perms!!.playerHas(onlinePlayer, permission) || permission == "") {
+                    if (announcerPlus.perms!!.playerHas(onlinePlayer, permission) || permission.isNotEmpty()) {
                         chat.send(onlinePlayer, announcerPlus.configManager.parse(player, quit.broadcasts))
                         if (quit.sounds != "") {
                             chat.playSounds(onlinePlayer, quit.randomSound, quit.sounds)

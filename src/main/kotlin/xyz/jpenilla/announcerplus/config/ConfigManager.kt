@@ -44,6 +44,7 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
                 .build()
 
         configOptions = ConfigurationOptions.defaults().serializers(serializers)
+
         mainConfigLoader = HoconConfigurationLoader.builder().path(mainConfigPath).build()
         firstJoinConfigLoader = HoconConfigurationLoader.builder().path(firstJoinConfigPath).build()
 
