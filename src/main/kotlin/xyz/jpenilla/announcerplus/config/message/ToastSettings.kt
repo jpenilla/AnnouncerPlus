@@ -12,7 +12,6 @@ import xyz.jpenilla.announcerplus.AnnouncerPlus
 class ToastSettings : MessageElement {
 
     @Comment("The icon for the Toast/Advancement notification")
-    @Transient
     var icon = Material.DIAMOND
 
     @Comment("Should the icon item be enchanted?")
