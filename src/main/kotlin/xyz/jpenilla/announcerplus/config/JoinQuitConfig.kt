@@ -1,6 +1,7 @@
 package xyz.jpenilla.announcerplus.config
 
 import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableSet
 import com.okkero.skedule.SynchronizationContext
 import com.okkero.skedule.schedule
 import org.bukkit.Bukkit
@@ -99,11 +100,11 @@ class JoinQuitConfig : KoinComponent {
         var toast = ToastSettings(Material.DIAMOND, ToastSettings.FrameType.CHALLENGE,
                 "<gradient:green:blue><bold><italic>AnnouncerPlus", "<rainbow>Welcome to the server!")
 
-        fun messageElements(): Collection<MessageElement> = ImmutableList.of(
-                actionBar,
-                bossBar,
-                title,
-                toast
+        fun messageElements(): Collection<MessageElement> = ImmutableSet.of(
+            actionBar,
+            bossBar,
+            title,
+            toast
         )
     }
 

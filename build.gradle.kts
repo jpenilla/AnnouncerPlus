@@ -2,14 +2,14 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocatio
 import org.apache.commons.io.output.ByteArrayOutputStream
 
 plugins {
-    kotlin("jvm") version "1.4.20"
+    kotlin("jvm") version "1.4.21"
     id("com.github.johnrengelman.shadow") version "6.1.0"
     id("kr.entree.spigradle") version "2.2.3"
 }
 
 val projectName = "AnnouncerPlus"
 group = "xyz.jpenilla"
-version = "1.2.2.1+${getLastCommitHash()}-SNAPSHOT"
+version = "1.2.2.2+${getLastCommitHash()}-SNAPSHOT"
 
 repositories {
     mavenLocal()
@@ -35,8 +35,9 @@ dependencies {
     implementation("org.spongepowered", "configurate-hocon", "4.0.0")
     implementation("org.bstats", "bstats-bukkit", "1.7")
 
-    val cloudVersion = "1.2.0"
+    val cloudVersion = "1.3.0"
     implementation("cloud.commandframework", "cloud-paper", cloudVersion)
+    implementation("cloud.commandframework", "cloud-kotlin-extensions", cloudVersion)
     implementation("cloud.commandframework", "cloud-minecraft-extras", cloudVersion)
 }
 

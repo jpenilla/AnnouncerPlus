@@ -1,8 +1,5 @@
 package xyz.jpenilla.announcerplus.command
 
-import cloud.commandframework.Description
-import cloud.commandframework.bukkit.BukkitCommandMeta
-import cloud.commandframework.bukkit.BukkitCommandMetaBuilder
 import cloud.commandframework.execution.AsynchronousCommandExecutionCoordinator
 import cloud.commandframework.minecraft.extras.MinecraftExceptionHandler
 import cloud.commandframework.minecraft.extras.MinecraftHelp
@@ -78,9 +75,3 @@ class CommandManager(announcerPlus: AnnouncerPlus) : PaperCommandManager<Command
     }
 
 }
-
-fun metaWithDescription(description: String): BukkitCommandMeta =
-        BukkitCommandMetaBuilder.builder().withDescription(description).build()
-
-fun description(description: String): Description =
-        Description.of(description)

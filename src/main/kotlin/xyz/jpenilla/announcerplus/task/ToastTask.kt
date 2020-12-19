@@ -9,12 +9,13 @@ import org.koin.core.KoinComponent
 import org.koin.core.inject
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.message.ToastSettings
+import java.util.concurrent.ConcurrentLinkedDeque
 import java.util.logging.Level
 import kotlin.random.Random.Default.nextInt
 
 class ToastTask: KoinComponent {
     private val announcerPlus: AnnouncerPlus by inject()
-    private val queuedToasts = ArrayDeque<QueuedToast>()
+    private val queuedToasts = ConcurrentLinkedDeque<QueuedToast>()
 
     private val toastTask = announcerPlus.schedule(SynchronizationContext.ASYNC) {
         repeating(1L)

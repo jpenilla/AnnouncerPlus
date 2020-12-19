@@ -1,6 +1,6 @@
 package xyz.jpenilla.announcerplus.config.message
 
-import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableSet
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
 import org.spongepowered.configurate.objectmapping.meta.Comment
 import xyz.jpenilla.announcerplus.util.Constants
@@ -43,35 +43,21 @@ class Message {
         this.messageText.addAll(text)
     }
 
-    fun messageElements(): Collection<MessageElement> = ImmutableList.of(
-            actionBar,
-            bossBar,
-            title,
-            toast
+    fun messageElements(): Collection<MessageElement> = ImmutableSet.of(
+        actionBar,
+        bossBar,
+        title,
+        toast
     )
 
-    fun sounds(sounds: String): Message {
-        this.sounds = sounds
-        return this
-    }
+    fun sounds(sounds: String): Message = apply { this.sounds = sounds }
 
-    fun actionBar(actionBar: ActionBarSettings): Message {
-        this.actionBar = actionBar
-        return this
-    }
+    fun actionBar(actionBar: ActionBarSettings): Message = apply { this.actionBar = actionBar }
 
-    fun bossBar(bossBar: BossBarSettings): Message {
-        this.bossBar = bossBar
-        return this
-    }
+    fun bossBar(bossBar: BossBarSettings): Message = apply { this.bossBar = bossBar }
 
-    fun title(title: TitleSettings): Message {
-        this.title = title
-        return this
-    }
+    fun title(title: TitleSettings): Message = apply { this.title = title }
 
-    fun toast(toast: ToastSettings): Message {
-        this.toast = toast
-        return this
-    }
+    fun toast(toast: ToastSettings): Message = apply { this.toast = toast }
+
 }

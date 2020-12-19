@@ -6,6 +6,8 @@ import cloud.commandframework.bukkit.arguments.selector.MultiplePlayerSelector
 import cloud.commandframework.bukkit.parsers.MaterialArgument
 import cloud.commandframework.bukkit.parsers.selector.MultiplePlayerSelectorArgument
 import cloud.commandframework.context.CommandContext
+import cloud.commandframework.kotlin.extension.commandBuilder
+import cloud.commandframework.kotlin.extension.description
 import net.kyori.adventure.bossbar.BossBar
 import org.bukkit.command.CommandSender
 import org.koin.core.inject
@@ -25,63 +27,54 @@ class CommandSend : BaseCommand {
     private val chat: Chat by inject()
 
     override fun register() {
-        with(commandManager) {
-            command(
-                    commandBuilder("ap", metaWithDescription("Parses a message and sends it to the specified players."))
-                            .literal("send")
-                            .argument(MultiplePlayerSelectorArgument.of("players"))
-                            .argument(StringArgument.greedy("message"))
-                            .permission("announcerplus.send")
-                            .handler(::executeSend)
-            )
-
-            if (announcerPlus.toastTask != null) {
-                command(
-                        commandBuilder("ap", metaWithDescription("Parses and sends a Toast style message to the specified players."))
-                                .literal("sendtoast")
-                                .argument(MultiplePlayerSelectorArgument.of("players"))
-                                .argument(MaterialArgument.of("icon"))
-                                .argument(EnumArgument.of(ToastSettings.FrameType::class.java, "frame"))
-                                .argument(StringArgument.quoted("header"), description("Quoted String"))
-                                .argument(StringArgument.quoted("body"), description("Quoted String"))
-                                .permission("announcerplus.sendtoast")
-                                .handler(::executeSendToast)
-                )
+        commandManager.commandBuilder("ap") {
+            registerCopy("send") {
+                permission = "announcerplus.send"
+                commandDescription("Parses a message and sends it to the specified players.")
+                argument(MultiplePlayerSelectorArgument.of("players"))
+                argument(StringArgument.greedy("message"))
+                handler(::executeSend)
             }
-
-            command(
-                    commandBuilder("ap", metaWithDescription("Parses and sends a Title and Subtitle style message to the specified players."))
-                            .literal("sendtitle")
-                            .argument(MultiplePlayerSelectorArgument.of("players"))
-                            .argument(argumentFactory.positiveInteger("seconds"))
-                            .argument(StringArgument.quoted("title"), description("Quoted String"))
-                            .argument(StringArgument.quoted("subtitle"), description("Quoted String"))
-                            .permission("announcerplus.sendtitle")
-                            .handler(::executeSendTitle)
-            )
-
-            command(
-                    commandBuilder("ap", metaWithDescription("Parses and sends an Action Bar style message to the specified players."))
-                            .literal("sendactionbar")
-                            .argument(MultiplePlayerSelectorArgument.of("players"))
-                            .argument(argumentFactory.positiveInteger("seconds"))
-                            .argument(StringArgument.greedy("text"))
-                            .permission("announcerplus.sendactionbar")
-                            .handler(::executeSendActionBar)
-            )
-
-            command(
-                    commandBuilder("ap", metaWithDescription("Parses and sends a Boss Bar style message to the specified players."))
-                            .literal("sendbossbar")
-                            .argument(MultiplePlayerSelectorArgument.of("players"))
-                            .argument(argumentFactory.positiveInteger("seconds"))
-                            .argument(EnumArgument.of(BossBar.Overlay::class.java, "overlay"))
-                            .argument(EnumArgument.of(BossBarUpdateTask.FillMode::class.java, "fillmode"))
-                            .argument(EnumArgument.of(BossBar.Color::class.java, "color"))
-                            .argument(StringArgument.greedy("text"))
-                            .permission("announcerplus.sendbossbar")
-                            .handler(::executeSendBossBar)
-            )
+            if (announcerPlus.toastTask != null) {
+                registerCopy("sendtoast") {
+                    permission = "announcerplus.sendtoast"
+                    commandDescription("Parses and sends a Toast style message to the specified players.")
+                    argument(MultiplePlayerSelectorArgument.of("players"))
+                    argument(MaterialArgument.of("icon"))
+                    argument(EnumArgument.of(ToastSettings.FrameType::class.java, "frame"))
+                    argument(StringArgument.quoted("header"), description("Quoted String"))
+                    argument(StringArgument.quoted("body"), description("Quoted String"))
+                    handler(::executeSendToast)
+                }
+            }
+            registerCopy("sendtitle") {
+                permission = "announcerplus.sendtitle"
+                commandDescription("Parses and sends a Title and Subtitle style message to the specified players.")
+                argument(MultiplePlayerSelectorArgument.of("players"))
+                argument(argumentFactory.positiveInteger("seconds"))
+                argument(StringArgument.quoted("title"), description("Quoted String"))
+                argument(StringArgument.quoted("subtitle"), description("Quoted String"))
+                handler(::executeSendTitle)
+            }
+            registerCopy("sendactionbar") {
+                permission = "announcerplus.sendactionbar"
+                commandDescription("Parses and sends an Action Bar style message to the specified players.")
+                argument(MultiplePlayerSelectorArgument.of("players"))
+                argument(argumentFactory.positiveInteger("seconds"))
+                argument(StringArgument.greedy("text"))
+                handler(::executeSendActionBar)
+            }
+            registerCopy("sendbossbar") {
+                permission = "announcerplus.sendbossbar"
+                commandDescription("Parses and sends a Boss Bar style message to the specified players.")
+                argument(MultiplePlayerSelectorArgument.of("players"))
+                argument(argumentFactory.positiveInteger("seconds"))
+                argument(EnumArgument.of(BossBar.Overlay::class.java, "overlay"))
+                argument(EnumArgument.of(BossBarUpdateTask.FillMode::class.java, "fillmode"))
+                argument(EnumArgument.of(BossBar.Color::class.java, "color"))
+                argument(StringArgument.greedy("text"))
+                handler(::executeSendBossBar)
+            }
         }
     }
 

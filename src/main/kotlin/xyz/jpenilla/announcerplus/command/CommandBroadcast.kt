@@ -4,6 +4,8 @@ import cloud.commandframework.arguments.standard.EnumArgument
 import cloud.commandframework.arguments.standard.StringArgument
 import cloud.commandframework.bukkit.parsers.MaterialArgument
 import cloud.commandframework.context.CommandContext
+import cloud.commandframework.kotlin.extension.commandBuilder
+import cloud.commandframework.kotlin.extension.description
 import net.kyori.adventure.bossbar.BossBar
 import org.bukkit.command.CommandSender
 import org.koin.core.inject
@@ -23,63 +25,54 @@ class CommandBroadcast : BaseCommand {
     private val chat: Chat by inject()
 
     override fun register() {
-        with(commandManager) {
-            command(
-                    commandBuilder("ap", metaWithDescription("Parses and broadcasts a message to chat in the specified world or all worlds."))
-                            .literal("broadcast")
-                            .argument(argumentFactory.worldPlayers("world"))
-                            .argument(StringArgument.greedy("message"))
-                            .permission("announcerplus.broadcast")
-                            .handler(::executeBroadcast)
-            )
-
-            if (announcerPlus.toastTask != null) {
-                command(
-                        commandBuilder("ap", metaWithDescription("Parses and broadcasts a Toast style message to the specified world or all worlds."))
-                                .literal("broadcasttoast")
-                                .argument(argumentFactory.worldPlayers("world"))
-                                .argument(MaterialArgument.of("icon"))
-                                .argument(EnumArgument.of(ToastSettings.FrameType::class.java, "frame"))
-                                .argument(StringArgument.quoted("header"), description("Quoted String"))
-                                .argument(StringArgument.quoted("body"), description("Quoted String"))
-                                .permission("announcerplus.broadcasttoast")
-                                .handler(::executeBroadcastToast)
-                )
+        commandManager.commandBuilder("ap") {
+            registerCopy("broadcast") {
+                permission = "announcerplus.broadcast"
+                commandDescription("Parses and broadcasts a message to chat in the specified world or all worlds.")
+                argument(argumentFactory.worldPlayers("world"))
+                argument(StringArgument.greedy("message"))
+                handler(::executeBroadcast)
             }
-
-            command(
-                    commandBuilder("ap", metaWithDescription("Parses and broadcasts a Title and Subtitle style message to the specified world or all worlds."))
-                            .literal("broadcasttitle")
-                            .argument(argumentFactory.worldPlayers("world"))
-                            .argument(argumentFactory.positiveInteger("seconds"))
-                            .argument(StringArgument.quoted("title"), description("Quoted String"))
-                            .argument(StringArgument.quoted("subtitle"), description("Quoted String"))
-                            .permission("announcerplus.broadcasttitle")
-                            .handler(::executeBroadcastTitle)
-            )
-
-            command(
-                    commandBuilder("ap", metaWithDescription("Parses and broadcasts an Action Bar style message to the specified world or all worlds."))
-                            .literal("broadcastactionbar")
-                            .argument(argumentFactory.worldPlayers("world"))
-                            .argument(argumentFactory.positiveInteger("seconds"))
-                            .argument(StringArgument.greedy("text"))
-                            .permission("announcerplus.broadcastactionbar")
-                            .handler(::executeBroadcastActionBar)
-            )
-
-            command(
-                    commandBuilder("ap", metaWithDescription("Parses and broadcasts a Boss Bar style message to the specified world or all worlds."))
-                            .literal("broadcastbossbar")
-                            .argument(argumentFactory.worldPlayers("world"))
-                            .argument(argumentFactory.positiveInteger("seconds"))
-                            .argument(EnumArgument.of(BossBar.Overlay::class.java, "overlay"))
-                            .argument(EnumArgument.of(BossBarUpdateTask.FillMode::class.java, "fillmode"))
-                            .argument(EnumArgument.of(BossBar.Color::class.java, "color"))
-                            .argument(StringArgument.greedy("text"))
-                            .permission("announcerplus.broadcastbossbar")
-                            .handler(::executeBroadcastBossBar)
-            )
+            if (announcerPlus.toastTask != null) {
+                registerCopy("broadcasttoast") {
+                    permission = "announcerplus.broadcasttoast"
+                    commandDescription("Parses and broadcasts a Toast style message to the specified world or all worlds.")
+                    argument(argumentFactory.worldPlayers("world"))
+                    argument(MaterialArgument.of("icon"))
+                    argument(EnumArgument.of(ToastSettings.FrameType::class.java, "frame"))
+                    argument(StringArgument.quoted("header"), description("Quoted String"))
+                    argument(StringArgument.quoted("body"), description("Quoted String"))
+                    handler(::executeBroadcastToast)
+                }
+            }
+            registerCopy("broadcasttitle") {
+                permission = "announcerplus.broadcasttitle"
+                commandDescription("Parses and broadcasts a Title and Subtitle style message to the specified world or all worlds.")
+                argument(argumentFactory.worldPlayers("world"))
+                argument(argumentFactory.positiveInteger("seconds"))
+                argument(StringArgument.quoted("title"), description("Quoted String"))
+                argument(StringArgument.quoted("subtitle"), description("Quoted String"))
+                handler(::executeBroadcastTitle)
+            }
+            registerCopy("broadcastactionbar") {
+                permission = "announcerplus.broadcastactionbar"
+                commandDescription("Parses and broadcasts an Action Bar style message to the specified world or all worlds.")
+                argument(argumentFactory.worldPlayers("world"))
+                argument(argumentFactory.positiveInteger("seconds"))
+                argument(StringArgument.greedy("text"))
+                handler(::executeBroadcastActionBar)
+            }
+            registerCopy("broadcastbossbar") {
+                permission = "announcerplus.broadcastbossbar"
+                commandDescription("Parses and broadcasts a Boss Bar style message to the specified world or all worlds.")
+                argument(argumentFactory.worldPlayers("world"))
+                argument(argumentFactory.positiveInteger("seconds"))
+                argument(EnumArgument.of(BossBar.Overlay::class.java, "overlay"))
+                argument(EnumArgument.of(BossBarUpdateTask.FillMode::class.java, "fillmode"))
+                argument(EnumArgument.of(BossBar.Color::class.java, "color"))
+                argument(StringArgument.greedy("text"))
+                handler(::executeBroadcastBossBar)
+            }
         }
     }
 

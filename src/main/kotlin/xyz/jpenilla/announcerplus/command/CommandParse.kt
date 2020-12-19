@@ -4,6 +4,8 @@ import cloud.commandframework.arguments.standard.EnumArgument
 import cloud.commandframework.arguments.standard.StringArgument
 import cloud.commandframework.bukkit.parsers.MaterialArgument
 import cloud.commandframework.context.CommandContext
+import cloud.commandframework.kotlin.extension.commandBuilder
+import cloud.commandframework.kotlin.extension.description
 import net.kyori.adventure.bossbar.BossBar
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -24,72 +26,61 @@ class CommandParse : BaseCommand {
     private val chat: Chat by inject()
 
     override fun register() {
-        with(commandManager) {
-            command(
-                    commandBuilder("ap", metaWithDescription("Parses a message and echoes it back."))
-                            .literal("parse")
-                            .argument(StringArgument.greedy("message"))
-                            .permission("announcerplus.parse")
-                            .handler(::executeParse)
-            )
-
-            if (announcerPlus.toastTask != null) {
-                command(
-                        commandBuilder("ap", metaWithDescription("Parses a Toast style message and displays it to the command sender."))
-                                .literal("parsetoast")
-                                .argument(MaterialArgument.of("icon"))
-                                .argument(EnumArgument.of(ToastSettings.FrameType::class.java, "frame"))
-                                .argument(StringArgument.quoted("header"), description("Quoted String"))
-                                .argument(StringArgument.quoted("body"), description("Quoted String"))
-                                .permission("announcerplus.parsetoast")
-                                .senderType(Player::class.java)
-                                .handler(::executeParseToast)
-                )
+        commandManager.commandBuilder("ap") {
+            registerCopy("parse") {
+                permission = "announcerplus.parse"
+                commandDescription("Parses a message and echoes it back.")
+                argument(StringArgument.greedy("message"))
+                handler(::executeParse)
             }
-
-            command(
-                    commandBuilder("ap", metaWithDescription("Parses a Title and Subtitle style message and displays it to the command sender."))
-                            .literal("parsetitle")
-                            .argument(argumentFactory.positiveInteger("seconds"))
-                            .argument(StringArgument.quoted("title"), description("Quoted String"))
-                            .argument(StringArgument.quoted("subtitle"), description("Quoted String"))
-                            .permission("announcerplus.parsetitle")
-                            .senderType(Player::class.java)
-                            .handler(::executeParseTitle)
-            )
-
-            command(
-                    commandBuilder("ap", metaWithDescription("Parses an Action Bar style message and displays it to the command sender."))
-                            .literal("parseactionbar")
-                            .argument(argumentFactory.positiveInteger("seconds"))
-                            .argument(StringArgument.greedy("text"))
-                            .permission("announcerplus.parseactionbar")
-                            .senderType(Player::class.java)
-                            .handler(::executeParseActionBar)
-            )
-
-            command(
-                    commandBuilder("ap", metaWithDescription("Parses a Boss Bar style message and displays it to the command sender."))
-                            .literal("parsebossbar")
-                            .argument(argumentFactory.positiveInteger("seconds"))
-                            .argument(EnumArgument.of(BossBar.Overlay::class.java, "overlay"))
-                            .argument(EnumArgument.of(BossBarUpdateTask.FillMode::class.java, "fillmode"))
-                            .argument(EnumArgument.of(BossBar.Color::class.java, "color"))
-                            .argument(StringArgument.greedy("text"))
-                            .permission("announcerplus.parsebossbar")
-                            .senderType(Player::class.java)
-                            .handler(::executeParseBossBar)
-            )
-
-            command(
-                    commandBuilder("ap", metaWithDescription("Parses a message with an animation and displays it to the command sender."))
-                            .literal("parseanimation")
-                            .argument(argumentFactory.positiveInteger("seconds"))
-                            .argument(StringArgument.greedy("message"))
-                            .permission("announcerplus.parseanimation")
-                            .senderType(Player::class.java)
-                            .handler(::executeParseAnimation)
-            )
+            if (announcerPlus.toastTask != null) {
+                registerCopy("parsetoast") {
+                    permission = "announcerplus.parsetoast"
+                    senderType<Player>()
+                    commandDescription("Parses a Toast style message and displays it to the command sender.")
+                    argument(MaterialArgument.of("icon"))
+                    argument(EnumArgument.of(ToastSettings.FrameType::class.java, "frame"))
+                    argument(StringArgument.quoted("header"), description("Quoted String"))
+                    argument(StringArgument.quoted("body"), description("Quoted String"))
+                    handler(::executeParseToast)
+                }
+            }
+            registerCopy("parsetitle") {
+                permission = "announcerplus.parsetitle"
+                senderType<Player>()
+                commandDescription("Parses a Title and Subtitle style message and displays it to the command sender.")
+                argument(argumentFactory.positiveInteger("seconds"))
+                argument(StringArgument.quoted("title"), description("Quoted String"))
+                argument(StringArgument.quoted("subtitle"), description("Quoted String"))
+                handler(::executeParseTitle)
+            }
+            registerCopy("parseactionbar") {
+                permission = "announcerplus.parseactionbar"
+                senderType<Player>()
+                commandDescription("Parses an Action Bar style message and displays it to the command sender.")
+                argument(argumentFactory.positiveInteger("seconds"))
+                argument(StringArgument.greedy("text"))
+                handler(::executeParseActionBar)
+            }
+            registerCopy("parsebossbar") {
+                permission = "announcerplus.parsebossbar"
+                senderType<Player>()
+                commandDescription("Parses a Boss Bar style message and displays it to the command sender.")
+                argument(argumentFactory.positiveInteger("seconds"))
+                argument(EnumArgument.of(BossBar.Overlay::class.java, "overlay"))
+                argument(EnumArgument.of(BossBarUpdateTask.FillMode::class.java, "fillmode"))
+                argument(EnumArgument.of(BossBar.Color::class.java, "color"))
+                argument(StringArgument.greedy("text"))
+                handler(::executeParseBossBar)
+            }
+            registerCopy("parseanimation") {
+                permission = "announcerplus.parseanimation"
+                senderType<Player>()
+                commandDescription("Parses a message with an animation and displays it to the command sender.")
+                argument(argumentFactory.positiveInteger("seconds"))
+                argument(StringArgument.greedy("message"))
+                handler(::executeParseAnimation)
+            }
         }
     }
 
