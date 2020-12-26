@@ -79,7 +79,7 @@ class MessageConfig : KoinComponent {
     }
 
     fun saveTo(node: CommentedConfigurationNode) =
-            MAPPER.save(this, node)
+        MAPPER.save(this, node)
 
     fun populate(name: String): MessageConfig =
         this.apply { this.name = name }
@@ -151,6 +151,6 @@ class MessageConfig : KoinComponent {
         HOURS(72000L);
 
         fun getTicks(units: Int): Long =
-                ticks * units
+            ticks * units
     }
 }

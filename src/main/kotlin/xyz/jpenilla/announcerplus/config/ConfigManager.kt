@@ -26,22 +26,22 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
     lateinit var firstJoinConfig: JoinQuitConfig
 
     private val mapperFactory = ObjectMapper.factoryBuilder()
-            .addNodeResolver { name, _ ->
-                /* We don't want to attempt serializing delegated properties, and they can't be @Transient */
-                if (name.endsWith("delegate")) {
-                    NodeResolver.SKIP_FIELD
-                } else {
-                    null
-                }
-            }.build()
+        .addNodeResolver { name, _ ->
+            /* We don't want to attempt serializing delegated properties, and they can't be @Transient */
+            if (name.endsWith("delegate")) {
+                NodeResolver.SKIP_FIELD
+            } else {
+                null
+            }
+        }.build()
 
     val messageConfigs = hashMapOf<String, MessageConfig>()
     val joinQuitConfigs = hashMapOf<String, JoinQuitConfig>()
 
     init {
         serializers = TypeSerializerCollection.defaults().childBuilder()
-                .registerAnnotatedObjects(mapperFactory)
-                .build()
+            .registerAnnotatedObjects(mapperFactory)
+            .build()
 
         configOptions = ConfigurationOptions.defaults().serializers(serializers)
 
@@ -179,5 +179,5 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
     }
 
     fun parse(player: CommandSender?, messages: List<String>): List<String> =
-            messages.map { parse(player, it) }
+        messages.map { parse(player, it) }
 }

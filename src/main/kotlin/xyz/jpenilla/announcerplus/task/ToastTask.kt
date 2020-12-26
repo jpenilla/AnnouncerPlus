@@ -14,7 +14,7 @@ import java.lang.reflect.Modifier
 import java.util.concurrent.ConcurrentLinkedDeque
 import kotlin.random.Random.Default.nextInt
 
-class ToastTask: KoinComponent {
+class ToastTask : KoinComponent {
     private val announcerPlus: AnnouncerPlus by inject()
     private val queuedToasts = ConcurrentLinkedDeque<QueuedToast>()
 

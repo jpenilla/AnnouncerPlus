@@ -59,8 +59,8 @@ class AnimationHolder(private val player: Player?, private val message: String) 
                     }
                     val textColors = colors.map { color ->
                         NamedTextColor.NAMES.value(color)
-                                ?: TextColor.fromHexString(color)
-                                ?: NamedTextColor.WHITE
+                            ?: TextColor.fromHexString(color)
+                            ?: NamedTextColor.WHITE
                     }
                     animations[matcher.group()] = PulsingColor(textColors, ticks)
                 }

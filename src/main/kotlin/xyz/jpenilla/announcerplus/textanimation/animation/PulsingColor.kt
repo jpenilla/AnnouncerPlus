@@ -8,9 +8,11 @@ class PulsingColor(colors: List<TextColor>, ticks: Int) : TextAnimation {
     private var index = 0
     private var colorIndex = 0
     private val colors = ArrayList(colors)
+
     init {
         this.colors.add(this.colors[0])
     }
+
     private var color = this.colors[0].asHexString()
     private val factorStep = 1.0f / ticks
 
@@ -25,9 +27,9 @@ class PulsingColor(colors: List<TextColor>, ticks: Int) : TextAnimation {
 
     private fun interpolate(color1: TextColor, color2: TextColor, factor: Float): TextColor {
         return TextColor.color(
-                (color1.red() + factor * (color2.red() - color1.red())).roundToInt(),
-                (color1.green() + factor * (color2.green() - color1.green())).roundToInt(),
-                (color1.blue() + factor * (color2.blue() - color1.blue())).roundToInt()
+            (color1.red() + factor * (color2.red() - color1.red())).roundToInt(),
+            (color1.green() + factor * (color2.green() - color1.green())).roundToInt(),
+            (color1.blue() + factor * (color2.blue() - color1.blue())).roundToInt()
         )
     }
 

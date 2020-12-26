@@ -52,7 +52,8 @@ class JoinQuitConfig : KoinComponent {
 
         @Setting("join-sounds")
         @Comment("These sound(s) will be played to the joining player.\n  ${Constants.CONFIG_COMMENT_SOUNDS_LINE2}")
-        var sounds = "minecraft:entity.strider.happy,minecraft:entity.villager.ambient,minecraft:block.note_block.cow_bell"
+        var sounds =
+            "minecraft:entity.strider.happy,minecraft:entity.villager.ambient,minecraft:block.note_block.cow_bell"
 
         @Setting("join-broadcast-sounds")
         @Comment("These sound(s) will be played to the joining player.\n  ${Constants.CONFIG_COMMENT_SOUNDS_LINE2}")
@@ -61,16 +62,17 @@ class JoinQuitConfig : KoinComponent {
         @Setting("join-messages")
         @Comment("These messages will be sent to the joining Player. These messages are sometimes called a \"Message of the Day\" or a \"MotD\"")
         val messages = arrayListOf(
-                "<hover:show_text:'<yellow>Username</yellow><gray>:</gray> {user}'>{nick}</hover> <yellow>joined the game",
-                "<center><rainbow><italic>Welcome,</rainbow> {user}<yellow>!",
-                "<center><gradient:black:white:black>------------------------------------</gradient>",
-                "This server is using <blue>Announcer<italic>Plus<reset>!",
-                "<gradient:green:white>Configure these messages by editing the config files!"
+            "<hover:show_text:'<yellow>Username</yellow><gray>:</gray> {user}'>{nick}</hover> <yellow>joined the game",
+            "<center><rainbow><italic>Welcome,</rainbow> {user}<yellow>!",
+            "<center><gradient:black:white:black>------------------------------------</gradient>",
+            "This server is using <blue>Announcer<italic>Plus<reset>!",
+            "<gradient:green:white>Configure these messages by editing the config files!"
         )
 
         @Setting("join-broadcasts")
         @Comment("These messages will be sent to every Player online except the joining Player. Also known as join messages.")
-        val broadcasts = arrayListOf("<hover:show_text:'<yellow>Username</yellow><gray>:</gray> {user}'>{nick}</hover> <yellow>joined the game")
+        val broadcasts =
+            arrayListOf("<hover:show_text:'<yellow>Username</yellow><gray>:</gray> {user}'>{nick}</hover> <yellow>joined the game")
 
         @Setting("join-commands")
         @Comment("These commands will be run by the console on Player join.\n  Example: \"minecraft:give %player_name% dirt\"")
@@ -82,14 +84,18 @@ class JoinQuitConfig : KoinComponent {
 
         @Setting("title-settings")
         @Comment("Settings relating to showing a title to the joining Player")
-        var title = TitleSettings(1, 7, 1,
-                "<bold><italic><gradient:green:blue:green:{animate:scroll:0.1}>Welcome</gradient><yellow>{animate:flash:!:!!:!!!:10}",
-                "<{animate:pulse:red:blue:yellow:green:10}>{user}")
+        var title = TitleSettings(
+            1, 7, 1,
+            "<bold><italic><gradient:green:blue:green:{animate:scroll:0.1}>Welcome</gradient><yellow>{animate:flash:!:!!:!!!:10}",
+            "<{animate:pulse:red:blue:yellow:green:10}>{user}"
+        )
 
         @Setting("action-bar-settings")
         @Comment("Settings relating to showing an Action Bar to the joining Player")
-        var actionBar = ActionBarSettings(false, 8,
-                "<gradient:green:blue:green:{animate:scroll:0.1}>|||||||||||||||||||||||||||||||||||||||</gradient>")
+        var actionBar = ActionBarSettings(
+            false, 8,
+            "<gradient:green:blue:green:{animate:scroll:0.1}>|||||||||||||||||||||||||||||||||||||||</gradient>"
+        )
 
         @Setting("boss-bar-settings")
         @Comment("Settings relating to showing a Boss Bar to the joining Player")
@@ -97,8 +103,10 @@ class JoinQuitConfig : KoinComponent {
 
         @Setting("toast-settings")
         @Comment("Configure the Toast that will be showed to the joining player")
-        var toast = ToastSettings(Material.DIAMOND, ToastSettings.FrameType.CHALLENGE,
-                "<gradient:green:blue><bold><italic>AnnouncerPlus", "<rainbow>Welcome to the server!")
+        var toast = ToastSettings(
+            Material.DIAMOND, ToastSettings.FrameType.CHALLENGE,
+            "<gradient:green:blue><bold><italic>AnnouncerPlus", "<rainbow>Welcome to the server!"
+        )
 
         fun messageElements(): Collection<MessageElement> = ImmutableSet.of(
             actionBar,
@@ -120,7 +128,8 @@ class JoinQuitConfig : KoinComponent {
 
         @Setting("quit-broadcasts")
         @Comment("These messages will be sent to online players on player quit. Also known as quit messages")
-        val broadcasts = arrayListOf("<hover:show_text:'<yellow>Username</yellow><gray>:</gray> {user}'>{nick}</hover> <yellow>left the game")
+        val broadcasts =
+            arrayListOf("<hover:show_text:'<yellow>Username</yellow><gray>:</gray> {user}'>{nick}</hover> <yellow>left the game")
 
         @Setting("quit-commands")
         @Comment("These commands will be run by the console on Player quit.\n  Example: \"broadcast %player_name% left\"")
@@ -128,17 +137,18 @@ class JoinQuitConfig : KoinComponent {
     }
 
     companion object {
-        private val MAPPER = ObjectMapper.factoryBuilder().addNodeResolver(NodeResolver.onlyWithSetting()).build().get(JoinQuitConfig::class.java)
+        private val MAPPER = ObjectMapper.factoryBuilder().addNodeResolver(NodeResolver.onlyWithSetting()).build()
+            .get(JoinQuitConfig::class.java)
 
         fun loadFrom(node: CommentedConfigurationNode, name: String?): JoinQuitConfig =
-                MAPPER.load(node).populate(name)
+            MAPPER.load(node).populate(name)
     }
 
     fun saveTo(node: CommentedConfigurationNode) =
-            MAPPER.save(this, node)
+        MAPPER.save(this, node)
 
     fun populate(name: String?): JoinQuitConfig =
-            this.apply { this.name = name }
+        this.apply { this.name = name }
 
     private val announcerPlus: AnnouncerPlus by inject()
     private val chat: Chat by inject()

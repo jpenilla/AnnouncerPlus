@@ -5,7 +5,12 @@ import org.koin.core.inject
 import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.textanimation.TextAnimation
 
-class ScrollingText(private val player: Player?, text: String, private val windowSize: Int, private val ticks: Int) : TextAnimation {
+class ScrollingText(
+    private val player: Player?,
+    text: String,
+    private val windowSize: Int,
+    private val ticks: Int
+) : TextAnimation {
     private val configManager: ConfigManager by inject()
     private val spaces = getSpaces(windowSize)
     private val text = "$spaces$text$spaces"
