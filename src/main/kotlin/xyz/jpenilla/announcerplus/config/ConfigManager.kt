@@ -168,11 +168,7 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
     }
 
     fun parse(player: CommandSender?, message: String): String {
-        val p = if (player is Player) {
-            player
-        } else {
-            null
-        }
+        val p = player as? Player
 
         val msg = announcerPlus.chat.parse(p, message, mainConfig.customPlaceholders)
         if (msg.startsWith("<center>")) {

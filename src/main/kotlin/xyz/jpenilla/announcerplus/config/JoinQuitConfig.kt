@@ -2,8 +2,6 @@ package xyz.jpenilla.announcerplus.config
 
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
-import com.okkero.skedule.SynchronizationContext
-import com.okkero.skedule.schedule
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -23,6 +21,8 @@ import xyz.jpenilla.announcerplus.config.message.TitleSettings
 import xyz.jpenilla.announcerplus.config.message.ToastSettings
 import xyz.jpenilla.announcerplus.util.Constants
 import xyz.jpenilla.announcerplus.util.dispatchCommandAsConsole
+import xyz.jpenilla.announcerplus.util.runAsync
+import xyz.jpenilla.announcerplus.util.runSync
 import xyz.jpenilla.jmplib.Chat
 
 @ConfigSerializable
@@ -146,16 +146,15 @@ class JoinQuitConfig : KoinComponent {
 
     fun onJoin(player: Player) {
         /* name is null for first-join config */
-        if (name == null || player.hasPermission("announcerplus.join.$name")) {
-            chat.send(player, announcerPlus.configManager.parse(player, join.messages))
-            announcerPlus.schedule {
-                waitFor(3L)
-                if (!isVanished(player)) {
-                    val onlinePlayers = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
-                    switchContext(SynchronizationContext.ASYNC)
+        if (name != null && !player.hasPermission("announcerplus.join.$name")) return
+        chat.send(player, announcerPlus.configManager.parse(player, join.messages))
+        announcerPlus.runSync(3L) {
+            if (!isVanished(player)) {
+                val onlinePlayers = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
+                announcerPlus.runAsync {
                     onlinePlayers.forEach { onlinePlayer ->
                         if (onlinePlayer.name != player.name) {
-                            if (announcerPlus.perms!!.playerHas(onlinePlayer, permission) || permission == "") {
+                            if (announcerPlus.perms!!.playerHas(onlinePlayer, permission) || permission.isEmpty()) {
                                 chat.send(onlinePlayer, announcerPlus.configManager.parse(player, join.broadcasts))
                                 if (join.broadcastSounds != "") {
                                     chat.playSounds(onlinePlayer, join.randomBroadcastSound, join.broadcastSounds)
@@ -163,30 +162,27 @@ class JoinQuitConfig : KoinComponent {
                             }
                         }
                     }
-                    switchContext(SynchronizationContext.SYNC)
-                    join.commands.forEach { dispatchCommandAsConsole(announcerPlus.configManager.parse(player, it)) }
-                    join.asPlayerCommands.forEach { player.performCommand(announcerPlus.configManager.parse(player, it)) }
                 }
+                join.commands.forEach { dispatchCommandAsConsole(announcerPlus.configManager.parse(player, it)) }
+                join.asPlayerCommands.forEach { player.performCommand(announcerPlus.configManager.parse(player, it)) }
             }
-            announcerPlus.schedule(SynchronizationContext.ASYNC) {
-                join.messageElements().forEach { it.displayIfEnabled(player) }
-                if (join.sounds != "") {
-                    chat.playSounds(player, join.randomSound, join.sounds)
-                }
+        }
+        announcerPlus.runAsync(if (announcerPlus.majorMinecraftVersion <= 12) 5L else 0L) {
+            join.messageElements().forEach { it.displayIfEnabled(player) }
+            if (join.sounds != "") {
+                chat.playSounds(player, join.randomSound, join.sounds)
             }
         }
     }
 
     fun onQuit(player: Player) {
-        if (name == null) {
-            return
-        }
+        if (name == null) return
         if (player.hasPermission("announcerplus.quit.$name") && !isVanished(player)) {
             ImmutableList.copyOf(Bukkit.getOnlinePlayers()).forEach { onlinePlayer ->
                 if (onlinePlayer.name != player.name) {
-                    if (announcerPlus.perms!!.playerHas(onlinePlayer, permission) || permission.isNotEmpty()) {
+                    if (announcerPlus.perms!!.playerHas(onlinePlayer, permission) || permission.isEmpty()) {
                         chat.send(onlinePlayer, announcerPlus.configManager.parse(player, quit.broadcasts))
-                        if (quit.sounds != "") {
+                        if (quit.sounds.isNotEmpty()) {
                             chat.playSounds(onlinePlayer, quit.randomSound, quit.sounds)
                         }
                     }

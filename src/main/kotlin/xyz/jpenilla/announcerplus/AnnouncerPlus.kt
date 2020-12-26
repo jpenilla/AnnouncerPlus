@@ -71,7 +71,9 @@ class AnnouncerPlus : BasePlugin(), KoinComponent {
         metrics.addCustomChart(Metrics.SimplePie("message_configs", configManager.messageConfigs.size::toString))
     }
 
-    private fun broadcast() = configManager.messageConfigs.values.forEach(MessageConfig::broadcast)
+    private fun broadcast() {
+        if (configManager.mainConfig.enableBroadcasts) configManager.messageConfigs.values.forEach(MessageConfig::broadcast)
+    }
 
     fun reload() {
         if (toastTask != null) {

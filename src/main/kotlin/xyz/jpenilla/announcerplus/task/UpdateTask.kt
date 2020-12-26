@@ -1,28 +1,30 @@
 package xyz.jpenilla.announcerplus.task
 
-import com.okkero.skedule.CoroutineTask
-import com.okkero.skedule.SynchronizationContext
-import com.okkero.skedule.schedule
+import org.bukkit.scheduler.BukkitTask
 import org.koin.core.KoinComponent
-import org.koin.core.get
+import org.koin.core.inject
 import xyz.jpenilla.announcerplus.AnnouncerPlus
+import xyz.jpenilla.announcerplus.util.asyncTimer
+import xyz.jpenilla.announcerplus.util.syncTimer
 
 abstract class UpdateTask : KoinComponent {
-    private var updateTask: CoroutineTask? = null
+    private val announcerPlus: AnnouncerPlus by inject()
+    private var updateTask: BukkitTask? = null
     var ticksLived = 0L
 
-    open fun start(): UpdateTask {
+    open fun start(): UpdateTask = apply {
         stop()
-        updateTask = get<AnnouncerPlus>().schedule(synchronizationContext()) {
-            repeating(1L)
-            while (shouldContinue()) {
-                update()
-                ticksLived++
-                yield()
+        val runnable = Runnable {
+            if (!shouldContinue()) {
+                stop()
             }
-            stop()
+            update()
+            ticksLived++
         }
-        return this
+        updateTask = when (synchronizationContext()) {
+            SynchronizationContext.SYNC -> announcerPlus.syncTimer(0L, 1L, runnable)
+            SynchronizationContext.ASYNC -> announcerPlus.asyncTimer(0L, 1L, runnable)
+        }
     }
 
     open fun stop() {
@@ -35,4 +37,9 @@ abstract class UpdateTask : KoinComponent {
     abstract fun shouldContinue(): Boolean
 
     abstract fun synchronizationContext(): SynchronizationContext
+
+    enum class SynchronizationContext {
+        SYNC,
+        ASYNC
+    }
 }

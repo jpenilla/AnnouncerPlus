@@ -30,10 +30,9 @@ dependencies {
     compileOnly("net.ess3", "EssentialsX", "2.17.2")
 
     implementation("org.koin", "koin-core", "2.1.6")
-    implementation("xyz.jpenilla", "jmplib", "1.0.1+26-SNAPSHOT")
-    implementation("com.okkero", "skedule", "1.2.7-SNAPSHOT")
+    implementation("xyz.jpenilla", "jmplib", "1.0.1+27-SNAPSHOT")
     implementation("org.spongepowered", "configurate-hocon", "4.0.0")
-    implementation("org.bstats", "bstats-bukkit", "1.7")
+    implementation("org.bstats", "bstats-bukkit", "1.8")
 
     val cloudVersion = "1.3.0"
     implementation("cloud.commandframework", "cloud-paper", cloudVersion)

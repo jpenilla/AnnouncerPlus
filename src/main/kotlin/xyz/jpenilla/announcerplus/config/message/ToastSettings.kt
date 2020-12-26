@@ -1,6 +1,9 @@
 package xyz.jpenilla.announcerplus.config.message
 
 import com.google.gson.JsonObject
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.LinearComponents
+import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.koin.core.inject
@@ -38,6 +41,7 @@ class ToastSettings : MessageElement {
     }
 
     private val announcerPlus: AnnouncerPlus by inject()
+    private val miniMessage: MiniMessage by inject()
 
     override fun isEnabled(): Boolean {
         return header != "" || footer != ""
@@ -47,11 +51,12 @@ class ToastSettings : MessageElement {
         announcerPlus.toastTask?.queueToast(this, player)
     }
 
-    fun getJson(player: Player): String {
+    fun getJson(player: Player): JsonObject {
         val json = JsonObject()
         val display = JsonObject()
         val icon = JsonObject()
-        icon.addProperty("item", this.icon.key.toString())
+        val iconString = if (announcerPlus.majorMinecraftVersion <= 12) this.icon.name else this.icon.key.toString()
+        icon.addProperty("item", iconString)
         val nbtBuilder = StringBuilder("{CustomModelData:$iconCustomModelData")
         if (iconEnchanted) {
             nbtBuilder.append(",Enchantments:[{id:\"aqua_affinity\",lvl:1}]}")
@@ -60,12 +65,18 @@ class ToastSettings : MessageElement {
         }
         icon.addProperty("nbt", nbtBuilder.toString())
         display.add("icon", icon)
-        val titleComponent = announcerPlus.miniMessage.parse(announcerPlus.configManager.parse(player, "$header<reset>\n$footer"))
-        val title = announcerPlus.jsonParser.parse(if (announcerPlus.majorMinecraftVersion < 16) {
-            announcerPlus.downsamplingGsonComponentSerializer.serialize(titleComponent)
-        } else {
-            announcerPlus.gsonComponentSerializer.serialize(titleComponent)
-        })
+        val titleComponent = LinearComponents.linear(
+            miniMessage.parse(announcerPlus.configManager.parse(player, header)),
+            Component.newline(),
+            miniMessage.parse(announcerPlus.configManager.parse(player, footer))
+        )
+        val title = announcerPlus.jsonParser.parse(
+            if (announcerPlus.majorMinecraftVersion >= 16) {
+                announcerPlus.gsonComponentSerializer.serialize(titleComponent)
+            } else {
+                announcerPlus.downsamplingGsonComponentSerializer.serialize(titleComponent)
+            }
+        )
         display.add("title", title)
         display.addProperty("description", "AnnouncerPlus Toast Description")
         display.addProperty("frame", frame.value)
@@ -78,7 +89,7 @@ class ToastSettings : MessageElement {
         criteria.add("impossible", trigger)
         json.add("criteria", criteria)
         json.add("display", display)
-        return announcerPlus.gson.toJson(json)
+        return json
     }
 
     enum class FrameType(val value: String) {

@@ -1,11 +1,9 @@
 package xyz.jpenilla.announcerplus.config.message
 
 import com.google.common.collect.ImmutableList
-import com.okkero.skedule.CoroutineTask
-import com.okkero.skedule.SynchronizationContext
-import com.okkero.skedule.schedule
 import org.bukkit.Bukkit
 import org.bukkit.Material
+import org.bukkit.scheduler.BukkitTask
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import org.spongepowered.configurate.CommentedConfigurationNode
@@ -16,7 +14,10 @@ import org.spongepowered.configurate.objectmapping.meta.NodeResolver
 import org.spongepowered.configurate.objectmapping.meta.Setting
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.ConfigManager
+import xyz.jpenilla.announcerplus.util.asyncTimer
 import xyz.jpenilla.announcerplus.util.dispatchCommandAsConsole
+import xyz.jpenilla.announcerplus.util.getOnMain
+import xyz.jpenilla.announcerplus.util.runSync
 import xyz.jpenilla.jmplib.Chat
 
 @ConfigSerializable
@@ -70,61 +71,66 @@ class MessageConfig : KoinComponent {
     var randomOrder = false
 
     companion object {
-        private val MAPPER = ObjectMapper.factoryBuilder().addNodeResolver(NodeResolver.onlyWithSetting()).build().get(MessageConfig::class.java)
+        private val MAPPER = ObjectMapper.factoryBuilder().addNodeResolver(NodeResolver.onlyWithSetting()).build()
+            .get(MessageConfig::class.java)
 
         fun loadFrom(node: CommentedConfigurationNode, name: String): MessageConfig =
-                MAPPER.load(node).populate(name)
+            MAPPER.load(node).populate(name)
     }
 
     fun saveTo(node: CommentedConfigurationNode) =
             MAPPER.save(this, node)
 
     fun populate(name: String): MessageConfig =
-            this.apply { this.name = name }
+        this.apply { this.name = name }
 
-    private var broadcastTask: CoroutineTask? = null
+    private var broadcastTask: BukkitTask? = null
     lateinit var name: String
     private val announcerPlus: AnnouncerPlus by inject()
     private val configManager: ConfigManager by inject()
     private val chat: Chat by inject()
+    private val broadcastQueue = ArrayDeque<Message>()
 
     fun broadcast() {
         stop()
-        broadcastTask = announcerPlus.schedule(SynchronizationContext.ASYNC) {
-            repeating(timeUnit.getTicks(interval))
-            shuffledMessages().forEach { message ->
-                switchContext(SynchronizationContext.SYNC)
-                val onlinePlayers = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
-                switchContext(SynchronizationContext.ASYNC)
-                for (onlinePlayer in onlinePlayers) {
-                    if (announcerPlus.essentials != null) {
-                        if (announcerPlus.essentials!!.isAfk(onlinePlayer) && announcerPlus.perms!!.playerHas(onlinePlayer, "${announcerPlus.name}.messages.$name.afk")) {
-                            continue
-                        }
-                    }
-                    if (announcerPlus.perms!!.playerHas(onlinePlayer, "${announcerPlus.name}.messages.$name")) {
-                        with(message) {
-                            if (messageText.size != 0) {
-                                chat.send(onlinePlayer, configManager.parse(onlinePlayer, messageText))
-                            }
-                            chat.playSounds(onlinePlayer, soundsRandomized, sounds)
-                            messageElements().forEach { it.displayIfEnabled(onlinePlayer) }
-                        }
-                        announcerPlus.schedule {
-                            message.perPlayerCommands.forEach { dispatchCommandAsConsole(configManager.parse(onlinePlayer, it)) }
-                            message.asPlayerCommands.forEach { onlinePlayer.performCommand(configManager.parse(onlinePlayer, it)) }
-                            perPlayerCommands.forEach { dispatchCommandAsConsole(configManager.parse(onlinePlayer, it)) }
-                            asPlayerCommands.forEach { onlinePlayer.performCommand(configManager.parse(onlinePlayer, it)) }
-                        }
-                    }
-                }
-                announcerPlus.schedule {
-                    message.commands.forEach { dispatchCommandAsConsole(configManager.parse(null, it)) }
-                    commands.forEach { dispatchCommandAsConsole(configManager.parse(null, it)) }
-                }
-                yield()
+        broadcastQueue.clear()
+        broadcastQueue.addAll(shuffledMessages())
+        broadcastTask = announcerPlus.asyncTimer(0L, timeUnit.getTicks(interval)) {
+            if (broadcastQueue.isNotEmpty()) {
+                broadcast(broadcastQueue.removeFirst())
+            } else {
+                broadcast()
             }
-            broadcast()
+        }
+    }
+
+    private fun broadcast(message: Message) {
+        val onlinePlayers = announcerPlus.getOnMain { ImmutableList.copyOf(Bukkit.getOnlinePlayers()) }
+        for (onlinePlayer in onlinePlayers) {
+            if (announcerPlus.essentials != null) {
+                if (announcerPlus.essentials!!.isAfk(onlinePlayer) && announcerPlus.perms!!.playerHas(onlinePlayer, "${announcerPlus.name}.messages.$name.afk")) {
+                    continue
+                }
+            }
+            if (announcerPlus.perms!!.playerHas(onlinePlayer, "${announcerPlus.name}.messages.$name")) {
+                with(message) {
+                    if (messageText.size != 0) {
+                        chat.send(onlinePlayer, configManager.parse(onlinePlayer, messageText))
+                    }
+                    chat.playSounds(onlinePlayer, soundsRandomized, sounds)
+                    messageElements().forEach { it.displayIfEnabled(onlinePlayer) }
+                }
+                announcerPlus.runSync {
+                    message.perPlayerCommands.forEach { dispatchCommandAsConsole(configManager.parse(onlinePlayer, it)) }
+                    message.asPlayerCommands.forEach { onlinePlayer.performCommand(configManager.parse(onlinePlayer, it)) }
+                    perPlayerCommands.forEach { dispatchCommandAsConsole(configManager.parse(onlinePlayer, it)) }
+                    asPlayerCommands.forEach { onlinePlayer.performCommand(configManager.parse(onlinePlayer, it)) }
+                }
+            }
+        }
+        announcerPlus.runSync {
+            message.commands.forEach { dispatchCommandAsConsole(configManager.parse(null, it)) }
+            commands.forEach { dispatchCommandAsConsole(configManager.parse(null, it)) }
         }
     }
 

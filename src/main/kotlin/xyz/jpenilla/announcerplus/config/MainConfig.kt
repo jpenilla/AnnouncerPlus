@@ -10,11 +10,15 @@ class MainConfig {
 
     @Comment("Here you can define custom placeholders for use in plugin messages\n  These placeholders can be used like \"{placeholder}\", i.e. \"{nick}\" or \"{r}rainbow text{rc}\"")
     val customPlaceholders = hashMapOf(
-            Pair("nick", "%essentials_nickname%"),
-            Pair("user", "%player_name%"),
-            Pair("prefix1", "<bold><blue>[<green>!</green>]</blue></bold>"),
-            Pair("r", "<rainbow>"),
-            Pair("rc", "</rainbow>"))
+            "nick" to "%essentials_nickname%",
+            "user" to "%player_name%",
+            "prefix1" to "<bold><blue>[<green>!</green>]</blue></bold>",
+            "r" to "<rainbow>",
+            "rc" to "</rainbow>"
+    )
+
+    @Comment("This setting enables or disables all timed broadcasts")
+    var enableBroadcasts = true
 
     @Comment("This setting enables or disables all Join event features")
     var joinFeatures = true
@@ -30,9 +34,10 @@ class MainConfig {
             "  To assign randomized join configs, give the announcerplus.randomjoin.demo permission, replacing demo with your randomized config\n" +
             "  WARNING: If you are OP make sure to negate the appropriate permissions so that you do not get duplicate join/quit messages")
     val randomJoinConfigs = hashMapOf(
-            Pair("demo", arrayListOf(
+            "demo" to arrayListOf(
                     JoinQuitPair("default", 0.1),
-                    JoinQuitPair("default", 0.2)))
+                    JoinQuitPair("default", 0.2)
+            )
     )
 
     @Comment("Here you can define randomized join configs.\n" +
@@ -40,9 +45,10 @@ class MainConfig {
             "  NOTE: The randomized config named 'demo' will be ignored by the plugin. You must choose a new name to use this feature.\n" +
             "  WARNING: If you are OP make sure to negate the appropriate permissions so that you do not get duplicate join/quit messages")
     val randomQuitConfigs = hashMapOf(
-            Pair("demo", arrayListOf(
+            "demo" to arrayListOf(
                     JoinQuitPair("default", 0.2),
-                    JoinQuitPair("default", 0.1)))
+                    JoinQuitPair("default", 0.1)
+            )
     )
 
     @ConfigSerializable

@@ -1,6 +1,5 @@
 package xyz.jpenilla.announcerplus.task
 
-import com.okkero.skedule.SynchronizationContext
 import net.kyori.adventure.bossbar.BossBar
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import net.kyori.adventure.text.Component
@@ -11,7 +10,14 @@ import org.koin.core.inject
 import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.textanimation.AnimationHolder
 
-class BossBarUpdateTask(private val player: Player, private val lifeTime: Int, overlay: BossBar.Overlay, private val fillMode: FillMode, private val color: String, private val text: String) : UpdateTask() {
+class BossBarUpdateTask(
+    private val player: Player,
+    private val lifeTime: Int,
+    overlay: BossBar.Overlay,
+    private val fillMode: FillMode,
+    private val color: String,
+    private val text: String
+) : UpdateTask() {
     private val configManager: ConfigManager by inject()
     private val miniMessage: MiniMessage by inject()
     private val audience = get<BukkitAudiences>().player(player)

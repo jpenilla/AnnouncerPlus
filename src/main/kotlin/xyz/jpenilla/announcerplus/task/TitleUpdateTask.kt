@@ -1,6 +1,5 @@
 package xyz.jpenilla.announcerplus.task
 
-import com.okkero.skedule.SynchronizationContext
 import org.bukkit.entity.Player
 import org.koin.core.inject
 import xyz.jpenilla.announcerplus.config.ConfigManager
@@ -8,7 +7,14 @@ import xyz.jpenilla.announcerplus.textanimation.AnimationHolder
 import xyz.jpenilla.jmplib.Chat
 import java.time.temporal.ChronoUnit
 
-class TitleUpdateTask(private val player: Player, private val fadeIn: Int, private val duration: Int, private val fadeOut: Int, private val title: String, private val subTitle: String) : UpdateTask() {
+class TitleUpdateTask(
+    private val player: Player,
+    private val fadeIn: Int,
+    private val duration: Int,
+    private val fadeOut: Int,
+    private val title: String,
+    private val subTitle: String
+) : UpdateTask() {
     private val chat: Chat by inject()
     private val configManager: ConfigManager by inject()
     private val titleAnimation = AnimationHolder(player, title)
