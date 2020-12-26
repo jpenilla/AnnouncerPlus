@@ -82,7 +82,7 @@ class ToastTask: KoinComponent {
 
         val MinecraftKey_class = Crafty.needNmsClass("MinecraftKey")
         val MinecraftKey_ctr = MinecraftKey_class.getDeclaredConstructor(String::class.java, String::class.java)
-            ?: error("Cannot fine MinecraftKey constructor")
+            ?: error("Cannot find MinecraftKey constructor")
 
         val Advancement_class = Crafty.needNmsClass("Advancement")
         val SerializedAdvancement_class = Crafty.needNmsClass("Advancement\$SerializedAdvancement")

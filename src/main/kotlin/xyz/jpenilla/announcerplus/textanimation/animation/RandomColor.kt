@@ -44,4 +44,3 @@ class RandomColor(type: Type, ticks: Int) : TextAnimation {
         }
     }
 }
-

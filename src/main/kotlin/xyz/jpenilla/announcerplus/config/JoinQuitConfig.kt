@@ -176,20 +176,18 @@ class JoinQuitConfig : KoinComponent {
     }
 
     fun onQuit(player: Player) {
-        if (name == null) return
-        if (player.hasPermission("announcerplus.quit.$name") && !isVanished(player)) {
-            ImmutableList.copyOf(Bukkit.getOnlinePlayers()).forEach { onlinePlayer ->
-                if (onlinePlayer.name != player.name) {
-                    if (announcerPlus.perms!!.playerHas(onlinePlayer, permission) || permission.isEmpty()) {
-                        chat.send(onlinePlayer, announcerPlus.configManager.parse(player, quit.broadcasts))
-                        if (quit.sounds.isNotEmpty()) {
-                            chat.playSounds(onlinePlayer, quit.randomSound, quit.sounds)
-                        }
+        if (name == null || !player.hasPermission("announcerplus.quit.$name") || isVanished(player)) return
+        ImmutableList.copyOf(Bukkit.getOnlinePlayers()).forEach { onlinePlayer ->
+            if (onlinePlayer.name != player.name) {
+                if (announcerPlus.perms!!.playerHas(onlinePlayer, permission) || permission.isEmpty()) {
+                    chat.send(onlinePlayer, announcerPlus.configManager.parse(player, quit.broadcasts))
+                    if (quit.sounds.isNotEmpty()) {
+                        chat.playSounds(onlinePlayer, quit.randomSound, quit.sounds)
                     }
                 }
             }
-            quit.commands.forEach { dispatchCommandAsConsole(announcerPlus.configManager.parse(player, it)) }
         }
+        quit.commands.forEach { dispatchCommandAsConsole(announcerPlus.configManager.parse(player, it)) }
     }
 
     private fun isVanished(player: Player): Boolean {
