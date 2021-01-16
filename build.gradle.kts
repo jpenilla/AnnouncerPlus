@@ -34,7 +34,7 @@ dependencies {
     implementation("org.spongepowered", "configurate-hocon", "4.0.0")
     implementation("org.bstats", "bstats-bukkit", "1.8")
 
-    val cloudVersion = "1.3.0"
+    val cloudVersion = "1.4.0"
     implementation("cloud.commandframework", "cloud-paper", cloudVersion)
     implementation("cloud.commandframework", "cloud-kotlin-extensions", cloudVersion)
     implementation("cloud.commandframework", "cloud-minecraft-extras", cloudVersion)
