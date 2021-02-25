@@ -21,36 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package xyz.jpenilla.announcerplus.task
+package xyz.jpenilla.announcerplus.compatibility
 
+import net.ess3.api.IEssentials
+import net.ess3.api.IUser
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
-import org.koin.core.inject
-import xyz.jpenilla.announcerplus.textanimation.AnimationHolder
-import xyz.jpenilla.jmplib.Chat
 
-class ActionBarUpdateTask(
-  private val player: Player,
-  private val lifeTime: Long,
-  private val shouldFade: Boolean,
-  private val text: String
-) : UpdateTask() {
-  private val chat: Chat by inject()
-  private val animationHolder = AnimationHolder(player, text)
+class EssentialsHook {
+  val essentials = Bukkit.getServer().pluginManager.getPlugin("Essentials") as IEssentials
 
-  override fun stop() {
-    super.stop()
-    if (!shouldFade) {
-      chat.sendActionBar(player, "")
-    }
+  fun isAfk(player: Player): Boolean {
+    return user(player).isAfk
   }
 
-  override fun update() {
-    chat.sendActionBar(player, animationHolder.parseNext(text))
+  fun isVanished(player: Player): Boolean {
+    return user(player).isVanished
   }
 
-  override fun shouldContinue(): Boolean {
-    return ticksLived < lifeTime && player.isOnline
+  fun user(player: Player): IUser {
+    return essentials.getUser(player)
   }
-
-  override fun synchronizationContext() = SynchronizationContext.ASYNC
 }
