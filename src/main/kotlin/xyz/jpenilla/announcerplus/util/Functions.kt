@@ -25,6 +25,8 @@ package xyz.jpenilla.announcerplus.util
 
 import cloud.commandframework.ArgumentDescription
 import org.bukkit.Bukkit
+import org.bukkit.permissions.Permission
+import org.bukkit.permissions.PermissionDefault
 import org.bukkit.plugin.Plugin
 import org.bukkit.scheduler.BukkitTask
 import java.util.concurrent.CompletableFuture
@@ -62,6 +64,13 @@ fun <T> Plugin.getOnMain(supplier: () -> T): T {
     val future = CompletableFuture<T>()
     runSync { future.complete(supplier()) }
     return future.join()
+}
+
+fun addDefaultPermission(permission: String, default: PermissionDefault) {
+  Bukkit.getPluginManager().getPermission(permission)?.apply {
+    Bukkit.getPluginManager().removePermission(this)
+  }
+  Bukkit.getPluginManager().addPermission(Permission(permission, default))
 }
 
 /**

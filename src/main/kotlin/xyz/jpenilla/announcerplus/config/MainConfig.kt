@@ -23,10 +23,12 @@
  */
 package xyz.jpenilla.announcerplus.config
 
+import org.bukkit.permissions.PermissionDefault
 import org.spongepowered.configurate.CommentedConfigurationNode
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
 import org.spongepowered.configurate.objectmapping.ObjectMapper
 import org.spongepowered.configurate.objectmapping.meta.Comment
+import xyz.jpenilla.announcerplus.util.addDefaultPermission
 
 @ConfigSerializable
 class MainConfig {
@@ -100,7 +102,14 @@ class MainConfig {
     private val MAPPER = ObjectMapper.factory().get(MainConfig::class.java)
 
     fun loadFrom(node: CommentedConfigurationNode): MainConfig {
-      return MAPPER.load(node)
+      val config = MAPPER.load(node)
+      config.randomJoinConfigs.keys.forEach {
+        addDefaultPermission("announcerplus.randomjoin.$it", PermissionDefault.FALSE)
+      }
+      config.randomQuitConfigs.keys.forEach {
+        addDefaultPermission("announcerplus.randomquit.$it", PermissionDefault.FALSE)
+      }
+      return config
     }
   }
 

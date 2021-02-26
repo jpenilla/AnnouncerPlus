@@ -26,6 +26,7 @@ package xyz.jpenilla.announcerplus.config.message
 import com.google.common.collect.ImmutableList
 import org.bukkit.Bukkit
 import org.bukkit.Material
+import org.bukkit.permissions.PermissionDefault
 import org.bukkit.scheduler.BukkitTask
 import org.koin.core.KoinComponent
 import org.koin.core.inject
@@ -37,6 +38,7 @@ import org.spongepowered.configurate.objectmapping.meta.NodeResolver
 import org.spongepowered.configurate.objectmapping.meta.Setting
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.ConfigManager
+import xyz.jpenilla.announcerplus.util.addDefaultPermission
 import xyz.jpenilla.announcerplus.util.asyncTimer
 import xyz.jpenilla.announcerplus.util.dispatchCommandAsConsole
 import xyz.jpenilla.announcerplus.util.getOnMain
@@ -126,8 +128,11 @@ class MessageConfig : KoinComponent {
     private val MAPPER = ObjectMapper.factoryBuilder().addNodeResolver(NodeResolver.onlyWithSetting()).build()
       .get(MessageConfig::class.java)
 
-    fun loadFrom(node: CommentedConfigurationNode, name: String): MessageConfig =
-      MAPPER.load(node).populate(name)
+    fun loadFrom(node: CommentedConfigurationNode, name: String): MessageConfig {
+      val config = MAPPER.load(node).populate(name)
+      addDefaultPermission("announcerplus.messages.${config.name}", PermissionDefault.FALSE)
+      return config
+    }
   }
 
   fun saveTo(node: CommentedConfigurationNode) {

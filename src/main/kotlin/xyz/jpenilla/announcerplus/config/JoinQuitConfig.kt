@@ -28,6 +28,7 @@ import com.google.common.collect.ImmutableSet
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
+import org.bukkit.permissions.PermissionDefault
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import org.spongepowered.configurate.CommentedConfigurationNode
@@ -43,6 +44,7 @@ import xyz.jpenilla.announcerplus.config.message.MessageElement
 import xyz.jpenilla.announcerplus.config.message.TitleSettings
 import xyz.jpenilla.announcerplus.config.message.ToastSettings
 import xyz.jpenilla.announcerplus.util.Constants
+import xyz.jpenilla.announcerplus.util.addDefaultPermission
 import xyz.jpenilla.announcerplus.util.dispatchCommandAsConsole
 import xyz.jpenilla.announcerplus.util.runAsync
 import xyz.jpenilla.announcerplus.util.runSync
@@ -164,8 +166,14 @@ class JoinQuitConfig : KoinComponent {
     private val MAPPER = ObjectMapper.factoryBuilder().addNodeResolver(NodeResolver.onlyWithSetting()).build()
       .get(JoinQuitConfig::class.java)
 
-    fun loadFrom(node: CommentedConfigurationNode, name: String?): JoinQuitConfig =
-      MAPPER.load(node).populate(name)
+    fun loadFrom(node: CommentedConfigurationNode, name: String?): JoinQuitConfig {
+      val config = MAPPER.load(node).populate(name)
+      if (name != null) {
+        addDefaultPermission("announcerplus.join.${config.name}", PermissionDefault.FALSE)
+        addDefaultPermission("announcerplus.quit.${config.name}", PermissionDefault.FALSE)
+      }
+      return config
+    }
   }
 
   fun saveTo(node: CommentedConfigurationNode) =
