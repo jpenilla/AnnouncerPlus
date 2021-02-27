@@ -2,7 +2,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocatio
 import org.apache.commons.io.output.ByteArrayOutputStream
 
 plugins {
-  kotlin("jvm") version "1.4.30"
+  kotlin("jvm") version "1.4.31"
   id("com.github.johnrengelman.shadow") version "6.1.0"
   id("kr.entree.spigradle") version "2.2.3"
   id("net.kyori.indra.license-header") version "1.3.1"

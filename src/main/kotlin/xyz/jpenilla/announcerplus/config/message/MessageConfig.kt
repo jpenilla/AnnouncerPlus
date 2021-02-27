@@ -53,53 +53,58 @@ class MessageConfig : KoinComponent {
   @Setting
   @Comment("The list of messages for a config")
   val messages = arrayListOf(
-    Message(arrayListOf("<center><rainbow>Test AnnouncerPlus broadcast!")),
-    Message().bossBar(
-      BossBarSettings(
-        25, "{animate:flash:YELLOW:PURPLE:40}",
+    Message {
+      messages("<center><rainbow>Test AnnouncerPlus broadcast!")
+    },
+    Message {
+      bossBar = BossBarSettings(
+        25,
+        "{animate:flash:YELLOW:PURPLE:40}",
         "<green>-| <white>{animate:scrolltext:Hello this is an example Boss Bar announcement:20:3}</white> |-"
       )
-    ),
-    Message(
-      arrayListOf(
+    },
+    Message {
+      messages(
         "{prefix1} 1. <gradient:blue:green:blue>Multi-line test AnnouncerPlus broadcast",
         "{prefix1} 2. <gradient:red:gold:red>Line number two of three",
         "{prefix1} 3. <bold><rainbow>this is the last line (line 3)"
       )
-    )
-      .toast(
-        ToastSettings(
-          Material.DIAMOND, ToastSettings.FrameType.CHALLENGE,
-          "<gradient:green:blue><bold><italic>AnnouncerPlus", "<rainbow>This is a Toast message!"
-        )
-      ),
-    Message(arrayListOf("{prefix1} Test <gradient:blue:aqua>AnnouncerPlus</gradient> broadcast with sound<green>!"))
-      .sounds("minecraft:entity.strider.happy,minecraft:entity.villager.ambient,minecraft:block.note_block.cow_bell"),
-    Message(arrayListOf("{prefix1} Use <click:run_command:/ap about><hover:show_text:'<rainbow>Click to run!'><rainbow>/ap about</rainbow></hover></click> to check the plugin version"))
-      .actionBar(
-        ActionBarSettings(
-          true,
-          15,
-          "<{animate:randomcolor:pulse:25}>-| <white>{animate:scrolltext:Hello there this is some very long text being displayed in a scrolling window!! =):20:3}</white> |-"
-        )
-      ),
-    Message(arrayListOf("<bold><italic>Hello, </bold></italic> {nick} {prefix1} {r}!!!!!!!!!{rc}"))
-      .title(
-        TitleSettings(
-          1,
-          13,
-          2,
-          "<gradient:green:blue:green:{animate:scroll:0.1}>||||||||||||||||||||||||||||||||||||||||||||",
-          "<{animate:pulse:red:blue:10}>{animate:type:This is a test... typing...:6}"
-        )
-      ),
-    Message(arrayListOf("<center><gradient:red:blue>Centered text Example"))
-      .bossBar(
-        BossBarSettings(
-          25, "PINK",
-          "<bold>This is an example <italic><gradient:blue:light_purple>Boss Bar"
-        )
+      toast = ToastSettings(
+        Material.NETHER_STAR,
+        ToastSettings.FrameType.CHALLENGE,
+        "<gradient:green:blue><bold><italic>AnnouncerPlus", "<rainbow>This is a Toast message!"
       )
+    },
+    Message {
+      messages("{prefix1} Test <gradient:blue:aqua>AnnouncerPlus</gradient> broadcast with sound<green>!")
+      sounds("minecraft:entity.strider.happy,minecraft:entity.villager.ambient,minecraft:block.note_block.cow_bell")
+    },
+    Message {
+      messages("{prefix1} Use <click:run_command:/ap about><hover:show_text:'<rainbow>Click to run!'><rainbow>/ap about</rainbow></hover></click> to check the plugin version")
+      actionBar = ActionBarSettings(
+        true,
+        15,
+        "<{animate:randomcolor:pulse:25}>-| <white>{animate:scrolltext:Hello there this is some very long text being displayed in a scrolling window!! =):20:3}</white> |-"
+      )
+    },
+    Message {
+      messages("<bold><italic>Hello, </bold></italic> {nick} {prefix1} {r}!!!!!!!!!{rc}")
+      title = TitleSettings(
+        1,
+        13,
+        2,
+        "<gradient:green:blue:green:{animate:scroll:0.1}>||||||||||||||||||||||||||||||||||||||||||||",
+        "<{animate:pulse:red:blue:10}>{animate:type:This is a test... typing...:6}"
+      )
+    },
+    Message {
+      messages("<center><gradient:red:blue>Centered text Example")
+      bossBar = BossBarSettings(
+        25,
+        "PINK",
+        "<bold>This is an example <italic><gradient:blue:light_purple>Boss Bar"
+      )
+    }
   )
 
   @Setting("every-broadcast-commands")

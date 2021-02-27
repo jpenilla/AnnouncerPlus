@@ -30,9 +30,8 @@ import xyz.jpenilla.announcerplus.util.Constants
 
 @ConfigSerializable
 class Message {
-
   @Comment("The lines of text for this message. Can be empty for no chat messages.")
-  val messageText = arrayListOf<String>()
+  val messageText = ArrayList<String>()
 
   @Comment("Configure the Action Bar for this message")
   var actionBar = ActionBarSettings()
@@ -53,17 +52,17 @@ class Message {
   var soundsRandomized = true
 
   @Comment("These commands will run as console on broadcast. Example: \"broadcast This is a test\"")
-  val commands = arrayListOf<String>()
+  val commands = ArrayList<String>()
 
   @Comment("These commands will run as console once per player on broadcast. Example: \"minecraft:give %player_name% dirt\"")
-  val perPlayerCommands = arrayListOf<String>()
+  val perPlayerCommands = ArrayList<String>()
 
   @Comment("These commands will run once per player, as the player on broadcast. Example: \"ap about\"")
-  val asPlayerCommands = arrayListOf<String>()
+  val asPlayerCommands = ArrayList<String>()
 
   constructor()
-  constructor(text: List<String>) {
-    this.messageText.addAll(text)
+  constructor(op: Message.() -> Unit) {
+    op(this)
   }
 
   fun messageElements(): Collection<MessageElement> = ImmutableSet.of(
@@ -75,12 +74,8 @@ class Message {
 
   fun sounds(sounds: String): Message = apply { this.sounds = sounds }
 
-  fun actionBar(actionBar: ActionBarSettings): Message = apply { this.actionBar = actionBar }
-
-  fun bossBar(bossBar: BossBarSettings): Message = apply { this.bossBar = bossBar }
-
-  fun title(title: TitleSettings): Message = apply { this.title = title }
-
-  fun toast(toast: ToastSettings): Message = apply { this.toast = toast }
-
+  fun messages(vararg messages: String) {
+    this.messageText.clear()
+    this.messageText.addAll(messages)
+  }
 }
