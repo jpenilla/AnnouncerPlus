@@ -24,6 +24,9 @@
 package xyz.jpenilla.announcerplus.config.message
 
 import com.google.gson.JsonObject
+import net.kyori.adventure.nbt.CompoundBinaryTag
+import net.kyori.adventure.nbt.ListBinaryTag
+import net.kyori.adventure.nbt.TagStringIO
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.LinearComponents
 import net.kyori.adventure.text.minimessage.MiniMessage
@@ -81,13 +84,21 @@ class ToastSettings : MessageElement {
     val icon = JsonObject()
     val iconString = if (Environment.majorMinecraftVersion() <= 12) this.icon.name else this.icon.key.toString()
     icon.addProperty("item", iconString)
-    val nbtBuilder = StringBuilder("{CustomModelData:$iconCustomModelData")
+    val nbtBuilder = CompoundBinaryTag.builder().putInt("CustomModelData", iconCustomModelData)
     if (iconEnchanted) {
-      nbtBuilder.append(",Enchantments:[{id:\"aqua_affinity\",lvl:1}]}")
-    } else {
-      nbtBuilder.append("}")
+      nbtBuilder.put(
+        "Enchantments",
+        ListBinaryTag.from(
+          listOf(
+            CompoundBinaryTag.builder()
+              .putString("id", "aqua_affinity")
+              .putInt("lvl", 1)
+              .build()
+          )
+        )
+      )
     }
-    icon.addProperty("nbt", nbtBuilder.toString())
+    icon.addProperty("nbt", TagStringIO.get().asString(nbtBuilder.build()))
     display.add("icon", icon)
     val titleComponent = LinearComponents.linear(
       miniMessage.parse(announcerPlus.configManager.parse(player, header)),
