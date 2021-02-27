@@ -30,6 +30,7 @@ import net.kyori.adventure.nbt.TagStringIO
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.LinearComponents
 import net.kyori.adventure.text.minimessage.MiniMessage
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.koin.core.inject
@@ -105,13 +106,11 @@ class ToastSettings : MessageElement {
       Component.newline(),
       miniMessage.parse(announcerPlus.configManager.parse(player, footer))
     )
-    val title = announcerPlus.jsonParser.parse(
-      if (Environment.majorMinecraftVersion() >= 16) {
-        announcerPlus.gsonComponentSerializer.serialize(titleComponent)
-      } else {
-        announcerPlus.downsamplingGsonComponentSerializer.serialize(titleComponent)
-      }
-    )
+    val title = if (Environment.majorMinecraftVersion() >= 16) {
+      GsonComponentSerializer.gson().serializer().toJsonTree(titleComponent)
+    } else {
+      GsonComponentSerializer.colorDownsamplingGson().serializer().toJsonTree(titleComponent)
+    }
     display.add("title", title)
     display.addProperty("description", "AnnouncerPlus Toast Description")
     display.addProperty("frame", frame.value)

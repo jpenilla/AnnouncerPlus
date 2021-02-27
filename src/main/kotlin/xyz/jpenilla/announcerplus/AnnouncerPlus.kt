@@ -48,8 +48,6 @@ import xyz.jpenilla.jmplib.Environment
 class AnnouncerPlus : BasePlugin(), KoinComponent {
   val gson: Gson = GsonBuilder().create()
   val jsonParser = JsonParser()
-  val gsonComponentSerializer = GsonComponentSerializer.gson()
-  val downsamplingGsonComponentSerializer = GsonComponentSerializer.colorDownsamplingGson()
   val configManager: ConfigManager by inject()
 
   var perms: Permission? = null
