@@ -38,12 +38,14 @@ import org.spongepowered.configurate.objectmapping.meta.NodeResolver
 import org.spongepowered.configurate.objectmapping.meta.Setting
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.ConfigManager
+import xyz.jpenilla.announcerplus.config.visitor.DuplicateCommentRemovingVisitor
 import xyz.jpenilla.announcerplus.util.addDefaultPermission
 import xyz.jpenilla.announcerplus.util.asyncTimer
 import xyz.jpenilla.announcerplus.util.dispatchCommandAsConsole
 import xyz.jpenilla.announcerplus.util.getOnMain
 import xyz.jpenilla.announcerplus.util.runSync
 import xyz.jpenilla.jmplib.Chat
+import kotlin.reflect.KClass
 
 @ConfigSerializable
 class MessageConfig : KoinComponent {
@@ -124,6 +126,14 @@ class MessageConfig : KoinComponent {
   @Comment("Should the messages be sent in order of the config or in random order")
   var randomOrder = false
 
+  @Setting
+  @Comment("Should duplicate comments be removed from this config?")
+  var removeDuplicateComments = true
+
+  @Setting
+  @Comment("Should disabled boss bar, action bar, title, and toast sections be removed?")
+  var removeDisabledMessageElements = false
+
   companion object {
     private val MAPPER = ObjectMapper.factoryBuilder().addNodeResolver(NodeResolver.onlyWithSetting()).build()
       .get(MessageConfig::class.java)
@@ -137,6 +147,30 @@ class MessageConfig : KoinComponent {
 
   fun saveTo(node: CommentedConfigurationNode) {
     MAPPER.save(this, node)
+
+    if (removeDisabledMessageElements) {
+      removeDisabledMessageElements(node)
+    }
+    if (removeDuplicateComments) {
+      node.visit(DuplicateCommentRemovingVisitor())
+    }
+  }
+
+  private fun removeDisabledMessageElements(node: CommentedConfigurationNode) {
+    fun CommentedConfigurationNode.removeIfDisabled(type: KClass<out MessageElement>, childName: String) {
+      val element = this.node(childName).get(type.java) ?: return
+      if (!element.isEnabled()) {
+        this.removeChild(childName)
+      }
+    }
+    node.node("messages").childrenList().forEach { message ->
+      mapOf(
+        ActionBarSettings::class to "action-bar",
+        BossBarSettings::class to "boss-bar",
+        TitleSettings::class to "title",
+        ToastSettings::class to "toast"
+      ).forEach(message::removeIfDisabled)
+    }
   }
 
   fun populate(name: String): MessageConfig =
@@ -166,7 +200,9 @@ class MessageConfig : KoinComponent {
     val onlinePlayers = announcerPlus.getOnMain { ImmutableList.copyOf(Bukkit.getOnlinePlayers()) }
     for (onlinePlayer in onlinePlayers) {
       if (announcerPlus.essentials != null) {
-        if (announcerPlus.essentials!!.isAfk(onlinePlayer) && announcerPlus.perms!!.playerHas(onlinePlayer, "${announcerPlus.name}.messages.$name.afk")) {
+        if (announcerPlus.essentials!!.isAfk(onlinePlayer)
+          && announcerPlus.perms!!.playerHas(onlinePlayer, "${announcerPlus.name}.messages.$name.afk")
+        ) {
           continue
         }
       }
