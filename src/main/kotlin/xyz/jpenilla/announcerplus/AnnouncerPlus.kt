@@ -25,9 +25,7 @@ package xyz.jpenilla.announcerplus
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.google.gson.JsonParser
 import kr.entree.spigradle.annotations.PluginMain
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer
 import net.milkbowl.vault.permission.Permission
 import org.bstats.bukkit.Metrics
 import org.bstats.charts.SimplePie
@@ -47,7 +45,6 @@ import xyz.jpenilla.jmplib.Environment
 @PluginMain
 class AnnouncerPlus : BasePlugin(), KoinComponent {
   val gson: Gson = GsonBuilder().create()
-  val jsonParser = JsonParser()
   val configManager: ConfigManager by inject()
 
   var perms: Permission? = null
@@ -73,7 +70,6 @@ class AnnouncerPlus : BasePlugin(), KoinComponent {
         single { chat() }
         single { ConfigManager(get()) }
         single { gson }
-        single { jsonParser }
       })
     }
 

@@ -25,22 +25,35 @@ package xyz.jpenilla.announcerplus.command
 
 import cloud.commandframework.context.CommandContext
 import cloud.commandframework.minecraft.extras.MinecraftHelp
-import com.google.common.collect.ImmutableSet
+import net.kyori.adventure.extra.kotlin.style
+import net.kyori.adventure.extra.kotlin.text
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.LinearComponents
+import net.kyori.adventure.text.Component.space
+import net.kyori.adventure.text.Component.text
+import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.event.ClickEvent
-import net.kyori.adventure.text.event.HoverEvent
+import net.kyori.adventure.text.event.ClickEvent.copyToClipboard
+import net.kyori.adventure.text.event.ClickEvent.openUrl
 import net.kyori.adventure.text.feature.pagination.Pagination
-import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.NamedTextColor.GRAY
+import net.kyori.adventure.text.format.NamedTextColor.GREEN
+import net.kyori.adventure.text.format.NamedTextColor.RED
+import net.kyori.adventure.text.format.NamedTextColor.WHITE
 import net.kyori.adventure.text.format.Style
-import net.kyori.adventure.text.format.TextColor
-import net.kyori.adventure.text.format.TextDecoration
+import net.kyori.adventure.text.format.TextDecoration.BOLD
+import net.kyori.adventure.text.format.TextDecoration.ITALIC
+import net.kyori.adventure.text.format.TextDecoration.STRIKETHROUGH
+import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer
 import org.bukkit.command.CommandSender
 import org.koin.core.inject
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.config.message.MessageConfig
+import xyz.jpenilla.announcerplus.util.center
 import xyz.jpenilla.announcerplus.util.description
+import xyz.jpenilla.announcerplus.util.miniMessage
+import xyz.jpenilla.announcerplus.util.modifyHSV
+import xyz.jpenilla.announcerplus.util.randomColor
 import xyz.jpenilla.jmplib.Chat
 import java.util.Collections
 import kotlin.math.roundToInt
@@ -86,20 +99,27 @@ class CommandAnnouncerPlus : BaseCommand {
   }
 
   private fun executeAbout(ctx: CommandContext<CommandSender>) {
+    val audience = announcerPlus.audiences().sender(ctx.sender)
     val color = randomColor()
-    val text =
-      "<hover:show_text:'<rainbow>click me!'><click:open_url:${announcerPlus.description.website}>${announcerPlus.name} <$color>${announcerPlus.description.version}"
-    val header = "<gradient:white:$color:white><strikethrough>${
-      "-".repeat(
-        (announcerPlus.miniMessage().stripTokens(text).length / 1.2).roundToInt() + 4
-      )
-    }"
-    listOf(
+    val nameAndVersion = text {
+      hoverEvent(miniMessage("<rainbow>click me!"))
+      clickEvent(openUrl(announcerPlus.description.website!!))
+      append(text(announcerPlus.description.name))
+      append(space())
+      val lightenedColor = color.modifyHSV(sRatio = 0.3f, vRatio = 2.0f)
+      append(miniMessage("<gradient:$color:$lightenedColor>${announcerPlus.description.version}"))
+    }
+    val spaces = " ".repeat((PlainComponentSerializer.plain().serialize(nameAndVersion).length * 1.5).roundToInt())
+    val header = miniMessage("<gradient:$color:white:$color><strikethrough>$spaces").center()
+    sequenceOf(
       header,
-      text,
-      "By <$color>jmp",
+      nameAndVersion.center(),
+      text {
+        content("By ")
+        append(text("jmp", color))
+      }.center(),
       header
-    ).forEach { chat.send(ctx.sender, chat.getCenteredMessage(it)) }
+    ).forEach(audience::sendMessage)
   }
 
   private fun executeReload(ctx: CommandContext<CommandSender>) {
@@ -126,88 +146,80 @@ class CommandAnnouncerPlus : BaseCommand {
     val pagination = Pagination.builder().apply {
       resultsPerPage(17)
       width(53)
-      line { line ->
-        line.character('-')
-        line.style(Style.style { builder ->
-          builder.color(TextColor.fromHexString(color))
-          builder.decorate(TextDecoration.STRIKETHROUGH)
+      line { characterAndStyle ->
+        characterAndStyle.character('-')
+        characterAndStyle.style(style {
+          color(color)
+          decorate(STRIKETHROUGH)
         })
       }
       renderer(object : Pagination.Renderer {
-        override fun renderNextPageButton(character: Char, style: Style, clickEvent: ClickEvent): Component {
-          LinearComponents.linear(
-
+        private fun renderButton(character: Char, style: Style, clickEvent: ClickEvent): Component =
+          TextComponent.ofChildren(
+            space(),
+            text("[", WHITE),
+            text(character, style.clickEvent(clickEvent)),
+            text("]", WHITE),
+            space()
           )
-          return Component.text()
-            .append(Component.space())
-            .append(Component.text("[", NamedTextColor.WHITE))
-            .append(Component.text(character, style.clickEvent(clickEvent)))
-            .append(Component.text("]", NamedTextColor.WHITE))
-            .append(Component.space())
-            .build()
-        }
 
-        override fun renderPreviousPageButton(
-          character: Char,
-          style: Style,
-          clickEvent: ClickEvent
-        ): Component {
-          return Component.text()
-            .append(Component.space())
-            .append(Component.text("[", NamedTextColor.WHITE))
-            .append(Component.text(character, style.clickEvent(clickEvent)))
-            .append(Component.text("]", NamedTextColor.WHITE))
-            .append(Component.space())
-            .build()
-        }
+        override fun renderPreviousPageButton(character: Char, style: Style, clickEvent: ClickEvent): Component =
+          renderButton(character, style, clickEvent)
+
+        override fun renderNextPageButton(character: Char, style: Style, clickEvent: ClickEvent) =
+          renderButton(character, style, clickEvent)
       })
-      nextButton { nextButton ->
-        nextButton.style(Style.style { builder ->
-          builder.decorate(TextDecoration.BOLD)
-          builder.color(TextColor.fromHexString(color))
-          builder.hoverEvent(HoverEvent.showText(Component.text("Next Page", NamedTextColor.GREEN)))
+      nextButton { characterAndStyle ->
+        characterAndStyle.style(style {
+          decorate(BOLD)
+          color(color)
+          hoverEvent(text("Next Page", GREEN))
         })
       }
-      previousButton { prevButton ->
-        prevButton.style(Style.style { builder ->
-          builder.decorate(TextDecoration.BOLD)
-          builder.color(TextColor.fromHexString(color))
-          builder.hoverEvent(HoverEvent.showText(Component.text("Previous Page", NamedTextColor.RED)))
+      previousButton { characterAndStyle ->
+        characterAndStyle.style(style {
+          decorate(BOLD)
+          color(color)
+          hoverEvent(text("Previous Page", RED))
         })
       }
-    }.build<String>(
-      Component.text("Messages"),
-      { value, _ -> Collections.singleton(value?.let { announcerPlus.miniMessage().parse(it) }) },
+    }.build<Component>(
+      text("Messages"),
+      { value, _ -> Collections.singleton(value) },
       { "/announcerplus list ${config.name} $it" }
     )
 
-    val messages = arrayListOf<String>()
+    val messages = arrayListOf<Component>()
     for (msg in config.messages) {
       for (line in msg.messageText) {
-        val b = StringBuilder()
-        if (msg.messageText.indexOf(line) == 0) {
-          b.append(" <color:$color>-</color:$color> ")
-        } else {
-          b.append("   <color:$color>-</color:$color> ")
-        }
-        b.append("<white>\"</white>$line<reset><white>\"")
-        messages.add(configManager.parse(ctx.sender, b.toString()))
+        messages.add(text {
+          if (msg.messageText.indexOf(line) != 0) {
+            append(text("  "))
+          }
+          append(text(" - ", color))
+          append(text('"', WHITE))
+          append(miniMessage(configManager.parse(ctx.sender, line)))
+          append(text('"', WHITE))
+        })
       }
     }
-    val l = arrayListOf<Component>(
-      announcerPlus.miniMessage()
-        .parse("Config<gray>:</gray> <color:$color>${config.name}</color:$color> <gray><italic><hover:show_text:'<italic>Click to copy'><click:copy_to_clipboard:announcerplus.messages.${config.name}><white>(</white>announcerplus.messages.${config.name}<white>)</white>")
-    )
+    val header = text {
+      content("Config")
+      append(text(":", GRAY))
+      append(space())
+      append(text(config.name, color))
+      append(space())
+      append(text("(", WHITE))
+      append(text {
+        content("announcerplus.messages.${config.name}")
+        color(GRAY)
+        hoverEvent(text("Click to copy", WHITE, ITALIC))
+        clickEvent(copyToClipboard("announcerplus.messages.${config.name}"))
+      })
+      append(text(")", WHITE))
+    }
+    val l = arrayListOf<Component>(header)
     l.addAll(pagination.render(messages, page))
     chat.send(ctx.sender, l)
-  }
-
-  companion object {
-    private val colors = ImmutableSet.of(
-      "#f44336", "#e91e63", "#9c27b0", "#673ab7", "#3f51b5", "#2196f3", "#03a9f4", "#00bcd4", "#009688", "#4caf50",
-      "#8bc34a", "#cddc39", "#ffeb3b", "#ffc107", "#ff9800", "#ff5722", "#795548", "#9e9e9e", "#607d8b", "#333333"
-    )
-
-    fun randomColor(): String = colors.random()
   }
 }

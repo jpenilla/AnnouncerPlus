@@ -26,12 +26,12 @@ package xyz.jpenilla.announcerplus.task
 import net.kyori.adventure.bossbar.BossBar
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.entity.Player
 import org.koin.core.get
 import org.koin.core.inject
 import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.textanimation.AnimationHolder
+import xyz.jpenilla.announcerplus.util.miniMessage
 
 class BossBarUpdateTask(
   private val player: Player,
@@ -42,7 +42,6 @@ class BossBarUpdateTask(
   private val text: String
 ) : UpdateTask() {
   private val configManager: ConfigManager by inject()
-  private val miniMessage: MiniMessage by inject()
   private val audience = get<BukkitAudiences>().player(player)
   private val textAnimation = AnimationHolder(player, text)
   private val colorAnimation = AnimationHolder(player, color)
@@ -55,7 +54,7 @@ class BossBarUpdateTask(
 
   override fun update() {
     bar.color(BossBar.Color.NAMES.value(colorAnimation.parseNext(color).toLowerCase()) ?: BossBar.Color.BLUE)
-    bar.name(miniMessage.parse(configManager.parse(player, textAnimation.parseNext(text))))
+    bar.name(miniMessage(configManager.parse(player, textAnimation.parseNext(text))))
     when (fillMode) {
       FillMode.FILL -> bar.progress(ticksLived / (lifeTime * 20f))
       FillMode.DRAIN -> bar.progress(1f - (ticksLived / (lifeTime * 20f)))

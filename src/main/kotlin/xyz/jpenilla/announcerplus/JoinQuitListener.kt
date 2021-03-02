@@ -31,6 +31,7 @@ import org.bukkit.event.player.PlayerQuitEvent
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import xyz.jpenilla.announcerplus.config.ConfigManager
+import xyz.jpenilla.announcerplus.config.MainConfig.JoinQuitPair
 import xyz.jpenilla.jmplib.RandomCollection
 
 class JoinQuitListener : Listener, KoinComponent {
@@ -46,11 +47,8 @@ class JoinQuitListener : Listener, KoinComponent {
       }
       for (entry in configManager.mainConfig.randomJoinConfigs.entries) {
         if (entry.key != "demo" && event.player.hasPermission("announcerplus.randomjoin.${entry.key}")) {
-          val weights = RandomCollection<String>()
-          for (pair in entry.value) {
-            weights.add(pair.weight, pair.configName)
-          }
-          configManager.joinQuitConfigs[weights.next()]?.onJoin(event.player)
+          val randomConfigName = entry.value.selectRandomWeighted()
+          configManager.joinQuitConfigs[randomConfigName]?.onJoin(event.player)
         }
       }
       for (config in configManager.joinQuitConfigs.values) {
@@ -65,16 +63,22 @@ class JoinQuitListener : Listener, KoinComponent {
       event.quitMessage = ""
       for (entry in configManager.mainConfig.randomQuitConfigs.entries) {
         if (entry.key != "demo" && event.player.hasPermission("announcerplus.randomquit.${entry.key}")) {
-          val weights = RandomCollection<String>()
-          for (pair in entry.value) {
-            weights.add(pair.weight, pair.configName)
-          }
-          configManager.joinQuitConfigs[weights.next()]?.onQuit(event.player)
+          val randomConfigName = entry.value.selectRandomWeighted()
+          configManager.joinQuitConfigs[randomConfigName]?.onQuit(event.player)
         }
       }
       for (config in configManager.joinQuitConfigs.values) {
         config.onQuit(event.player)
       }
     }
+  }
+
+  private fun Collection<JoinQuitPair>.selectRandomWeighted(): String {
+    if (isEmpty()) error("Cannot randomly select from an empty collection")
+    return RandomCollection<String>().apply {
+      for (pair in this@selectRandomWeighted) {
+        add(pair.weight, pair.configName)
+      }
+    }.next()
   }
 }

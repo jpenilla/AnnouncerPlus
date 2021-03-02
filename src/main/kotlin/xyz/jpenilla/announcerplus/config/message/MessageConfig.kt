@@ -109,15 +109,15 @@ class MessageConfig : KoinComponent {
 
   @Setting("every-broadcast-commands")
   @Comment("These commands will run as console once each interval\n  Example: \"broadcast This is a test\"")
-  val commands = arrayListOf<String>()
+  val commands = ArrayList<String>()
 
   @Setting("every-broadcast-per-player-commands")
   @Comment("These commands will run as console once per player each interval\n  Example: \"minecraft:give %player_name% dirt\"")
-  val perPlayerCommands = arrayListOf<String>()
+  val perPlayerCommands = ArrayList<String>()
 
   @Setting("every-broadcast-as-player-commands")
   @Comment("These commands will run once per player each interval, as the player\n  Example: \"ap about\"")
-  val asPlayerCommands = arrayListOf<String>()
+  val asPlayerCommands = ArrayList<String>()
 
   @Setting("interval-time-unit")
   @Comment("The unit of time used for the interval\n  Can be SECONDS, MINUTES, or HOURS")
@@ -181,8 +181,8 @@ class MessageConfig : KoinComponent {
   fun populate(name: String): MessageConfig =
     this.apply { this.name = name }
 
-  private var broadcastTask: BukkitTask? = null
   lateinit var name: String
+  private var broadcastTask: BukkitTask? = null
   private val announcerPlus: AnnouncerPlus by inject()
   private val configManager: ConfigManager by inject()
   private val chat: Chat by inject()

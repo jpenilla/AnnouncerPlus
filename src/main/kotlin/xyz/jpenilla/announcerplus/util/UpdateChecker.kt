@@ -25,13 +25,13 @@ package xyz.jpenilla.announcerplus.util
 
 import com.google.common.base.Charsets
 import com.google.gson.JsonParser
-import xyz.jpenilla.announcerplus.AnnouncerPlus
+import org.bukkit.plugin.java.JavaPlugin
 import java.io.IOException
 import java.io.InputStreamReader
 import java.net.URL
 import java.util.LinkedList
 
-class UpdateChecker(private val plugin: AnnouncerPlus, private val githubRepo: String) {
+class UpdateChecker(private val plugin: JavaPlugin, private val githubRepo: String) {
   private val parser = JsonParser()
 
   fun updateCheck() {

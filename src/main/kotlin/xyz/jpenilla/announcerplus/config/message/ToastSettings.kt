@@ -24,12 +24,9 @@
 package xyz.jpenilla.announcerplus.config.message
 
 import com.google.gson.JsonObject
-import net.kyori.adventure.nbt.CompoundBinaryTag
-import net.kyori.adventure.nbt.ListBinaryTag
 import net.kyori.adventure.nbt.TagStringIO
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.LinearComponents
-import net.kyori.adventure.text.minimessage.MiniMessage
+import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -37,6 +34,9 @@ import org.koin.core.inject
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
 import org.spongepowered.configurate.objectmapping.meta.Comment
 import xyz.jpenilla.announcerplus.AnnouncerPlus
+import xyz.jpenilla.announcerplus.util.compoundBinaryTag
+import xyz.jpenilla.announcerplus.util.listBinaryTag
+import xyz.jpenilla.announcerplus.util.miniMessage
 import xyz.jpenilla.jmplib.Environment
 
 @ConfigSerializable
@@ -69,7 +69,6 @@ class ToastSettings : MessageElement {
   }
 
   private val announcerPlus: AnnouncerPlus by inject()
-  private val miniMessage: MiniMessage by inject()
 
   override fun isEnabled(): Boolean {
     return header != "" || footer != ""
@@ -85,26 +84,24 @@ class ToastSettings : MessageElement {
     val icon = JsonObject()
     val iconString = if (Environment.majorMinecraftVersion() <= 12) this.icon.name else this.icon.key.toString()
     icon.addProperty("item", iconString)
-    val nbtBuilder = CompoundBinaryTag.builder().putInt("CustomModelData", iconCustomModelData)
-    if (iconEnchanted) {
-      nbtBuilder.put(
-        "Enchantments",
-        ListBinaryTag.from(
-          listOf(
-            CompoundBinaryTag.builder()
-              .putString("id", "aqua_affinity")
-              .putInt("lvl", 1)
-              .build()
-          )
+    val nbt = compoundBinaryTag {
+      putInt("CustomModelData", iconCustomModelData)
+      if (iconEnchanted) {
+        put(
+          "Enchantments",
+          listBinaryTag(compoundBinaryTag {
+            putString("id", "aqua_affinity")
+            putInt("lvl", 1)
+          })
         )
-      )
+      }
     }
-    icon.addProperty("nbt", TagStringIO.get().asString(nbtBuilder.build()))
+    icon.addProperty("nbt", TagStringIO.get().asString(nbt))
     display.add("icon", icon)
-    val titleComponent = LinearComponents.linear(
-      miniMessage.parse(announcerPlus.configManager.parse(player, header)),
+    val titleComponent = TextComponent.ofChildren(
+      miniMessage(announcerPlus.configManager.parse(player, header)),
       Component.newline(),
-      miniMessage.parse(announcerPlus.configManager.parse(player, footer))
+      miniMessage(announcerPlus.configManager.parse(player, footer))
     )
     val title = if (Environment.majorMinecraftVersion() >= 16) {
       GsonComponentSerializer.gson().serializer().toJsonTree(titleComponent)

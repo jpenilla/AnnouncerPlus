@@ -24,46 +24,60 @@
 package xyz.jpenilla.announcerplus.util
 
 import cloud.commandframework.ArgumentDescription
+import cloud.commandframework.kotlin.extension.argumentDescription
+import net.kyori.adventure.nbt.BinaryTag
+import net.kyori.adventure.nbt.CompoundBinaryTag
+import net.kyori.adventure.nbt.ListBinaryTag
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.TextComponent
+import net.kyori.adventure.text.format.TextColor
+import net.kyori.adventure.text.minimessage.MiniMessage
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
+import net.kyori.adventure.util.HSVLike
 import org.bukkit.Bukkit
 import org.bukkit.permissions.Permission
 import org.bukkit.permissions.PermissionDefault
 import org.bukkit.plugin.Plugin
 import org.bukkit.scheduler.BukkitTask
+import xyz.jpenilla.jmplib.LegacyChat
 import java.util.concurrent.CompletableFuture
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.random.Random
 
 fun dispatchCommandAsConsole(command: String): Boolean =
-    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command)
+  Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command)
 
 fun Plugin.runSync(
-    delay: Long = 0L,
-    runnable: Runnable
+  delay: Long = 0L,
+  runnable: Runnable
 ): BukkitTask =
-    Bukkit.getScheduler().runTaskLater(this, runnable, delay)
+  Bukkit.getScheduler().runTaskLater(this, runnable, delay)
 
 fun Plugin.runAsync(
-    delay: Long = 0L,
-    runnable: Runnable
+  delay: Long = 0L,
+  runnable: Runnable
 ): BukkitTask =
-    Bukkit.getScheduler().runTaskLaterAsynchronously(this, runnable, delay)
+  Bukkit.getScheduler().runTaskLaterAsynchronously(this, runnable, delay)
 
 fun Plugin.asyncTimer(
-    delay: Long,
-    interval: Long,
-    runnable: Runnable
+  delay: Long,
+  interval: Long,
+  runnable: Runnable
 ): BukkitTask =
-    Bukkit.getScheduler().runTaskTimerAsynchronously(this, runnable, delay, interval)
+  Bukkit.getScheduler().runTaskTimerAsynchronously(this, runnable, delay, interval)
 
 fun Plugin.syncTimer(
-    delay: Long,
-    interval: Long,
-    runnable: Runnable
+  delay: Long,
+  interval: Long,
+  runnable: Runnable
 ): BukkitTask =
-    Bukkit.getScheduler().runTaskTimer(this, runnable, delay, interval)
+  Bukkit.getScheduler().runTaskTimer(this, runnable, delay, interval)
 
 fun <T> Plugin.getOnMain(supplier: () -> T): T {
-    val future = CompletableFuture<T>()
-    runSync { future.complete(supplier()) }
-    return future.join()
+  val future = CompletableFuture<T>()
+  runSync { future.complete(supplier()) }
+  return future.join()
 }
 
 fun addDefaultPermission(permission: String, default: PermissionDefault) {
@@ -73,14 +87,59 @@ fun addDefaultPermission(permission: String, default: PermissionDefault) {
   Bukkit.getPluginManager().addPermission(Permission(permission, default))
 }
 
-/**
- * Get a [ArgumentDescription], defaulting to [ArgumentDescription.empty]
- *
- * @param description description string
- * @return the description
- * @since 1.4.0
- */
-fun description(
-  description: String = ""
-): ArgumentDescription =
-  if (description.isEmpty()) ArgumentDescription.empty() else ArgumentDescription.of(description)
+fun description(description: String = ""): ArgumentDescription = argumentDescription(description)
+
+fun miniMessage(): MiniMessage = MiniMessage.get()
+
+fun miniMessage(message: String): Component = miniMessage().parse(message)
+
+fun randomColor(): TextColor =
+  TextColor.color(
+    HSVLike.of(
+      Random.nextFloat(),
+      Random.nextDouble(0.5, 1.0).toFloat(),
+      Random.nextDouble(0.5, 1.0).toFloat()
+    )
+  )
+
+fun TextColor.modifyHSV(
+  hRatio: Float = 1f,
+  sRatio: Float = 1f,
+  vRatio: Float = 1f
+): TextColor {
+  val (h, s, v) = asHSV()
+  return TextColor.color(
+    HSVLike.of(
+      (h * hRatio).clamp(0f, 1f),
+      (s * sRatio).clamp(0f, 1f),
+      (v * vRatio).clamp(0f, 1f)
+    )
+  )
+}
+
+fun Float.clamp(min: Float, max: Float): Float = min(max, max(this, min))
+
+operator fun HSVLike.component1(): Float = h()
+operator fun HSVLike.component2(): Float = s()
+operator fun HSVLike.component3(): Float = v()
+
+fun Component.center(): Component =
+  TextComponent.ofChildren(
+    Component.text(LegacyChat.getCenteredSpacePrefix(LegacyComponentSerializer.legacySection().serialize(this))),
+    this
+  )
+
+@DslMarker
+annotation class AdventureNBTDSL
+
+@AdventureNBTDSL
+fun compoundBinaryTag(builder: CompoundBinaryTag.Builder.() -> Unit): CompoundBinaryTag =
+  CompoundBinaryTag.builder().apply(builder).build()
+
+@AdventureNBTDSL
+fun listBinaryTag(builder: ListBinaryTag.Builder<BinaryTag>.() -> Unit): ListBinaryTag =
+  ListBinaryTag.builder().apply(builder).build()
+
+@AdventureNBTDSL
+fun listBinaryTag(vararg tags: BinaryTag): ListBinaryTag =
+  listBinaryTag { tags.forEach(this::add) }

@@ -13,9 +13,8 @@ version = "1.2.4+${getLastCommitHash()}-SNAPSHOT"
 description = "Announcement plugin with support for permissions. Supports Hex colors and clickable messages/hover text using MiniMessage."
 
 repositories {
-  mavenLocal()
+  //mavenLocal()
   mavenCentral()
-  jcenter()
   maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
   maven("https://oss.sonatype.org/content/groups/public/")
   maven("https://repo.spongepowered.org/maven")
@@ -31,8 +30,9 @@ dependencies {
   compileOnly("net.ess3", "EssentialsX", "2.17.2")
 
   implementation("org.koin", "koin-core", "2.1.6")
-  implementation("net.kyori", "adventure-api", "4.5.1")
-  implementation("xyz.jpenilla", "jmplib", "1.0.1+30-SNAPSHOT")
+  platform(implementation("net.kyori", "adventure-bom", "4.6.0"))
+  implementation("net.kyori", "adventure-extra-kotlin", "4.6.0")
+  implementation("xyz.jpenilla", "jmplib", "1.0.1+31-SNAPSHOT")
   implementation("org.spongepowered", "configurate-hocon", "4.1.0-SNAPSHOT")
   implementation("org.bstats", "bstats-bukkit", "2.2.1")
 
@@ -64,7 +64,7 @@ tasks {
 
 spigot {
   apiVersion = "1.13"
-  website = "https://github.com/jmanpenilla/AnnouncerPlus"
+  website = "https://github.com/jpenilla/AnnouncerPlus"
   authors("jmp")
   depends("Vault")
   softDepends("PlaceholderAPI", "Prisma", "Essentials")
