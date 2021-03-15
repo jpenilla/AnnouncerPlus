@@ -25,6 +25,8 @@ package xyz.jpenilla.announcerplus
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import io.papermc.lib.PaperLib.getMinecraftVersion
+import io.papermc.lib.PaperLib.suggestPaper
 import kr.entree.spigradle.annotations.PluginMain
 import net.milkbowl.vault.permission.Permission
 import org.bstats.bukkit.Metrics
@@ -40,7 +42,7 @@ import xyz.jpenilla.announcerplus.config.message.MessageConfig
 import xyz.jpenilla.announcerplus.task.ToastTask
 import xyz.jpenilla.announcerplus.util.UpdateChecker
 import xyz.jpenilla.jmplib.BasePlugin
-import xyz.jpenilla.jmplib.Environment
+import java.util.logging.Level
 
 @PluginMain
 class AnnouncerPlus : BasePlugin(), KoinComponent {
@@ -58,6 +60,7 @@ class AnnouncerPlus : BasePlugin(), KoinComponent {
       isEnabled = false
       return
     }
+    suggestPaper(this, Level.WARNING)
     if (server.pluginManager.isPluginEnabled("Essentials")) {
       essentials = EssentialsHook()
     }
@@ -73,7 +76,7 @@ class AnnouncerPlus : BasePlugin(), KoinComponent {
       })
     }
 
-    if (Environment.majorMinecraftVersion() > 11) {
+    if (getMinecraftVersion() > 11) {
       toastTask = ToastTask()
     } else {
       logger.info("Sorry, but Toast/Achievement style messages do not work on this version. Update to 1.12 or newer to use this feature.")
@@ -83,7 +86,7 @@ class AnnouncerPlus : BasePlugin(), KoinComponent {
     server.pluginManager.registerEvents(JoinQuitListener(), this)
     broadcast()
 
-    UpdateChecker(this, "jmanpenilla/AnnouncerPlus").updateCheck()
+    UpdateChecker(this, "jpenilla/AnnouncerPlus").updateCheck()
 
     val metrics = Metrics(this, 8067)
     metrics.addCustomChart(SimplePie("join_quit_configs", configManager.joinQuitConfigs.size::toString))
@@ -91,7 +94,9 @@ class AnnouncerPlus : BasePlugin(), KoinComponent {
   }
 
   private fun broadcast() {
-    if (configManager.mainConfig.enableBroadcasts) configManager.messageConfigs.values.forEach(MessageConfig::broadcast)
+    if (configManager.mainConfig.enableBroadcasts) {
+      configManager.messageConfigs.values.forEach(MessageConfig::broadcast)
+    }
   }
 
   fun reload() {

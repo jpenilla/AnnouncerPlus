@@ -25,7 +25,8 @@ package xyz.jpenilla.announcerplus.command
 
 import cloud.commandframework.CommandHelpHandler
 import cloud.commandframework.arguments.CommandArgument
-import cloud.commandframework.arguments.parser.ArgumentParseResult
+import cloud.commandframework.arguments.parser.ArgumentParseResult.failure
+import cloud.commandframework.arguments.parser.ArgumentParseResult.success
 import cloud.commandframework.arguments.standard.IntegerArgument
 import cloud.commandframework.arguments.standard.StringArgument
 import com.google.common.collect.ImmutableList
@@ -41,70 +42,81 @@ class ArgumentFactory : KoinComponent {
   private val commandManager: CommandManager by inject()
   private val configManager: ConfigManager by inject()
 
-  fun helpQuery(name: String): CommandArgument<CommandSender, String> {
-    return StringArgument.newBuilder<CommandSender>(name)
-      .greedy()
-      .asOptional()
-      .withSuggestionsProvider { context, _ ->
-        (commandManager.commandHelpHandler.queryHelp(
-          context.sender,
-          ""
-        ) as CommandHelpHandler.IndexHelpTopic<CommandSender>)
-          .entries.map { it.syntaxString }
-      }
-      .build()
+  private fun <C> stringArgument(name: String, builder: StringArgument.Builder<C>.() -> Unit): StringArgument<C> =
+    StringArgument.newBuilder<C>(name).apply(builder).build()
+
+  fun helpQuery(name: String) = stringArgument<CommandSender>(name) {
+    greedy()
+    asOptional()
+    withSuggestionsProvider { context, _ ->
+      val helpTopic = commandManager.commandHelpHandler.queryHelp(
+        context.sender,
+        ""
+      ) as CommandHelpHandler.IndexHelpTopic<CommandSender>
+      helpTopic.entries.map { it.syntaxString }
+    }
   }
 
-  fun positiveInteger(name: String): IntegerArgument.Builder<CommandSender> {
-    return IntegerArgument.newBuilder<CommandSender>(name)
-      .withMin(1)
+  private fun <C> integerArgumentBuilder(
+    name: String,
+    builder: IntegerArgument.Builder<C>.() -> Unit
+  ): IntegerArgument.Builder<C> =
+    IntegerArgument.newBuilder<C>(name).apply(builder)
+
+  fun positiveInteger(name: String) = integer(name, min = 1)
+
+  fun integer(
+    name: String,
+    min: Int = Int.MIN_VALUE,
+    max: Int = Int.MAX_VALUE
+  ) = integerArgumentBuilder<CommandSender>(name) {
+    if (min != Int.MIN_VALUE) withMin(min)
+    if (max != Int.MAX_VALUE) withMax(max)
   }
 
-  fun messageConfig(name: String): CommandArgument<CommandSender, MessageConfig> {
-    return commandManager.argumentBuilder(MessageConfig::class.java, name)
-      .withSuggestionsProvider { _, _ -> configManager.messageConfigs.keys.toList() }
-      .withParser { _, inputQueue ->
-        val input = inputQueue.peek()
-        val config = configManager.messageConfigs[input]
-          ?: return@withParser ArgumentParseResult.failure(
-            IllegalArgumentException(
-              "No message config for name '$input'. Must be one of: ${configManager.messageConfigs.keys.joinToString(", ")}"
-            )
+  private inline fun <C, reified T> cloud.commandframework.CommandManager<C>.argument(
+    name: String,
+    builder: CommandArgument.Builder<C, T>.() -> Unit
+  ): CommandArgument<C, T> {
+    val argumentBuilder = argumentBuilder(T::class.java, name)
+    return argumentBuilder.apply(builder).build()
+  }
+
+  fun messageConfig(name: String) = commandManager.argument<CommandSender, MessageConfig>(name) {
+    withSuggestionsProvider { _, _ -> configManager.messageConfigs.keys.toList() }
+    withParser { _, inputQueue ->
+      val input = inputQueue.peek()
+      val config = configManager.messageConfigs[input]
+        ?: return@withParser failure(
+          IllegalArgumentException(
+            "No message config for name '$input'. Must be one of: ${configManager.messageConfigs.keys.joinToString(", ")}"
           )
+        )
+      inputQueue.remove()
+      success(config)
+    }
+  }
+
+  fun worldPlayers(name: String) = commandManager.argument<CommandSender, WorldPlayers>(name) {
+    withSuggestionsProvider { _, _ ->
+      Bukkit.getWorlds().map { it.name }.toMutableList().apply {
+        add("all")
+      }
+    }
+    withParser { _, inputQueue ->
+      val input = inputQueue.peek()
+      if (input.isEmpty()) {
+        return@withParser failure(IllegalArgumentException("No input provided."))
+      }
+      if (input == "all") {
         inputQueue.remove()
-        ArgumentParseResult.success(config)
+        return@withParser success(WorldPlayers(Bukkit.getWorlds().flatMap { it.players }))
       }
-      .build()
-  }
-
-  fun worldPlayers(name: String): CommandArgument<CommandSender, WorldPlayers> {
-    return commandManager.argumentBuilder(WorldPlayers::class.java, name)
-      .withSuggestionsProvider { _, _ ->
-        val suggestions = Bukkit.getWorlds().map { it.name }.toMutableList()
-        suggestions.add("all")
-        suggestions
-      }
-      .withParser { _, inputQueue ->
-        val input = inputQueue.peek()
-        if (input.isEmpty()) {
-          return@withParser ArgumentParseResult.failure(
-            IllegalArgumentException("No input provided.")
-          )
-        }
-        if (input == "all") {
-          inputQueue.remove()
-          return@withParser ArgumentParseResult.success(WorldPlayers(
-            Bukkit.getWorlds().flatMap { it.players }
-          ))
-        }
-        val world = Bukkit.getWorld(input)
-          ?: return@withParser ArgumentParseResult.failure(
-            IllegalArgumentException("No such world: $input")
-          )
-        inputQueue.remove()
-        ArgumentParseResult.success(WorldPlayers(ImmutableList.copyOf(world.players)))
-      }
-      .build()
+      val world = Bukkit.getWorld(input)
+        ?: return@withParser failure(IllegalArgumentException("No such world: $input"))
+      inputQueue.remove()
+      success(WorldPlayers(ImmutableList.copyOf(world.players)))
+    }
   }
 
   data class WorldPlayers(val players: Collection<Player>)

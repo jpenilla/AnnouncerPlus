@@ -27,6 +27,7 @@ import cloud.commandframework.context.CommandContext
 import cloud.commandframework.minecraft.extras.MinecraftHelp
 import net.kyori.adventure.extra.kotlin.style
 import net.kyori.adventure.extra.kotlin.text
+import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.Component.space
 import net.kyori.adventure.text.Component.text
@@ -54,8 +55,8 @@ import xyz.jpenilla.announcerplus.util.description
 import xyz.jpenilla.announcerplus.util.miniMessage
 import xyz.jpenilla.announcerplus.util.modifyHSV
 import xyz.jpenilla.announcerplus.util.randomColor
-import xyz.jpenilla.jmplib.Chat
 import java.util.Collections
+import java.util.logging.Level
 import kotlin.math.roundToInt
 
 class CommandAnnouncerPlus : BaseCommand {
@@ -64,15 +65,13 @@ class CommandAnnouncerPlus : BaseCommand {
   private val configManager: ConfigManager by inject()
   private val minecraftHelp: MinecraftHelp<CommandSender> by inject()
   private val argumentFactory: ArgumentFactory by inject()
-  private val chat: Chat by inject()
+  private val audiences: BukkitAudiences by inject()
 
   override fun register() {
     commandManager.registerSubcommand("help") {
       permission = "announcerplus.command.help"
       commandDescription("Shows help for AnnouncerPlus commands.")
-      argument(description("Help Query")) {
-        argumentFactory.helpQuery("query")
-      }
+      argument(argumentFactory.helpQuery("query"), description("Help Query"))
       handler(::executeHelp)
     }
     commandManager.registerSubcommand("about") {
@@ -123,19 +122,19 @@ class CommandAnnouncerPlus : BaseCommand {
   }
 
   private fun executeReload(ctx: CommandContext<CommandSender>) {
-    chat.send(
-      ctx.sender,
-      chat.getCenteredMessage("<italic><gradient:${randomColor()}:${randomColor()}>Reloading ${announcerPlus.name} config...")
-    )
+    val audience = audiences.sender(ctx.sender)
+    audience.sendMessage(miniMessage("<italic><gradient:${randomColor()}:${randomColor()}>Reloading ${announcerPlus.name} config...").center())
     try {
       announcerPlus.reload()
-      chat.send(ctx.sender, chat.getCenteredMessage("<green>Done."))
+      audience.sendMessage(miniMessage("<green>Done.").center())
     } catch (e: Exception) {
-      chat.send(
-        ctx.sender,
-        "<gradient:red:gold>I'm sorry, but there was an error reloading the plugin. This is most likely due to misconfiguration. Check console for more info."
+      audience.sendMessage(
+        text(
+          "I'm sorry, but there was an error reloading the plugin. This is most likely due to misconfiguration. Check the console for more information.",
+          RED
+        )
       )
-      e.printStackTrace()
+      announcerPlus.logger.log(Level.WARNING, "Failed to reload configs", e)
     }
   }
 
@@ -218,8 +217,9 @@ class CommandAnnouncerPlus : BaseCommand {
       })
       append(text(")", WHITE))
     }
-    val l = arrayListOf<Component>(header)
-    l.addAll(pagination.render(messages, page))
-    chat.send(ctx.sender, l)
+    val audience = audiences.sender(ctx.sender)
+    audience.sendMessage(header)
+    pagination.render(messages, page)
+      .forEach(audience::sendMessage)
   }
 }

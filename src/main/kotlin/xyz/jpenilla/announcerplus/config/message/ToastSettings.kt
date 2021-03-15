@@ -24,6 +24,7 @@
 package xyz.jpenilla.announcerplus.config.message
 
 import com.google.gson.JsonObject
+import io.papermc.lib.PaperLib.getMinecraftVersion
 import net.kyori.adventure.nbt.TagStringIO
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.TextComponent
@@ -37,7 +38,6 @@ import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.util.compoundBinaryTag
 import xyz.jpenilla.announcerplus.util.listBinaryTag
 import xyz.jpenilla.announcerplus.util.miniMessage
-import xyz.jpenilla.jmplib.Environment
 
 @ConfigSerializable
 class ToastSettings : MessageElement {
@@ -82,7 +82,7 @@ class ToastSettings : MessageElement {
     val json = JsonObject()
     val display = JsonObject()
     val icon = JsonObject()
-    val iconString = if (Environment.majorMinecraftVersion() <= 12) this.icon.name else this.icon.key.toString()
+    val iconString = if (getMinecraftVersion() <= 12) this.icon.name else this.icon.key.toString()
     icon.addProperty("item", iconString)
     val nbt = compoundBinaryTag {
       putInt("CustomModelData", iconCustomModelData)
@@ -103,10 +103,10 @@ class ToastSettings : MessageElement {
       Component.newline(),
       miniMessage(announcerPlus.configManager.parse(player, footer))
     )
-    val title = if (Environment.majorMinecraftVersion() >= 16) {
-      GsonComponentSerializer.gson().serializer().toJsonTree(titleComponent)
+    val title = if (getMinecraftVersion() >= 16) {
+      GsonComponentSerializer.gson().serializeToTree(titleComponent)
     } else {
-      GsonComponentSerializer.colorDownsamplingGson().serializer().toJsonTree(titleComponent)
+      GsonComponentSerializer.colorDownsamplingGson().serializeToTree(titleComponent)
     }
     display.add("title", title)
     display.addProperty("description", "AnnouncerPlus Toast Description")

@@ -28,6 +28,7 @@ import cloud.commandframework.arguments.standard.StringArgument
 import cloud.commandframework.bukkit.parsers.MaterialArgument
 import cloud.commandframework.context.CommandContext
 import net.kyori.adventure.bossbar.BossBar
+import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.koin.core.inject
@@ -38,14 +39,14 @@ import xyz.jpenilla.announcerplus.task.ActionBarUpdateTask
 import xyz.jpenilla.announcerplus.task.BossBarUpdateTask
 import xyz.jpenilla.announcerplus.task.TitleUpdateTask
 import xyz.jpenilla.announcerplus.util.description
-import xyz.jpenilla.jmplib.Chat
+import xyz.jpenilla.announcerplus.util.miniMessage
 
 class CommandParse : BaseCommand {
   private val commandManager: CommandManager by inject()
   private val configManager: ConfigManager by inject()
   private val argumentFactory: ArgumentFactory by inject()
   private val announcerPlus: AnnouncerPlus by inject()
-  private val chat: Chat by inject()
+  private val audiences: BukkitAudiences by inject()
 
   override fun register() {
     commandManager.registerSubcommand("parse") {
@@ -68,7 +69,9 @@ class CommandParse : BaseCommand {
       permission = "announcerplus.command.parse.title"
       senderType<Player>()
       commandDescription("Parses a Title and Subtitle style message and displays it to the command sender.")
-      argument(argumentFactory.positiveInteger("seconds"))
+      argument(argumentFactory.integer("fade_in", min = 0))
+      argument(argumentFactory.integer("stay", min = 0))
+      argument(argumentFactory.integer("fade_out", min = 0))
       argument(StringArgument.quoted("title"), description("Quoted String"))
       argument(StringArgument.quoted("subtitle"), description("Quoted String"))
       handler(::executeParseTitle)
@@ -103,7 +106,8 @@ class CommandParse : BaseCommand {
   }
 
   private fun executeParse(ctx: CommandContext<CommandSender>) {
-    chat.send(ctx.sender, configManager.parse(ctx.sender, ctx.get<String>("message")))
+    val audience = audiences.sender(ctx.sender)
+    audience.sendMessage(miniMessage(configManager.parse(ctx.sender, ctx.get<String>("message"))))
   }
 
   private fun executeParseToast(ctx: CommandContext<CommandSender>) {
@@ -112,7 +116,14 @@ class CommandParse : BaseCommand {
   }
 
   private fun executeParseTitle(ctx: CommandContext<CommandSender>) {
-    TitleUpdateTask(ctx.sender as Player, 0, ctx.get("seconds"), 1, ctx.get("title"), ctx.get("subtitle")).start()
+    TitleUpdateTask(
+      ctx.sender as Player,
+      ctx.get("fade_in"),
+      ctx.get("stay"),
+      ctx.get("fade_out"),
+      ctx.get("title"),
+      ctx.get("subtitle")
+    ).start()
   }
 
   private fun executeParseActionBar(ctx: CommandContext<CommandSender>) {

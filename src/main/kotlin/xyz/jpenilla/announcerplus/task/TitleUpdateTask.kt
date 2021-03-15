@@ -23,12 +23,18 @@
  */
 package xyz.jpenilla.announcerplus.task
 
+import net.kyori.adventure.platform.bukkit.BukkitAudiences
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.title.Title
+import net.kyori.adventure.title.Title.title
 import org.bukkit.entity.Player
+import org.koin.core.get
 import org.koin.core.inject
 import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.textanimation.AnimationHolder
-import xyz.jpenilla.jmplib.Chat
-import java.time.temporal.ChronoUnit
+import xyz.jpenilla.announcerplus.util.miniMessage
+import java.time.Duration
+import java.time.Duration.ZERO
 
 class TitleUpdateTask(
   private val player: Player,
@@ -36,41 +42,65 @@ class TitleUpdateTask(
   private val duration: Int,
   private val fadeOut: Int,
   private val title: String,
-  private val subTitle: String
+  private val subtitle: String
 ) : UpdateTask() {
-  private val chat: Chat by inject()
+  private val audience = get<BukkitAudiences>().player(player)
   private val configManager: ConfigManager by inject()
   private val titleAnimation = AnimationHolder(player, title)
-  private val subTitleAnimation = AnimationHolder(player, subTitle)
+  private val subTitleAnimation = AnimationHolder(player, subtitle)
+
+  private fun times(
+    fadeIn: Duration = ZERO,
+    stay: Duration = ZERO,
+    fadeOut: Duration = ZERO
+  ): Title.Times =
+    Title.Times.of(fadeIn, stay, fadeOut)
+
+  private fun title(): Component =
+    miniMessage(configManager.parse(player, titleAnimation.parseNext(title)))
+
+  private fun subtitle(): Component =
+    miniMessage(configManager.parse(player, subTitleAnimation.parseNext(subtitle)))
 
   override fun stop() {
     super.stop()
-    if (fadeOut != 0) {
-      chat.showTitle(
-        player,
-        chat.getTitleSeconds(configManager.parse(player, titleAnimation.parseNext(title)), subTitleAnimation.parseNext(subTitle), 0, 0, fadeOut)
-      )
+    if (fadeOut == 0) {
+      return
     }
+    audience.showTitle(title(
+      title(),
+      subtitle(),
+      times(
+        stay = Duration.ofMillis(200L),
+        fadeOut = Duration.ofSeconds(fadeOut.toLong())
+      )
+    ))
   }
 
   override fun update() {
     if (fadeIn == 0) {
-      chat.showTitle(
-        player,
-        chat.getTitle(configManager.parse(player, titleAnimation.parseNext(title)), subTitleAnimation.parseNext(subTitle), ChronoUnit.SECONDS, 0, ChronoUnit.MILLIS, 200, ChronoUnit.SECONDS, 0)
-      )
-    } else {
-      if (ticksLived == 0L) {
-        chat.showTitle(
-          player,
-          chat.getTitle(configManager.parse(player, titleAnimation.parseNext(title)), subTitleAnimation.parseNext(subTitle), ChronoUnit.SECONDS, fadeIn, ChronoUnit.MILLIS, 200, ChronoUnit.SECONDS, 0)
+      audience.showTitle(title(
+        title(),
+        subtitle(),
+        times(stay = Duration.ofMillis(200L))
+      ))
+      return
+    }
+    if (ticksLived == 0L) {
+      audience.showTitle(title(
+        title(),
+        subtitle(),
+        times(
+          fadeIn = Duration.ofSeconds(fadeIn.toLong()),
+          stay = Duration.ofMillis(200L)
         )
-      } else if (ticksLived > fadeIn * 20L) {
-        chat.showTitle(
-          player,
-          chat.getTitle(configManager.parse(player, titleAnimation.parseNext(title)), subTitleAnimation.parseNext(subTitle), ChronoUnit.SECONDS, 0, ChronoUnit.MILLIS, 200, ChronoUnit.SECONDS, 0)
-        )
-      }
+      ))
+    } else if (ticksLived > fadeIn * 20L) {
+      audience.showTitle(title(
+        title(),
+        subtitle(),
+        times(stay = Duration.ofMillis(200L))
+      ))
     }
   }
 

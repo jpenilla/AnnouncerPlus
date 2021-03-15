@@ -28,6 +28,7 @@ import cloud.commandframework.arguments.standard.StringArgument
 import cloud.commandframework.bukkit.parsers.MaterialArgument
 import cloud.commandframework.context.CommandContext
 import net.kyori.adventure.bossbar.BossBar
+import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.command.CommandSender
 import org.koin.core.inject
 import xyz.jpenilla.announcerplus.AnnouncerPlus
@@ -37,14 +38,14 @@ import xyz.jpenilla.announcerplus.task.ActionBarUpdateTask
 import xyz.jpenilla.announcerplus.task.BossBarUpdateTask
 import xyz.jpenilla.announcerplus.task.TitleUpdateTask
 import xyz.jpenilla.announcerplus.util.description
-import xyz.jpenilla.jmplib.Chat
+import xyz.jpenilla.announcerplus.util.miniMessage
 
 class CommandBroadcast : BaseCommand {
   private val commandManager: CommandManager by inject()
   private val configManager: ConfigManager by inject()
   private val argumentFactory: ArgumentFactory by inject()
   private val announcerPlus: AnnouncerPlus by inject()
-  private val chat: Chat by inject()
+  private val audiences: BukkitAudiences by inject()
 
   override fun register() {
     commandManager.registerSubcommand("broadcast") {
@@ -68,7 +69,9 @@ class CommandBroadcast : BaseCommand {
       permission = "announcerplus.command.broadcast.title"
       commandDescription("Parses and broadcasts a Title and Subtitle style message to the specified world or all worlds.")
       argument(argumentFactory.worldPlayers("world"))
-      argument(argumentFactory.positiveInteger("seconds"))
+      argument(argumentFactory.integer("fade_in", min = 0))
+      argument(argumentFactory.integer("stay", min = 0))
+      argument(argumentFactory.integer("fade_out", min = 0))
       argument(StringArgument.quoted("title"), description("Quoted String"))
       argument(StringArgument.quoted("subtitle"), description("Quoted String"))
       handler(::executeBroadcastTitle)
@@ -96,7 +99,8 @@ class CommandBroadcast : BaseCommand {
 
   private fun executeBroadcast(ctx: CommandContext<CommandSender>) {
     for (player in ctx.get<ArgumentFactory.WorldPlayers>("world").players) {
-      chat.send(player, configManager.parse(player, ctx.get<String>("message")))
+      val audience = audiences.player(player)
+      audience.sendMessage(miniMessage(configManager.parse(player, ctx.get<String>("message"))))
     }
   }
 
@@ -109,7 +113,14 @@ class CommandBroadcast : BaseCommand {
 
   private fun executeBroadcastTitle(ctx: CommandContext<CommandSender>) {
     for (player in ctx.get<ArgumentFactory.WorldPlayers>("world").players) {
-      TitleUpdateTask(player, 0, ctx.get("seconds"), 1, ctx.get("title"), ctx.get("subtitle")).start()
+      TitleUpdateTask(
+        player,
+        ctx.get("fade_in"),
+        ctx.get("stay"),
+        ctx.get("fade_out"),
+        ctx.get("title"),
+        ctx.get("subtitle")
+      ).start()
     }
   }
 

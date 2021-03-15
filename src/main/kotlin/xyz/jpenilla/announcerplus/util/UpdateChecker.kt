@@ -47,17 +47,16 @@ class UpdateChecker(private val plugin: JavaPlugin, private val githubRepo: Stri
       val versionList = LinkedList(versionMap.keys)
       val currentVersion = "v" + plugin.description.version
       if (versionList[0] == currentVersion) {
-        // Up to date, do nothing
-        return@runAsync
+        return@runAsync // Up to date, do nothing
       }
       if (currentVersion.contains("SNAPSHOT")) {
-        plugin.logger.info("You are running a development build of ${plugin.name}! ($currentVersion)")
+        plugin.logger.info("This server is running a development build of ${plugin.name}! ($currentVersion)")
         plugin.logger.info("The latest official release is " + versionList[0])
         return@runAsync
       }
       val versionsBehind = versionList.indexOf(currentVersion)
       plugin.logger.info("There is an update available for ${plugin.name}!")
-      plugin.logger.info("You are running version $currentVersion, which is ${if (versionsBehind == -1) "many" else versionsBehind} versions outdated.")
+      plugin.logger.info("This server is running version $currentVersion, which is ${if (versionsBehind == -1) "UNKNOWN" else versionsBehind} versions outdated.")
       plugin.logger.info("Download the latest version, ${versionList[0]} from GitHub at the link below:")
       plugin.logger.info(versionMap[versionList[0]])
     }

@@ -25,6 +25,7 @@ package xyz.jpenilla.announcerplus.task
 
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import io.papermc.lib.PaperLib.getMinecraftVersion
 import org.bukkit.entity.Player
 import org.koin.core.KoinComponent
 import org.koin.core.inject
@@ -33,7 +34,6 @@ import xyz.jpenilla.announcerplus.config.message.ToastSettings
 import xyz.jpenilla.announcerplus.util.asyncTimer
 import xyz.jpenilla.announcerplus.util.runSync
 import xyz.jpenilla.jmplib.Crafty
-import xyz.jpenilla.jmplib.Environment
 import java.lang.reflect.Modifier
 import java.util.concurrent.ConcurrentLinkedDeque
 import kotlin.random.Random.Default.nextInt
@@ -66,7 +66,7 @@ class ToastTask : KoinComponent {
     announcerPlus.runSync {
       val minecraftKey =
         MinecraftKey_ctr.newInstance(announcerPlus.name.toLowerCase(), nextInt(1000000).toString())
-      val serializedAdvancement = if (Environment.majorMinecraftVersion() >= 16) {
+      val serializedAdvancement = if (getMinecraftVersion() >= 16) {
         SerializedAdvancement_deserialize(
           null,
           toast.getJson(player),

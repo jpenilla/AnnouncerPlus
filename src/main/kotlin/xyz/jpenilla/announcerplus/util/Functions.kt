@@ -29,21 +29,22 @@ import net.kyori.adventure.nbt.BinaryTag
 import net.kyori.adventure.nbt.CompoundBinaryTag
 import net.kyori.adventure.nbt.ListBinaryTag
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.minimessage.MiniMessage
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.kyori.adventure.util.HSVLike
 import org.bukkit.Bukkit
 import org.bukkit.permissions.Permission
 import org.bukkit.permissions.PermissionDefault
 import org.bukkit.plugin.Plugin
 import org.bukkit.scheduler.BukkitTask
-import xyz.jpenilla.jmplib.LegacyChat
+import xyz.jpenilla.jmplib.ChatCentering
 import java.util.concurrent.CompletableFuture
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.random.Random
+import kotlin.random.Random.Default.nextDouble
+import kotlin.random.Random.Default.nextFloat
 
 fun dispatchCommandAsConsole(command: String): Boolean =
   Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command)
@@ -96,9 +97,9 @@ fun miniMessage(message: String): Component = miniMessage().parse(message)
 fun randomColor(): TextColor =
   TextColor.color(
     HSVLike.of(
-      Random.nextFloat(),
-      Random.nextDouble(0.5, 1.0).toFloat(),
-      Random.nextDouble(0.5, 1.0).toFloat()
+      nextFloat(),
+      nextDouble(0.5, 1.0).toFloat(),
+      nextDouble(0.5, 1.0).toFloat()
     )
   )
 
@@ -125,21 +126,15 @@ operator fun HSVLike.component3(): Float = v()
 
 fun Component.center(): Component =
   TextComponent.ofChildren(
-    Component.text(LegacyChat.getCenteredSpacePrefix(LegacyComponentSerializer.legacySection().serialize(this))),
+    text(ChatCentering.spacePrefix(this)),
     this
   )
 
-@DslMarker
-annotation class AdventureNBTDSL
-
-@AdventureNBTDSL
 fun compoundBinaryTag(builder: CompoundBinaryTag.Builder.() -> Unit): CompoundBinaryTag =
   CompoundBinaryTag.builder().apply(builder).build()
 
-@AdventureNBTDSL
 fun listBinaryTag(builder: ListBinaryTag.Builder<BinaryTag>.() -> Unit): ListBinaryTag =
   ListBinaryTag.builder().apply(builder).build()
 
-@AdventureNBTDSL
 fun listBinaryTag(vararg tags: BinaryTag): ListBinaryTag =
   listBinaryTag { tags.forEach(this::add) }

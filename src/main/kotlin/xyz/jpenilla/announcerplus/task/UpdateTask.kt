@@ -35,11 +35,12 @@ abstract class UpdateTask : KoinComponent {
   private var updateTask: BukkitTask? = null
   var ticksLived = 0L
 
-  open fun start(): UpdateTask = apply {
-    stop()
+  open fun start(): UpdateTask {
+    if (updateTask != null) error("UpdateTask can only be started once!")
     val runnable = Runnable {
       if (!shouldContinue()) {
         stop()
+        return@Runnable
       }
       update()
       ticksLived++
@@ -48,6 +49,7 @@ abstract class UpdateTask : KoinComponent {
       SynchronizationContext.SYNC -> announcerPlus.syncTimer(0L, 1L, runnable)
       SynchronizationContext.ASYNC -> announcerPlus.asyncTimer(0L, 1L, runnable)
     }
+    return this
   }
 
   open fun stop() {

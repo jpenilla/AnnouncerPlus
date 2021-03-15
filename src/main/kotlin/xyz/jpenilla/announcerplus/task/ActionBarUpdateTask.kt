@@ -23,10 +23,12 @@
  */
 package xyz.jpenilla.announcerplus.task
 
+import net.kyori.adventure.platform.bukkit.BukkitAudiences
+import net.kyori.adventure.text.Component.empty
 import org.bukkit.entity.Player
-import org.koin.core.inject
+import org.koin.core.get
 import xyz.jpenilla.announcerplus.textanimation.AnimationHolder
-import xyz.jpenilla.jmplib.Chat
+import xyz.jpenilla.announcerplus.util.miniMessage
 
 class ActionBarUpdateTask(
   private val player: Player,
@@ -34,18 +36,18 @@ class ActionBarUpdateTask(
   private val shouldFade: Boolean,
   private val text: String
 ) : UpdateTask() {
-  private val chat: Chat by inject()
+  private val audience = get<BukkitAudiences>().player(player)
   private val animationHolder = AnimationHolder(player, text)
 
   override fun stop() {
     super.stop()
     if (!shouldFade) {
-      chat.sendActionBar(player, "")
+      audience.sendActionBar(empty())
     }
   }
 
   override fun update() {
-    chat.sendActionBar(player, animationHolder.parseNext(text))
+    audience.sendActionBar(miniMessage(animationHolder.parseNext(text)))
   }
 
   override fun shouldContinue(): Boolean {

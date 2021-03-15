@@ -29,17 +29,19 @@ dependencies {
   compileOnly("com.github.MilkBowl", "VaultAPI", "1.7")
   compileOnly("net.ess3", "EssentialsX", "2.17.2")
 
-  implementation("org.koin", "koin-core", "2.1.6")
-  platform(implementation("net.kyori", "adventure-bom", "4.6.0"))
-  implementation("net.kyori", "adventure-extra-kotlin", "4.6.0")
-  implementation("xyz.jpenilla", "jmplib", "1.0.1+31-SNAPSHOT")
-  implementation("org.spongepowered", "configurate-hocon", "4.1.0-SNAPSHOT")
-  implementation("org.bstats", "bstats-bukkit", "2.2.1")
+  platform(implementation("net.kyori", "adventure-bom", "4.7.0"))
+  implementation("net.kyori", "adventure-extra-kotlin", "4.7.0")
 
   val cloudVersion = "1.4.0"
   implementation("cloud.commandframework", "cloud-paper", cloudVersion)
   implementation("cloud.commandframework", "cloud-kotlin-extensions", cloudVersion)
   implementation("cloud.commandframework", "cloud-minecraft-extras", cloudVersion)
+
+  implementation("org.spongepowered", "configurate-hocon", "4.1.0-SNAPSHOT")
+  implementation("org.koin", "koin-core", "2.1.6")
+  implementation("xyz.jpenilla", "jmplib", "1.0.1+33-SNAPSHOT")
+  implementation("org.bstats", "bstats-bukkit", "2.2.1")
+  implementation("io.papermc", "paperlib", "1.0.6")
 }
 
 tasks {
@@ -67,7 +69,7 @@ spigot {
   website = "https://github.com/jpenilla/AnnouncerPlus"
   authors("jmp")
   depends("Vault")
-  softDepends("PlaceholderAPI", "Prisma", "Essentials")
+  softDepends("PlaceholderAPI", "Essentials")
 }
 
 fun getLastCommitHash(): String = ByteArrayOutputStream().apply {

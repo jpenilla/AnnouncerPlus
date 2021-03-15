@@ -24,7 +24,6 @@
 package xyz.jpenilla.announcerplus.config
 
 import org.bukkit.command.CommandSender
-import org.bukkit.configuration.InvalidConfigurationException
 import org.bukkit.entity.Player
 import org.spongepowered.configurate.ConfigurationOptions
 import org.spongepowered.configurate.hocon.HoconConfigurationLoader
@@ -33,7 +32,10 @@ import org.spongepowered.configurate.objectmapping.meta.NodeResolver
 import org.spongepowered.configurate.serialize.TypeSerializerCollection
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.message.MessageConfig
+import xyz.jpenilla.announcerplus.util.miniMessage
+import xyz.jpenilla.jmplib.ChatCentering
 import java.nio.file.Files
+import kotlin.collections.set
 import kotlin.streams.toList
 
 class ConfigManager(private val announcerPlus: AnnouncerPlus) {
@@ -86,14 +88,14 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
     try {
       mainConfig = MainConfig.loadFrom(mainConfigRoot)
     } catch (e: Exception) {
-      throw InvalidConfigurationException("Failed to load the main.conf config file. This is due to misconfiguration", e)
+      throw IllegalArgumentException("Failed to load the main.conf config file. This is due to misconfiguration", e)
     }
 
     val firstJoinConfigRoot = firstJoinConfigLoader.load(configOptions)
     try {
       firstJoinConfig = JoinQuitConfig.loadFrom(firstJoinConfigRoot, null)
     } catch (e: Exception) {
-      throw InvalidConfigurationException("Failed to load the main.conf config file. This is due to misconfiguration", e)
+      throw IllegalArgumentException("Failed to load the main.conf config file. This is due to misconfiguration", e)
     }
 
     loadMessageConfigs()
@@ -159,7 +161,10 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
         joinQuitConfigs[name]?.saveTo(root)
         configLoader.save(root)
       } catch (e: Exception) {
-        throw InvalidConfigurationException("Failed to load message config: ${it.fileName}. This is due to an invalid config file.", e)
+        throw IllegalArgumentException(
+          "Failed to load message config: ${it.fileName}. This is due to an invalid config file.",
+          e
+        )
       }
     }
   }
@@ -197,19 +202,26 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
         messageConfigs[name]?.saveTo(root)
         configLoader.save(root)
       } catch (e: Exception) {
-        throw InvalidConfigurationException("Failed to load join/quit config: ${it.fileName}. This is due to an invalid config file.", e)
+        throw IllegalArgumentException(
+          "Failed to load join/quit config: ${it.fileName}. This is due to an invalid config file.",
+          e
+        )
       }
     }
   }
 
-  fun parse(player: CommandSender?, message: String): String {
-    val p = player as? Player
-
-    val msg = announcerPlus.chat().parse(p, message, mainConfig.customPlaceholders)
-    if (msg.startsWith("<center>")) {
-      return announcerPlus.chat().getCenteredMessage(msg.replace("<center>", ""))
+  fun parse(commandSender: CommandSender?, message: String): String {
+    val player = commandSender as? Player
+    var msg = message
+    mainConfig.customPlaceholders.forEach {
+      msg = msg.replace("{${it.key}}", it.value)
     }
-
+    msg = announcerPlus.chat().papiParse(player, msg)
+    if (msg.startsWith("<center>")) {
+      msg = msg.replaceFirst("<center>", "")
+      val spaces = ChatCentering.spacePrefix(miniMessage(msg))
+      return spaces + msg
+    }
     return msg
   }
 

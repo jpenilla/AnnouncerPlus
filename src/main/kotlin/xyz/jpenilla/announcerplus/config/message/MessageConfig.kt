@@ -43,6 +43,7 @@ import xyz.jpenilla.announcerplus.util.addDefaultPermission
 import xyz.jpenilla.announcerplus.util.asyncTimer
 import xyz.jpenilla.announcerplus.util.dispatchCommandAsConsole
 import xyz.jpenilla.announcerplus.util.getOnMain
+import xyz.jpenilla.announcerplus.util.miniMessage
 import xyz.jpenilla.announcerplus.util.runSync
 import xyz.jpenilla.jmplib.Chat
 import kotlin.reflect.KClass
@@ -72,7 +73,8 @@ class MessageConfig : KoinComponent {
       toast = ToastSettings(
         Material.NETHER_STAR,
         ToastSettings.FrameType.CHALLENGE,
-        "<gradient:green:blue><bold><italic>AnnouncerPlus", "<rainbow>This is a Toast message!"
+        "<gradient:green:blue><bold><italic>AnnouncerPlus",
+        "<rainbow>This is a Toast message!"
       )
     },
     Message {
@@ -213,8 +215,11 @@ class MessageConfig : KoinComponent {
       }
       if (announcerPlus.perms!!.playerHas(onlinePlayer, "${announcerPlus.name}.messages.$name")) {
         with(message) {
+          val audience = announcerPlus.audiences().player(onlinePlayer)
           if (messageText.size != 0) {
-            chat.send(onlinePlayer, configManager.parse(onlinePlayer, messageText))
+            messageText.forEach {
+              audience.sendMessage(miniMessage(configManager.parse(onlinePlayer, it)))
+            }
           }
           chat.playSounds(onlinePlayer, soundsRandomized, sounds)
           messageElements().forEach { it.displayIfEnabled(onlinePlayer) }

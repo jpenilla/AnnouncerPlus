@@ -30,7 +30,7 @@ import cloud.commandframework.kotlin.extension.commandBuilder
 import cloud.commandframework.minecraft.extras.MinecraftExceptionHandler
 import cloud.commandframework.minecraft.extras.MinecraftHelp
 import cloud.commandframework.paper.PaperCommandManager
-import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.command.CommandSender
@@ -66,10 +66,7 @@ class CommandManager(announcerPlus: AnnouncerPlus) : PaperCommandManager<Command
     MinecraftExceptionHandler<CommandSender>()
       .withDefaultHandlers()
       .withDecorator {
-        Component.text()
-          .append(Constants.CHAT_PREFIX)
-          .append(it)
-          .build()
+        TextComponent.ofChildren(Constants.CHAT_PREFIX, it)
       }
       .apply(this, announcerPlus.audiences()::sender)
 
