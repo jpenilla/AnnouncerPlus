@@ -60,8 +60,7 @@ class MainConfig {
   @Comment(
     "Here you can define randomized join configs.\n" +
       "  To assign randomized join configs, give the announcerplus.randomjoin.demo permission, replacing demo with your randomized config\n" +
-      "  NOTE: The randomized config named 'demo' will be ignored by the plugin. You must choose a new name to use this feature.\n" +
-      "  WARNING: If you are OP make sure to negate the appropriate permissions so that you do not get duplicate join/quit messages"
+      "  NOTE: The randomized config named 'demo' will be ignored by the plugin. You must choose a new name to use this feature."
   )
   val randomJoinConfigs = hashMapOf(
     "demo" to arrayListOf(
@@ -73,8 +72,7 @@ class MainConfig {
   @Comment(
     "Here you can define randomized quit configs.\n" +
       "  To assign randomized quit configs, give the announcerplus.randomquit.demo permission, replacing demo with your randomized config\n" +
-      "  NOTE: The randomized config named 'demo' will be ignored by the plugin. You must choose a new name to use this feature.\n" +
-      "  WARNING: If you are OP make sure to negate the appropriate permissions so that you do not get duplicate join/quit messages"
+      "  NOTE: The randomized config named 'demo' will be ignored by the plugin. You must choose a new name to use this feature."
   )
   val randomQuitConfigs = hashMapOf(
     "demo" to arrayListOf(
