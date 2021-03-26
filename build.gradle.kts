@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "xyz.jpenilla"
-version = "1.2.4+${getLastCommitHash()}-SNAPSHOT"
+version = "1.2.5+${getLastCommitHash()}-SNAPSHOT"
 description = "Announcement plugin with support for permissions. Supports Hex colors and clickable messages/hover text using MiniMessage."
 
 repositories {
@@ -21,7 +21,9 @@ repositories {
   maven("https://repo.jpenilla.xyz/snapshots")
   maven("https://ci.ender.zone/plugin/repository/everything/")
   maven("https://repo.codemc.org/repository/maven-public")
-  maven("https://jitpack.io")
+  maven("https://jitpack.io") {
+    content { includeGroupByRegex("com\\.github\\..*") }
+  }
 }
 
 dependencies {
@@ -54,6 +56,9 @@ tasks {
     prefix = "$packageName.lib"
   }
   shadowJar {
+    from(rootProject.file("license.txt")) {
+      rename { "license_${rootProject.name.toLowerCase()}.txt" }
+    }
     dependsOn(withType<ConfigureShadowRelocation>())
     minimize()
     archiveClassifier.set("")
