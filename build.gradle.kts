@@ -1,4 +1,3 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
 import org.apache.commons.io.output.ByteArrayOutputStream
 
 plugins {
@@ -50,19 +49,33 @@ tasks {
   compileKotlin {
     kotlinOptions.jvmTarget = "1.8"
   }
-  register<ConfigureShadowRelocation>("autoRelocate") {
-    target = shadowJar.get()
-    val packageName = "${project.group}.${project.name.toLowerCase()}"
-    prefix = "$packageName.lib"
-  }
   shadowJar {
     from(rootProject.file("license.txt")) {
       rename { "license_${rootProject.name.toLowerCase()}.txt" }
     }
-    dependsOn(withType<ConfigureShadowRelocation>())
+
     minimize()
     archiveClassifier.set("")
     archiveFileName.set("${project.name}-${project.version}.jar")
+
+    val prefix = "${project.group}.${project.name.toLowerCase()}.lib"
+    sequenceOf(
+      "com.typesafe.config",
+      "io.leangen.geantyref",
+      "io.papermc.lib",
+      "net.kyori",
+      "xyz.jpenilla.jmplib",
+      "cloud.commandframework",
+      "org.koin",
+      "org.spongepowered.configurate",
+      "org.bstats",
+      "kotlin",
+    ).forEach { pkg ->
+      relocate(pkg, "$prefix.$pkg")
+    }
+
+    exclude("org/jetbrains/annotations/*")
+    exclude("org/intellij/lang/annotations/*")
   }
   build {
     dependsOn(shadowJar)
