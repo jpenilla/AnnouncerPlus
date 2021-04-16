@@ -46,7 +46,8 @@ class RandomColor(type: Type, ticks: Int) : TextAnimation {
   }
 
   enum class Type {
-    FLASH, PULSE;
+    FLASH,
+    PULSE;
 
     companion object {
       fun of(text: String): Type {

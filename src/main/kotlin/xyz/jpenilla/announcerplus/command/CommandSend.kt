@@ -65,6 +65,7 @@ class CommandSend : BaseCommand {
       argument(EnumArgument.of(ToastSettings.FrameType::class.java, "frame"))
       argument(StringArgument.quoted("header"), description("Quoted String"))
       argument(StringArgument.quoted("body"), description("Quoted String"))
+      flag("enchant", arrayOf("e"))
       handler(::executeSendToast)
     }
     commandManager.registerSubcommand("sendtitle") {
@@ -107,7 +108,7 @@ class CommandSend : BaseCommand {
   }
 
   private fun executeSendToast(ctx: CommandContext<CommandSender>) {
-    val toast = ToastSettings(ctx.get("icon"), ctx.get("frame"), ctx.get("header"), ctx.get("body"))
+    val toast = ToastSettings(ctx.get("icon"), ctx.get("frame"), ctx.get("header"), ctx.get("body"), ctx.flags().isPresent("enchant"))
     for (player in ctx.get<MultiplePlayerSelector>("players").players) {
       toast.displayIfEnabled(player)
     }

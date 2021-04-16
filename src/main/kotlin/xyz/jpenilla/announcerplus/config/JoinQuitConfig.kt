@@ -163,7 +163,9 @@ class JoinQuitConfig : KoinComponent {
   }
 
   companion object {
-    private val MAPPER = ObjectMapper.factoryBuilder().addNodeResolver(NodeResolver.onlyWithSetting()).build()
+    private val MAPPER = ObjectMapper.factoryBuilder()
+      .addNodeResolver(NodeResolver.onlyWithSetting())
+      .build()
       .get(JoinQuitConfig::class.java)
 
     fun loadFrom(node: CommentedConfigurationNode, name: String?): JoinQuitConfig {

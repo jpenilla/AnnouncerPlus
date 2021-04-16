@@ -71,6 +71,9 @@ class BossBarUpdateTask(
   override fun synchronizationContext() = SynchronizationContext.ASYNC
 
   enum class FillMode {
-    FILL, DRAIN, FULL, EMPTY
+    FILL,
+    DRAIN,
+    FULL,
+    EMPTY
   }
 }

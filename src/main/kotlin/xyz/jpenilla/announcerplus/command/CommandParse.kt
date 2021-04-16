@@ -63,6 +63,7 @@ class CommandParse : BaseCommand {
       argument(EnumArgument.of(ToastSettings.FrameType::class.java, "frame"))
       argument(StringArgument.quoted("header"), description("Quoted String"))
       argument(StringArgument.quoted("body"), description("Quoted String"))
+      flag("enchant", arrayOf("e"))
       handler(::executeParseToast)
     }
     commandManager.registerSubcommand("parsetitle") {
@@ -111,7 +112,7 @@ class CommandParse : BaseCommand {
   }
 
   private fun executeParseToast(ctx: CommandContext<CommandSender>) {
-    val toast = ToastSettings(ctx.get("icon"), ctx.get("frame"), ctx.get("header"), ctx.get("body"))
+    val toast = ToastSettings(ctx.get("icon"), ctx.get("frame"), ctx.get("header"), ctx.get("body"), ctx.flags().isPresent("enchant"))
     toast.displayIfEnabled(ctx.sender as Player)
   }
 
