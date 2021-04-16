@@ -27,7 +27,6 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import io.papermc.lib.PaperLib.getMinecraftVersion
 import io.papermc.lib.PaperLib.suggestPaper
-import kr.entree.spigradle.annotations.PluginMain
 import net.milkbowl.vault.permission.Permission
 import org.bstats.bukkit.Metrics
 import org.bstats.charts.SimplePie
@@ -44,7 +43,6 @@ import xyz.jpenilla.announcerplus.util.UpdateChecker
 import xyz.jpenilla.jmplib.BasePlugin
 import java.util.logging.Level
 
-@PluginMain
 class AnnouncerPlus : BasePlugin(), KoinComponent {
   val gson: Gson = GsonBuilder().create()
   val configManager: ConfigManager by inject()
