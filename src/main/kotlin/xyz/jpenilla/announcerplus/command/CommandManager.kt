@@ -40,8 +40,8 @@ import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.util.Constants
 import java.util.function.Function
 
-class CommandManager(announcerPlus: AnnouncerPlus) : PaperCommandManager<CommandSender>(
-  announcerPlus,
+class CommandManager(plugin: AnnouncerPlus) : PaperCommandManager<CommandSender>(
+  plugin,
   AsynchronousCommandExecutionCoordinator.newBuilder<CommandSender>().build(),
   Function.identity(),
   Function.identity()
@@ -49,7 +49,7 @@ class CommandManager(announcerPlus: AnnouncerPlus) : PaperCommandManager<Command
 
   private val minecraftHelp = MinecraftHelp(
     "/announcerplus help",
-    announcerPlus.audiences()::sender,
+    plugin.audiences()::sender,
     this
   ).apply {
     helpColors = MinecraftHelp.HelpColors.of(
@@ -68,17 +68,17 @@ class CommandManager(announcerPlus: AnnouncerPlus) : PaperCommandManager<Command
       .withDecorator {
         TextComponent.ofChildren(Constants.CHAT_PREFIX, it)
       }
-      .apply(this, announcerPlus.audiences()::sender)
+      .apply(this, plugin.audiences()::sender)
 
     if (queryCapability(CloudBukkitCapabilities.NATIVE_BRIGADIER)) {
       this.registerBrigadier()
       this.brigadierManager()?.setNativeNumberSuggestions(false)
-      announcerPlus.logger.info("Successfully registered Mojang Brigadier support for commands.")
+      plugin.logger.info("Successfully registered Mojang Brigadier support for commands.")
     }
 
     if (queryCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION)) {
       this.registerAsynchronousCompletions()
-      announcerPlus.logger.info("Successfully registered asynchronous command completion listener.")
+      plugin.logger.info("Successfully registered asynchronous command completion listener.")
     }
 
     loadKoinModules(module {

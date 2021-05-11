@@ -53,7 +53,7 @@ class BossBarUpdateTask(
   }
 
   override fun update() {
-    bar.color(BossBar.Color.NAMES.value(colorAnimation.parseNext(color).toLowerCase()) ?: BossBar.Color.BLUE)
+    bar.color(BossBar.Color.NAMES.value(colorAnimation.parseNext(color).lowercase()) ?: BossBar.Color.BLUE)
     bar.name(miniMessage(configManager.parse(player, textAnimation.parseNext(text))))
     when (fillMode) {
       FillMode.FILL -> bar.progress(ticksLived / (lifeTime * 20f))

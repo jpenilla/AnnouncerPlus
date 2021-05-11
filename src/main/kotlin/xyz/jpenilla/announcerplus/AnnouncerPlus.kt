@@ -87,8 +87,8 @@ class AnnouncerPlus : BasePlugin(), KoinComponent {
     UpdateChecker(this, "jpenilla/AnnouncerPlus").updateCheck()
 
     val metrics = Metrics(this, 8067)
-    metrics.addCustomChart(SimplePie("join_quit_configs", configManager.joinQuitConfigs.size::toString))
-    metrics.addCustomChart(SimplePie("message_configs", configManager.messageConfigs.size::toString))
+    metrics.addCustomChart(SimplePie("join_quit_configs") { configManager.joinQuitConfigs.size.toString() })
+    metrics.addCustomChart(SimplePie("message_configs") { configManager.messageConfigs.size.toString() })
   }
 
   private fun broadcast() {

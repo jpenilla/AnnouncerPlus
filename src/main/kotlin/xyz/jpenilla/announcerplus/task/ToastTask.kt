@@ -65,7 +65,7 @@ class ToastTask : KoinComponent {
     val (player, toast) = queuedToast
     announcerPlus.runSync {
       val minecraftKey =
-        MinecraftKey_ctr.newInstance(announcerPlus.name.toLowerCase(), nextInt(1000000).toString())
+        MinecraftKey_ctr.newInstance(announcerPlus.name.lowercase(), nextInt(1000000).toString())
       val serializedAdvancement = if (getMinecraftVersion() >= 16) {
         SerializedAdvancement_deserialize(
           null,

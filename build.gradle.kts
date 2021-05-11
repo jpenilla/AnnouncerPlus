@@ -1,10 +1,11 @@
+import net.kyori.indra.repository.sonatypeSnapshots
 import org.apache.commons.io.output.ByteArrayOutputStream
 
 plugins {
-  kotlin("jvm") version "1.4.32"
-  id("com.github.johnrengelman.shadow") version "6.1.0"
-  id("net.minecrell.plugin-yml.bukkit") version "0.3.0"
-  id("net.kyori.indra.license-header") version "1.3.1"
+  kotlin("jvm") version "1.5.0"
+  id("com.github.johnrengelman.shadow") version "7.0.0"
+  id("net.minecrell.plugin-yml.bukkit") version "0.4.0"
+  id("net.kyori.indra.license-header") version "2.0.3"
 }
 
 group = "xyz.jpenilla"
@@ -16,7 +17,9 @@ repositories {
   mavenCentral()
   maven("https://papermc.io/repo/repository/maven-public/")
   maven("https://oss.sonatype.org/content/groups/public/")
-  maven("https://repo.spongepowered.org/maven")
+  sonatypeSnapshots()
+  maven("https://repo.spongepowered.org/repository/maven-public/")
+  maven("https://repo.incendo.org/content/repositories/snapshots/")
   maven("https://repo.jpenilla.xyz/snapshots")
   maven("https://ci.ender.zone/plugin/repository/everything/")
   maven("https://repo.codemc.org/repository/maven-public")
@@ -33,12 +36,12 @@ dependencies {
   platform(implementation("net.kyori", "adventure-bom", "4.7.0"))
   implementation("net.kyori", "adventure-extra-kotlin", "4.7.0")
 
-  val cloudVersion = "1.4.0"
+  val cloudVersion = "1.5.0-SNAPSHOT"
   implementation("cloud.commandframework", "cloud-paper", cloudVersion)
   implementation("cloud.commandframework", "cloud-kotlin-extensions", cloudVersion)
   implementation("cloud.commandframework", "cloud-minecraft-extras", cloudVersion)
 
-  implementation("org.spongepowered", "configurate-hocon", "4.1.0-SNAPSHOT")
+  implementation("org.spongepowered", "configurate-hocon", "4.1.1")
   implementation("org.koin", "koin-core", "2.1.6")
   implementation("xyz.jpenilla", "jmplib", "1.0.1+33-SNAPSHOT")
   implementation("org.bstats", "bstats-bukkit", "2.2.1")

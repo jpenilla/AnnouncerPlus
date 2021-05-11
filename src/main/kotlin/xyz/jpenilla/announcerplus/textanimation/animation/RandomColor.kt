@@ -51,7 +51,7 @@ class RandomColor(type: Type, ticks: Int) : TextAnimation {
 
     companion object {
       fun of(text: String): Type {
-        return valueOf(text.toUpperCase())
+        return valueOf(text.uppercase())
       }
     }
   }
