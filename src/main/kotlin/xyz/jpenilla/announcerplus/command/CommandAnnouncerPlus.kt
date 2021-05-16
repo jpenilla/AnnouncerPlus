@@ -44,7 +44,6 @@ import net.kyori.adventure.text.format.Style
 import net.kyori.adventure.text.format.TextDecoration.BOLD
 import net.kyori.adventure.text.format.TextDecoration.ITALIC
 import net.kyori.adventure.text.format.TextDecoration.STRIKETHROUGH
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer
 import org.bukkit.command.CommandSender
 import org.koin.core.inject
 import xyz.jpenilla.announcerplus.AnnouncerPlus
@@ -52,6 +51,7 @@ import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.config.message.MessageConfig
 import xyz.jpenilla.announcerplus.util.center
 import xyz.jpenilla.announcerplus.util.description
+import xyz.jpenilla.announcerplus.util.measurePlain
 import xyz.jpenilla.announcerplus.util.miniMessage
 import xyz.jpenilla.announcerplus.util.modifyHSV
 import xyz.jpenilla.announcerplus.util.randomColor
@@ -108,7 +108,7 @@ class CommandAnnouncerPlus : BaseCommand {
       val lightenedColor = color.modifyHSV(sRatio = 0.3f, vRatio = 2.0f)
       append(miniMessage("<gradient:$color:$lightenedColor>${announcerPlus.description.version}"))
     }
-    val spaces = " ".repeat((PlainComponentSerializer.plain().serialize(nameAndVersion).length * 1.5).roundToInt())
+    val spaces = " ".repeat((nameAndVersion.measurePlain() * 1.5).roundToInt())
     val header = miniMessage("<gradient:$color:white:$color><strikethrough>$spaces").center()
     sequenceOf(
       header,
@@ -128,12 +128,7 @@ class CommandAnnouncerPlus : BaseCommand {
       announcerPlus.reload()
       audience.sendMessage(miniMessage("<green>Done.").center())
     } catch (e: Exception) {
-      audience.sendMessage(
-        text(
-          "I'm sorry, but there was an error reloading the plugin. This is most likely due to misconfiguration. Check the console for more information.",
-          RED
-        )
-      )
+      audience.sendMessage(text("I'm sorry, but there was an error reloading the plugin. This is most likely due to misconfiguration. Check the console for more information.", RED))
       announcerPlus.logger.log(Level.WARNING, "Failed to reload configs", e)
     }
   }

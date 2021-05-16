@@ -31,6 +31,8 @@ import net.kyori.adventure.nbt.ListBinaryTag
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.TextComponent
+import net.kyori.adventure.text.flattener.ComponentFlattener
+import net.kyori.adventure.text.flattener.FlattenerListener
 import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.util.HSVLike
@@ -124,11 +126,27 @@ operator fun HSVLike.component1(): Float = h()
 operator fun HSVLike.component2(): Float = s()
 operator fun HSVLike.component3(): Float = v()
 
+/**
+ * Measure the approximate length of this [Component] by flattening it and summing
+ * the lengths of each string provided to the [FlattenerListener].
+ *
+ * @param flattener [ComponentFlattener] to use
+ * @return approximate length of this [Component]
+ */
+fun Component.measurePlain(flattener: ComponentFlattener = ComponentFlattener.basic()): Int {
+  val listener = object : FlattenerListener {
+    var length: Int = 0
+
+    override fun component(text: String) {
+      length += text.length
+    }
+  }
+  flattener.flatten(this, listener)
+  return listener.length
+}
+
 fun Component.center(): Component =
-  TextComponent.ofChildren(
-    text(ChatCentering.spacePrefix(this)),
-    this
-  )
+  TextComponent.ofChildren(text(ChatCentering.spacePrefix(this)), this)
 
 fun compoundBinaryTag(builder: CompoundBinaryTag.Builder.() -> Unit): CompoundBinaryTag =
   CompoundBinaryTag.builder().apply(builder).build()

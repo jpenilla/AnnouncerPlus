@@ -1,11 +1,12 @@
 import net.kyori.indra.repository.sonatypeSnapshots
-import org.apache.commons.io.output.ByteArrayOutputStream
 
 plugins {
   kotlin("jvm") version "1.5.0"
   id("com.github.johnrengelman.shadow") version "7.0.0"
   id("net.minecrell.plugin-yml.bukkit") version "0.4.0"
-  id("net.kyori.indra.license-header") version "2.0.3"
+  val indraVersion = "2.0.4"
+  id("net.kyori.indra.license-header") version indraVersion
+  id("net.kyori.indra.git") version indraVersion
 }
 
 group = "xyz.jpenilla"
@@ -23,6 +24,7 @@ repositories {
   maven("https://repo.jpenilla.xyz/snapshots")
   maven("https://ci.ender.zone/plugin/repository/everything/")
   maven("https://repo.codemc.org/repository/maven-public")
+  maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
   maven("https://jitpack.io") {
     content { includeGroupByRegex("com\\.github\\..*") }
   }
@@ -31,7 +33,8 @@ repositories {
 dependencies {
   compileOnly("com.destroystokyo.paper", "paper-api", "1.13.2-R0.1-SNAPSHOT")
   compileOnly("com.github.MilkBowl", "VaultAPI", "1.7")
-  compileOnly("net.ess3", "EssentialsX", "2.17.2")
+  compileOnly("net.ess3", "EssentialsX", "2.18.2")
+  compileOnly("me.clip", "placeholderapi", "2.10.9")
 
   platform(implementation("net.kyori", "adventure-bom", "4.7.0"))
   implementation("net.kyori", "adventure-extra-kotlin", "4.7.0")
@@ -77,8 +80,9 @@ tasks {
       relocate(pkg, "$prefix.$pkg")
     }
 
-    exclude("org/jetbrains/annotations/*")
-    exclude("org/intellij/lang/annotations/*")
+    dependencies {
+      exclude(dependency("org.jetbrains:annotations"))
+    }
   }
   build {
     dependsOn(shadowJar)
@@ -94,9 +98,5 @@ bukkit {
   softDepend = listOf("PlaceholderAPI", "Essentials", "ViaVersion")
 }
 
-fun getLastCommitHash(): String = ByteArrayOutputStream().apply {
-  exec {
-    commandLine = listOf("git", "rev-parse", "--short", "HEAD")
-    standardOutput = this@apply
-  }
-}.toString(Charsets.UTF_8).trim()
+fun getLastCommitHash(): String = indraGit.commit()?.name?.substring(0, 7)
+  ?: error("Failed to determine git hash.")

@@ -88,9 +88,7 @@ class ArgumentFactory : KoinComponent {
       val input = inputQueue.peek()
       val config = configManager.messageConfigs[input]
         ?: return@withParser failure(
-          IllegalArgumentException(
-            "No message config for name '$input'. Must be one of: ${configManager.messageConfigs.keys.joinToString(", ")}"
-          )
+          IllegalArgumentException("No message config for name '$input'. Must be one of: ${configManager.messageConfigs.keys.joinToString(", ")}")
         )
       inputQueue.remove()
       success(config)
@@ -105,9 +103,6 @@ class ArgumentFactory : KoinComponent {
     }
     withParser { _, inputQueue ->
       val input = inputQueue.peek()
-      if (input.isEmpty()) {
-        return@withParser failure(IllegalArgumentException("No input provided."))
-      }
       if (input == "all") {
         inputQueue.remove()
         return@withParser success(WorldPlayers(Bukkit.getWorlds().flatMap { it.players }))

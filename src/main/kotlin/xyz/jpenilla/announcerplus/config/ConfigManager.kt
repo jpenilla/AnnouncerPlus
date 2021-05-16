@@ -23,6 +23,7 @@
  */
 package xyz.jpenilla.announcerplus.config
 
+import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.spongepowered.configurate.ConfigurationOptions
@@ -31,6 +32,7 @@ import org.spongepowered.configurate.objectmapping.ObjectMapper
 import org.spongepowered.configurate.objectmapping.meta.NodeResolver
 import org.spongepowered.configurate.serialize.TypeSerializerCollection
 import xyz.jpenilla.announcerplus.AnnouncerPlus
+import xyz.jpenilla.announcerplus.compatibility.PlaceholderAPIMiniMessagePreprocessor
 import xyz.jpenilla.announcerplus.config.message.MessageConfig
 import xyz.jpenilla.announcerplus.util.miniMessage
 import xyz.jpenilla.jmplib.ChatCentering
@@ -210,13 +212,25 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
     }
   }
 
-  fun parse(commandSender: CommandSender?, message: String): String {
-    val player = commandSender as? Player
-    var msg = message
-    mainConfig.customPlaceholders.forEach {
-      msg = msg.replace("{${it.key}}", it.value)
+  private val preprocessor: PlaceholderAPIMiniMessagePreprocessor? by lazy {
+    if (Bukkit.getServer().pluginManager.isPluginEnabled("PlaceholderAPI")) {
+      PlaceholderAPIMiniMessagePreprocessor(miniMessage())
+    } else {
+      null
     }
-    msg = announcerPlus.chat().papiParse(player, msg)
+  }
+
+  fun parse(commandSender: CommandSender?, message: String): String {
+    var msg = message
+    mainConfig.customPlaceholders.forEach { (token, replacement) ->
+      msg = msg.replace("{$token}", replacement)
+    }
+    if (commandSender is Player) {
+      preprocessor?.apply {
+        msg = process(commandSender, msg)
+      }
+    }
+
     if (msg.startsWith("<center>")) {
       msg = msg.replaceFirst("<center>", "")
       val spaces = ChatCentering.spacePrefix(miniMessage(msg))
