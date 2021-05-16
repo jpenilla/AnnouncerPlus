@@ -30,7 +30,7 @@ import org.bukkit.entity.Player
 import java.util.regex.Pattern
 
 class PlaceholderAPIMiniMessagePreprocessor(private val miniMessage: MiniMessage) {
-  fun process(player: Player?, input: String): String =
+  fun process(player: Player, input: String): String =
     this.process(
       PlaceholderAPI.getPlaceholderPattern(),
       { PlaceholderAPI.setPlaceholders(player, it) },

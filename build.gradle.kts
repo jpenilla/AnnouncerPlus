@@ -16,15 +16,16 @@ description = "Announcement plugin with support for permissions. Supports Hex co
 repositories {
   //mavenLocal()
   mavenCentral()
-  maven("https://papermc.io/repo/repository/maven-public/")
-  maven("https://oss.sonatype.org/content/groups/public/")
   sonatypeSnapshots()
+  maven("https://papermc.io/repo/repository/maven-public/")
   maven("https://repo.spongepowered.org/repository/maven-public/")
   maven("https://repo.incendo.org/content/repositories/snapshots/")
   maven("https://repo.jpenilla.xyz/snapshots")
   maven("https://ci.ender.zone/plugin/repository/everything/")
   maven("https://repo.codemc.org/repository/maven-public")
-  maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
+  maven("https://repo.extendedclip.com/content/repositories/placeholderapi/") {
+    content { includeGroup("me.clip") }
+  }
   maven("https://jitpack.io") {
     content { includeGroupByRegex("com\\.github\\..*") }
   }
