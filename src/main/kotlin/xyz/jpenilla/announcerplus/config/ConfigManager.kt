@@ -34,6 +34,7 @@ import org.spongepowered.configurate.serialize.TypeSerializerCollection
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.compatibility.PlaceholderAPIMiniMessagePreprocessor
 import xyz.jpenilla.announcerplus.config.message.MessageConfig
+import xyz.jpenilla.announcerplus.util.LegacyFormatting
 import xyz.jpenilla.announcerplus.util.miniMessage
 import xyz.jpenilla.jmplib.ChatCentering
 import java.nio.file.Files
@@ -220,11 +221,14 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
     }
   }
 
+  private val legacyChecker: LegacyFormatting = LegacyFormatting(announcerPlus)
+
   fun parse(commandSender: CommandSender?, message: String): String {
     var msg = message
     mainConfig.customPlaceholders.forEach { (token, replacement) ->
       msg = msg.replace("{$token}", replacement)
     }
+    msg = legacyChecker.check(msg)
     if (commandSender is Player) {
       preprocessor?.apply {
         msg = process(commandSender, msg)

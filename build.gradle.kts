@@ -47,7 +47,7 @@ dependencies {
 
   implementation("org.spongepowered", "configurate-hocon", "4.1.1")
   implementation("org.koin", "koin-core", "2.1.6")
-  implementation("xyz.jpenilla", "jmplib", "1.0.1+33-SNAPSHOT")
+  implementation("xyz.jpenilla", "jmplib", "1.0.1+36-SNAPSHOT")
   implementation("org.bstats", "bstats-bukkit", "2.2.1")
   implementation("io.papermc", "paperlib", "1.0.6")
 }
