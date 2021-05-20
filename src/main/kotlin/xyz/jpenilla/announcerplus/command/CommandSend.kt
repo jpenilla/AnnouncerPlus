@@ -66,6 +66,9 @@ class CommandSend : BaseCommand {
       argument(StringArgument.quoted("header"), description("Quoted String"))
       argument(StringArgument.quoted("body"), description("Quoted String"))
       flag("enchant", arrayOf("e"))
+      flag("custom-model-data", arrayOf("m")) {
+        argumentFactory.integer("value").build()
+      }
       handler(::executeSendToast)
     }
     commandManager.registerSubcommand("sendtitle") {
@@ -108,7 +111,8 @@ class CommandSend : BaseCommand {
   }
 
   private fun executeSendToast(ctx: CommandContext<CommandSender>) {
-    val toast = ToastSettings(ctx.get("icon"), ctx.get("frame"), ctx.get("header"), ctx.get("body"), ctx.flags().isPresent("enchant"))
+    val customModelData = ctx.flags().getValue<Int>("custom-model-data").orElse(-1)
+    val toast = ToastSettings(ctx.get("icon"), ctx.get("frame"), ctx.get("header"), ctx.get("body"), ctx.flags().isPresent("enchant"), customModelData)
     for (player in ctx.get<MultiplePlayerSelector>("players").players) {
       toast.displayIfEnabled(player)
     }

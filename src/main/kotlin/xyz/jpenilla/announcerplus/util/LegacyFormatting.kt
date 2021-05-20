@@ -30,7 +30,6 @@ class LegacyFormatting(private val plugin: Plugin) {
   companion object {
     private const val DISABLE_LEGACY_CHECK_PROPERTY_NAME = "AnnouncerPlus.disableLegacyCheck"
     private const val SECTION_SYMBOL_STRING = LegacyComponentSerializer.SECTION_CHAR.toString()
-    private const val AMPERSAND_SYMBOL_STRING = LegacyComponentSerializer.AMPERSAND_CHAR.toString()
     private const val EMPTY_STRING = ""
   }
 
@@ -42,7 +41,7 @@ class LegacyFormatting(private val plugin: Plugin) {
 
   fun check(message: String): String {
     if (legacyCheck && message.contains(LegacyComponentSerializer.SECTION_CHAR)) {
-      plugin.logger.warning("Legacy color codes have been detected in a message. This is not supported behavior. Message: '${message.replace(SECTION_SYMBOL_STRING, AMPERSAND_SYMBOL_STRING)}'") // todo: fix paper logging so we don't need to replace here
+      plugin.logger.warning("Legacy color codes have been detected in a message. This is not supported behavior. Message: '${message.replace(LegacyComponentSerializer.SECTION_CHAR, LegacyComponentSerializer.AMPERSAND_CHAR)}'") // todo: fix paper logging so we don't need to replace here
       return message.replace(SECTION_SYMBOL_STRING, EMPTY_STRING)
     }
     return message

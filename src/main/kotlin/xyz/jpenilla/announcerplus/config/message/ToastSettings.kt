@@ -61,12 +61,13 @@ class ToastSettings : MessageElement {
   var frame = FrameType.GOAL
 
   constructor()
-  constructor(icon: Material, frameType: FrameType, header: String, footer: String, iconEnchanted: Boolean = false) {
+  constructor(icon: Material, frameType: FrameType, header: String, footer: String, iconEnchanted: Boolean = false, iconCustomModelData: Int = -1) {
     this.icon = icon
     this.frame = frameType
     this.header = header
     this.footer = footer
     this.iconEnchanted = iconEnchanted
+    this.iconCustomModelData = iconCustomModelData
   }
 
   private val announcerPlus: AnnouncerPlus by inject()
