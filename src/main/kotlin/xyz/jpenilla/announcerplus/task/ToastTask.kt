@@ -99,17 +99,17 @@ class ToastTask : KoinComponent {
   }
 
   private companion object Reflect {
-    val MinecraftServer_class = Crafty.needNmsClass("MinecraftServer")
+    val MinecraftServer_class = Crafty.needNMSClassOrElse("MinecraftServer", "net.minecraft.server.MinecraftServer")
     val MinecraftServer_getServer =
       Crafty.findStaticMethod(MinecraftServer_class, "getServer", MinecraftServer_class)
         ?: error("Cannot find getServer")
 
-    val MinecraftKey_class = Crafty.needNmsClass("MinecraftKey")
+    val MinecraftKey_class = Crafty.needNMSClassOrElse("MinecraftKey", "net.minecraft.resources.MinecraftKey")
     val MinecraftKey_ctr = MinecraftKey_class.getDeclaredConstructor(String::class.java, String::class.java)
       ?: error("Cannot find MinecraftKey constructor")
 
-    val Advancement_class = Crafty.needNmsClass("Advancement")
-    val SerializedAdvancement_class = Crafty.needNmsClass("Advancement\$SerializedAdvancement")
+    val Advancement_class = Crafty.needNMSClassOrElse("Advancement", "net.minecraft.advancements.Advancement")
+    val SerializedAdvancement_class = Crafty.needNMSClassOrElse("Advancement\$SerializedAdvancement", "net.minecraft.advancements.Advancement\$SerializedAdvancement")
 
     val SerializedAdvancement_getAdvancement = SerializedAdvancement_class.declaredMethods.find { method ->
       method.returnType == Advancement_class
@@ -118,15 +118,15 @@ class ToastTask : KoinComponent {
         && !Modifier.isStatic(method.modifiers)
     } ?: error("Cannot find SerializedAdvancement#getAdvancement")
 
-    val EntityPlayer_class = Crafty.needNmsClass("EntityPlayer")
+    val EntityPlayer_class = Crafty.needNMSClassOrElse("EntityPlayer", "net.minecraft.server.level.EntityPlayer")
     val CraftPlayer_class = Crafty.needCraftClass("entity.CraftPlayer")
     val CraftPlayer_getHandle = CraftPlayer_class.getMethod("getHandle")
       ?: error("Cannot find CraftPlayer#getHandle")
     val Player.handle: Any
       get() = CraftPlayer_getHandle(this)
 
-    val AdvancementProgress_class = Crafty.needNmsClass("AdvancementProgress")
-    val AdvancementDataPlayer_class = Crafty.needNmsClass("AdvancementDataPlayer")
+    val AdvancementProgress_class = Crafty.needNMSClassOrElse("AdvancementProgress", "net.minecraft.advancements.AdvancementProgress")
+    val AdvancementDataPlayer_class = Crafty.needNMSClassOrElse("AdvancementDataPlayer", "net.minecraft.server.AdvancementDataPlayer")
     val EntityPlayer_getAdvancementData = EntityPlayer_class.methods.find { method ->
       method.returnType == AdvancementDataPlayer_class
         && method.parameterCount == 0
@@ -171,7 +171,7 @@ class ToastTask : KoinComponent {
     // end 1.12 -> 1.15
 
     // start 1.16+
-    val LootPredicateManager_class by lazy { Crafty.needNmsClass("LootPredicateManager") }
+    val LootPredicateManager_class by lazy { Crafty.needNMSClassOrElse("LootPredicateManager", "net.minecraft.world.level.storage.loot.LootPredicateManager") }
     val MinecraftServer_getLootPredicateManager by lazy {
       MinecraftServer_class.declaredMethods.find { method ->
         method.returnType == LootPredicateManager_class
@@ -179,7 +179,7 @@ class ToastTask : KoinComponent {
       } ?: error("Cannot find MinecraftServer#getLootPredicateManager")
     }
 
-    val LootDeserializationContext_class by lazy { Crafty.needNmsClass("LootDeserializationContext") }
+    val LootDeserializationContext_class by lazy { Crafty.needNMSClassOrElse("LootDeserializationContext", "net.minecraft.advancements.critereon.LootDeserializationContext") }
     val LootDeserializationContext_ctr by lazy {
       LootDeserializationContext_class.getDeclaredConstructor(MinecraftKey_class, LootPredicateManager_class)
         ?: error("Cannot find LootDeserializationContext constructor")

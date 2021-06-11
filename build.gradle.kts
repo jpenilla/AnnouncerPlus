@@ -1,16 +1,16 @@
 import net.kyori.indra.repository.sonatypeSnapshots
 
 plugins {
-  kotlin("jvm") version "1.5.0"
+  kotlin("jvm") version "1.5.10"
   id("com.github.johnrengelman.shadow") version "7.0.0"
   id("net.minecrell.plugin-yml.bukkit") version "0.4.0"
-  val indraVersion = "2.0.4"
+  val indraVersion = "2.0.5"
   id("net.kyori.indra.license-header") version indraVersion
   id("net.kyori.indra.git") version indraVersion
 }
 
 group = "xyz.jpenilla"
-version = "1.2.5-SNAPSHOT+${getLastCommitHash()}"
+version = "1.2.5-SNAPSHOT+${lastCommitHash()}"
 description = "Announcement plugin with support for permissions. Supports Hex colors and clickable messages/hover text using MiniMessage."
 
 repositories {
@@ -37,8 +37,8 @@ dependencies {
   compileOnly("net.ess3", "EssentialsX", "2.18.2")
   compileOnly("me.clip", "placeholderapi", "2.10.9")
 
-  platform(implementation("net.kyori", "adventure-bom", "4.7.0"))
-  implementation("net.kyori", "adventure-extra-kotlin", "4.7.0")
+  platform(implementation("net.kyori", "adventure-bom", "4.8.0"))
+  implementation("net.kyori", "adventure-extra-kotlin", "4.8.0")
 
   val cloudVersion = "1.5.0-SNAPSHOT"
   implementation("cloud.commandframework", "cloud-paper", cloudVersion)
@@ -47,7 +47,7 @@ dependencies {
 
   implementation("org.spongepowered", "configurate-hocon", "4.1.1")
   implementation("org.koin", "koin-core", "2.1.6")
-  implementation("xyz.jpenilla", "jmplib", "1.0.1+36-SNAPSHOT")
+  implementation("xyz.jpenilla", "jmplib", "1.0.1+38-SNAPSHOT")
   implementation("org.bstats", "bstats-bukkit", "2.2.1")
   implementation("io.papermc", "paperlib", "1.0.6")
 }
@@ -99,5 +99,5 @@ bukkit {
   softDepend = listOf("PlaceholderAPI", "Essentials", "ViaVersion")
 }
 
-fun getLastCommitHash(): String = indraGit.commit()?.name?.substring(0, 7)
+fun lastCommitHash(): String = indraGit.commit()?.name?.substring(0, 7)
   ?: error("Failed to determine git hash.")
