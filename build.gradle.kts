@@ -10,7 +10,8 @@ plugins {
 }
 
 group = "xyz.jpenilla"
-version = "1.2.5-SNAPSHOT+${lastCommitHash()}"
+version = "1.2.5"
+  .run { if (endsWith("-SNAPSHOT")) "$this+${lastCommitHash()}" else this }
 description = "Announcement plugin with support for permissions. Supports Hex colors and clickable messages/hover text using MiniMessage."
 
 repositories {
