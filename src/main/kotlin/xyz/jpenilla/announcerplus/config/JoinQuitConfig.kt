@@ -189,9 +189,6 @@ class JoinQuitConfig : KoinComponent {
       set(Transformations.JoinQuitConfig.LATEST_VERSION)
       comment("The version of this configuration. For internal use only, do not modify.")
     }
-    if (this.name == null) {
-      node.removeChild("quit-section")
-    }
 
     if (removeDuplicateComments) {
       node.visit(DuplicateCommentRemovingVisitor())
