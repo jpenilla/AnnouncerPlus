@@ -25,6 +25,9 @@ package xyz.jpenilla.announcerplus.config
 
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
+import net.kyori.adventure.key.Key.key
+import net.kyori.adventure.sound.Sound
+import net.kyori.adventure.sound.Sound.sound
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -32,10 +35,9 @@ import org.bukkit.permissions.PermissionDefault
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import org.spongepowered.configurate.CommentedConfigurationNode
+import org.spongepowered.configurate.kotlin.extensions.get
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
-import org.spongepowered.configurate.objectmapping.ObjectMapper
 import org.spongepowered.configurate.objectmapping.meta.Comment
-import org.spongepowered.configurate.objectmapping.meta.NodeResolver
 import org.spongepowered.configurate.objectmapping.meta.Setting
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.message.ActionBarSettings
@@ -46,6 +48,7 @@ import xyz.jpenilla.announcerplus.config.message.ToastSettings
 import xyz.jpenilla.announcerplus.util.Constants
 import xyz.jpenilla.announcerplus.util.addDefaultPermission
 import xyz.jpenilla.announcerplus.util.dispatchCommandAsConsole
+import xyz.jpenilla.announcerplus.util.playSounds
 import xyz.jpenilla.announcerplus.util.runAsync
 import xyz.jpenilla.announcerplus.util.runSync
 import xyz.jpenilla.jmplib.Chat
@@ -77,13 +80,16 @@ class JoinQuitConfig : KoinComponent {
     var randomBroadcastSound = true
 
     @Setting("join-sounds")
-    @Comment("These sound(s) will be played to the joining player.\n  ${Constants.CONFIG_COMMENT_SOUNDS_LINE2}")
-    var sounds =
-      "minecraft:entity.strider.happy,minecraft:entity.villager.ambient,minecraft:block.note_block.cow_bell"
+    @Comment("These sound(s) will be played to the joining player.")
+    val sounds = arrayListOf(
+      sound(key("minecraft:entity.strider.happy"), Sound.Source.MASTER, 1.0f, 1.0f),
+      sound(key("minecraft:entity.villager.ambient"), Sound.Source.MASTER, 1.0f, 1.0f),
+      sound(key("minecraft:block.note_block.cow_bell"), Sound.Source.MASTER, 1.0f, 1.0f)
+    )
 
     @Setting("join-broadcast-sounds")
-    @Comment("These sound(s) will be played to the joining player.\n  ${Constants.CONFIG_COMMENT_SOUNDS_LINE2}")
-    var broadcastSounds = "minecraft:entity.enderman.teleport"
+    @Comment("These sound(s) will be played to online players on player join.")
+    val broadcastSounds = arrayListOf(sound(key("minecraft:entity.enderman.teleport"), Sound.Source.MASTER, 1.0f, 1.0f))
 
     @Setting("join-messages")
     @Comment("These messages will be sent to the joining Player. These messages are sometimes called a \"Message of the Day\" or a \"MotD\"")
@@ -149,8 +155,8 @@ class JoinQuitConfig : KoinComponent {
     var randomSound = true
 
     @Setting("quit-sounds")
-    @Comment("These sound(s) will be played to online players on player quit\n  ${Constants.CONFIG_COMMENT_SOUNDS_LINE2}")
-    var sounds = "minecraft:entity.enderman.teleport"
+    @Comment("These sound(s) will be played to online players on player quit")
+    val sounds = arrayListOf(sound(key("minecraft:entity.enderman.teleport"), Sound.Source.MASTER, 1.0f, 1.0f))
 
     @Setting("quit-broadcasts")
     @Comment("These messages will be sent to online players on player quit. Also known as quit messages")
@@ -163,13 +169,8 @@ class JoinQuitConfig : KoinComponent {
   }
 
   companion object {
-    private val MAPPER = ObjectMapper.factoryBuilder()
-      .addNodeResolver(NodeResolver.onlyWithSetting())
-      .build()
-      .get(JoinQuitConfig::class.java)
-
     fun loadFrom(node: CommentedConfigurationNode, name: String?): JoinQuitConfig {
-      val config = MAPPER.load(node).populate(name)
+      val config = node.get<JoinQuitConfig>()?.populate(name) ?: error("Failed to deserialize JoinQuitConfig")
       if (name != null) {
         addDefaultPermission("announcerplus.join.${config.name}", PermissionDefault.FALSE)
         addDefaultPermission("announcerplus.quit.${config.name}", PermissionDefault.FALSE)
@@ -178,14 +179,21 @@ class JoinQuitConfig : KoinComponent {
     }
   }
 
-  fun saveTo(node: CommentedConfigurationNode) =
-    MAPPER.save(this, node)
+  fun saveTo(node: CommentedConfigurationNode) {
+    node.set(this)
+    node.node("version").apply {
+      set(Transformations.JoinQuitConfig.LATEST_VERSION)
+      comment("The version of this configuration. For internal use only, do not modify.")
+    }
+  }
 
   fun populate(name: String?): JoinQuitConfig =
     this.apply { this.name = name }
 
   private val announcerPlus: AnnouncerPlus by inject()
   private val chat: Chat by inject()
+
+  @Transient
   private var name: String? = null
 
   fun onJoin(player: Player) {
@@ -200,8 +208,8 @@ class JoinQuitConfig : KoinComponent {
             if (onlinePlayer.name != player.name) {
               if (announcerPlus.perms!!.playerHas(onlinePlayer, permission) || permission.isEmpty()) {
                 chat.send(onlinePlayer, announcerPlus.configManager.parse(player, join.broadcasts))
-                if (join.broadcastSounds != "") {
-                  chat.playSounds(onlinePlayer, join.randomBroadcastSound, join.broadcastSounds)
+                if (join.broadcastSounds.isNotEmpty()) {
+                  announcerPlus.audiences().player(onlinePlayer).playSounds(join.broadcastSounds, join.randomBroadcastSound)
                 }
               }
             }
@@ -213,8 +221,8 @@ class JoinQuitConfig : KoinComponent {
     }
     announcerPlus.runAsync(if (Environment.majorMinecraftVersion() <= 12) 5L else 0L) {
       join.messageElements().forEach { it.displayIfEnabled(player) }
-      if (join.sounds != "") {
-        chat.playSounds(player, join.randomSound, join.sounds)
+      if (join.sounds.isNotEmpty()) {
+        announcerPlus.audiences().player(player).playSounds(join.sounds, join.randomSound)
       }
     }
   }
@@ -226,7 +234,7 @@ class JoinQuitConfig : KoinComponent {
         if (announcerPlus.perms!!.playerHas(onlinePlayer, permission) || permission.isEmpty()) {
           chat.send(onlinePlayer, announcerPlus.configManager.parse(player, quit.broadcasts))
           if (quit.sounds.isNotEmpty()) {
-            chat.playSounds(onlinePlayer, quit.randomSound, quit.sounds)
+            announcerPlus.audiences().player(onlinePlayer).playSounds(quit.sounds, quit.randomSound)
           }
         }
       }

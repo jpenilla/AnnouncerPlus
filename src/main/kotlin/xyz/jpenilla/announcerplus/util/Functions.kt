@@ -25,9 +25,11 @@ package xyz.jpenilla.announcerplus.util
 
 import cloud.commandframework.ArgumentDescription
 import cloud.commandframework.kotlin.extension.argumentDescription
+import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.nbt.BinaryTag
 import net.kyori.adventure.nbt.CompoundBinaryTag
 import net.kyori.adventure.nbt.ListBinaryTag
+import net.kyori.adventure.sound.Sound
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.TextComponent
@@ -95,6 +97,20 @@ fun description(description: String = ""): ArgumentDescription = argumentDescrip
 fun miniMessage(): MiniMessage = MiniMessage.get()
 
 fun miniMessage(message: String): Component = miniMessage().parse(message)
+
+fun Audience.playSounds(sounds: List<Sound>, randomize: Boolean) {
+  if (sounds.isEmpty()) {
+    return
+  }
+
+  if (randomize) {
+    playSound(sounds.random())
+  } else {
+    for (sound in sounds) {
+      playSound(sound)
+    }
+  }
+}
 
 fun randomColor(): TextColor =
   TextColor.color(

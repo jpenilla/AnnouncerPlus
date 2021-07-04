@@ -24,6 +24,9 @@
 package xyz.jpenilla.announcerplus.config.message
 
 import com.google.common.collect.ImmutableList
+import net.kyori.adventure.key.Key.key
+import net.kyori.adventure.sound.Sound
+import net.kyori.adventure.sound.Sound.sound
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.permissions.PermissionDefault
@@ -31,22 +34,23 @@ import org.bukkit.scheduler.BukkitTask
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import org.spongepowered.configurate.CommentedConfigurationNode
+import org.spongepowered.configurate.kotlin.extensions.get
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
-import org.spongepowered.configurate.objectmapping.ObjectMapper
 import org.spongepowered.configurate.objectmapping.meta.Comment
-import org.spongepowered.configurate.objectmapping.meta.NodeResolver
 import org.spongepowered.configurate.objectmapping.meta.Setting
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.ConfigManager
+import xyz.jpenilla.announcerplus.config.Transformations
 import xyz.jpenilla.announcerplus.config.visitor.DuplicateCommentRemovingVisitor
 import xyz.jpenilla.announcerplus.util.addDefaultPermission
 import xyz.jpenilla.announcerplus.util.asyncTimer
 import xyz.jpenilla.announcerplus.util.dispatchCommandAsConsole
 import xyz.jpenilla.announcerplus.util.getOnMain
 import xyz.jpenilla.announcerplus.util.miniMessage
+import xyz.jpenilla.announcerplus.util.playSounds
 import xyz.jpenilla.announcerplus.util.runSync
-import xyz.jpenilla.jmplib.Chat
-import kotlin.reflect.KClass
+import kotlin.collections.component1
+import kotlin.collections.component2
 
 @ConfigSerializable
 class MessageConfig : KoinComponent {
@@ -79,7 +83,26 @@ class MessageConfig : KoinComponent {
     },
     Message {
       messages("{prefix1} Test <gradient:blue:aqua>AnnouncerPlus</gradient> broadcast with sound<green>!")
-      sounds("minecraft:entity.strider.happy,minecraft:entity.villager.ambient,minecraft:block.note_block.cow_bell")
+      sounds(
+        sound(
+          key("minecraft:entity.strider.happy"),
+          Sound.Source.MASTER,
+          1.0f,
+          1.0f
+        ),
+        sound(
+          key("minecraft:entity.villager.ambient"),
+          Sound.Source.MASTER,
+          1.0f,
+          1.0f
+        ),
+        sound(
+          key("minecraft:block.note_block.cow_bell"),
+          Sound.Source.MASTER,
+          1.0f,
+          1.0f
+        )
+      )
     },
     Message {
       messages("{prefix1} Use <click:run_command:/ap about><hover:show_text:'<rainbow>Click to run!'><rainbow>/ap about</rainbow></hover></click> to check the plugin version")
@@ -133,27 +156,26 @@ class MessageConfig : KoinComponent {
   @Comment("Should the messages be sent in order of the config or in random order")
   var randomOrder = false
 
-  @Setting
   @Comment("Should duplicate comments be removed from this config?")
   var removeDuplicateComments = true
 
-  @Setting
   @Comment("Should disabled boss bar, action bar, title, and toast sections be removed?")
   var removeDisabledMessageElements = false
 
   companion object {
-    private val MAPPER = ObjectMapper.factoryBuilder().addNodeResolver(NodeResolver.onlyWithSetting()).build()
-      .get(MessageConfig::class.java)
-
     fun loadFrom(node: CommentedConfigurationNode, name: String): MessageConfig {
-      val config = MAPPER.load(node).populate(name)
+      val config = node.get<MessageConfig>()?.populate(name) ?: error("Failed to deserialize MessageConfig")
       addDefaultPermission("announcerplus.messages.${config.name}", PermissionDefault.FALSE)
       return config
     }
   }
 
   fun saveTo(node: CommentedConfigurationNode) {
-    MAPPER.save(this, node)
+    node.set(this)
+    node.node("version").apply {
+      set(Transformations.MessageConfig.LATEST_VERSION)
+      comment("The version of this configuration. For internal use only, do not modify.")
+    }
 
     if (removeDisabledMessageElements) {
       removeDisabledMessageElements(node)
@@ -164,30 +186,52 @@ class MessageConfig : KoinComponent {
   }
 
   private fun removeDisabledMessageElements(node: CommentedConfigurationNode) {
-    fun CommentedConfigurationNode.removeIfDisabled(type: KClass<out MessageElement>, childName: String) {
-      val element = this.node(childName).get(type.java) ?: return
-      if (!element.isEnabled()) {
-        this.removeChild(childName)
-      }
-    }
-    node.node("messages").childrenList().forEach { message ->
+    for ((i, message) in node.node("messages").childrenList().withIndex()) {
+      if (i == 0) continue
+
       mapOf(
         ActionBarSettings::class to "action-bar",
         BossBarSettings::class to "boss-bar",
         TitleSettings::class to "title",
         ToastSettings::class to "toast"
-      ).forEach(message::removeIfDisabled)
+      ).forEach { (type, childName) ->
+        val element = message.node(childName).get(type.java) ?: return@forEach
+        if (!element.isEnabled()) {
+          message.removeChild(childName)
+        }
+      }
+
+      listOf(
+        "commands",
+        "message-text",
+        "per-player-commands",
+        "as-player-commands"
+      ).forEach { name ->
+        if (message.node(name).empty()) {
+          message.removeChild(name)
+        }
+      }
+
+      if (message.node("sounds").empty()) {
+        message.removeChild("sounds")
+        message.removeChild("sounds-randomized")
+      }
     }
   }
 
   fun populate(name: String): MessageConfig =
     this.apply { this.name = name }
 
+  @Transient
   lateinit var name: String
+
+  @Transient
   private var broadcastTask: BukkitTask? = null
+
   private val announcerPlus: AnnouncerPlus by inject()
   private val configManager: ConfigManager by inject()
-  private val chat: Chat by inject()
+
+  @Transient
   private val broadcastQueue = ArrayDeque<Message>()
 
   fun broadcast() {
@@ -221,7 +265,7 @@ class MessageConfig : KoinComponent {
               audience.sendMessage(miniMessage(configManager.parse(onlinePlayer, it)))
             }
           }
-          chat.playSounds(onlinePlayer, soundsRandomized, sounds)
+          audience.playSounds(sounds, soundsRandomized)
           messageElements().forEach { it.displayIfEnabled(onlinePlayer) }
         }
         announcerPlus.runSync {

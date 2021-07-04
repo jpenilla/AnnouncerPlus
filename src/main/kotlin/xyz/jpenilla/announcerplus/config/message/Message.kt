@@ -24,6 +24,7 @@
 package xyz.jpenilla.announcerplus.config.message
 
 import com.google.common.collect.ImmutableSet
+import net.kyori.adventure.sound.Sound
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
 import org.spongepowered.configurate.objectmapping.meta.Comment
 import xyz.jpenilla.announcerplus.util.Constants
@@ -45,8 +46,8 @@ class Message {
   @Comment("Configure the Toast/Achievement/Advancement for this message")
   var toast = ToastSettings()
 
-  @Comment("The sounds to play when this message is sent\n  ${Constants.CONFIG_COMMENT_SOUNDS_LINE2}")
-  var sounds = ""
+  @Comment("The sounds to play when this message is sent")
+  val sounds = arrayListOf<Sound>()
 
   @Comment(Constants.CONFIG_COMMENT_SOUNDS_RANDOM)
   var soundsRandomized = true
@@ -72,7 +73,7 @@ class Message {
     toast
   )
 
-  fun sounds(sounds: String): Message = apply { this.sounds = sounds }
+  fun sounds(vararg sounds: Sound): Message = apply { this.sounds.addAll(sounds) }
 
   fun messages(vararg messages: String) {
     this.messageText.clear()

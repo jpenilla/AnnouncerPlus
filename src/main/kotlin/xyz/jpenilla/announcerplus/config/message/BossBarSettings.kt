@@ -39,7 +39,7 @@ class BossBarSettings : MessageElement {
   var text = ""
 
   @Comment(
-    "The color for the Boss Bar. For a list of colors, visit: https://papermc.io/javadocs/paper/1.16/org/bukkit/boss/BarColor.html\n" +
+    "The color for the Boss Bar. For a list of colors, visit: https://papermc.io/javadocs/paper/1.17/org/bukkit/boss/BarColor.html\n" +
       "  This field technically accepts animations, although only the \"Flashing Text\" animation used with valid Boss Bar colors will actually work."
   )
   var color = "YELLOW"
