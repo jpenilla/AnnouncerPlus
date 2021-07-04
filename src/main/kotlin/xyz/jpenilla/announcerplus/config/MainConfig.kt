@@ -25,9 +25,10 @@ package xyz.jpenilla.announcerplus.config
 
 import org.bukkit.permissions.PermissionDefault
 import org.spongepowered.configurate.CommentedConfigurationNode
+import org.spongepowered.configurate.kotlin.extensions.get
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
-import org.spongepowered.configurate.objectmapping.ObjectMapper
 import org.spongepowered.configurate.objectmapping.meta.Comment
+import xyz.jpenilla.announcerplus.config.visitor.DuplicateCommentRemovingVisitor
 import xyz.jpenilla.announcerplus.util.addDefaultPermission
 
 @ConfigSerializable
@@ -64,8 +65,8 @@ class MainConfig {
   )
   val randomJoinConfigs = hashMapOf(
     "demo" to arrayListOf(
-      JoinQuitPair("default", 0.1),
-      JoinQuitPair("default", 0.2)
+      JoinQuitPair("config_a", 0.1),
+      JoinQuitPair("config_b", 0.2)
     )
   )
 
@@ -76,8 +77,8 @@ class MainConfig {
   )
   val randomQuitConfigs = hashMapOf(
     "demo" to arrayListOf(
-      JoinQuitPair("default", 0.2),
-      JoinQuitPair("default", 0.1)
+      JoinQuitPair("config_a", 0.2),
+      JoinQuitPair("config_b", 0.1)
     )
   )
 
@@ -97,10 +98,8 @@ class MainConfig {
   }
 
   companion object {
-    private val MAPPER = ObjectMapper.factory().get(MainConfig::class.java)
-
     fun loadFrom(node: CommentedConfigurationNode): MainConfig {
-      val config = MAPPER.load(node)
+      val config = node.get<MainConfig>() ?: error("Failed to deserialize MainConfig")
       config.randomJoinConfigs.keys.forEach {
         addDefaultPermission("announcerplus.randomjoin.$it", PermissionDefault.FALSE)
       }
@@ -112,6 +111,8 @@ class MainConfig {
   }
 
   fun saveTo(node: CommentedConfigurationNode) {
-    MAPPER.save(this, node)
+    node.set(this)
+
+    node.visit(DuplicateCommentRemovingVisitor())
   }
 }

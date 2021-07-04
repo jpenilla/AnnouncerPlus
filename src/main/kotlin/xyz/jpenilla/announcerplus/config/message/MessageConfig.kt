@@ -84,24 +84,9 @@ class MessageConfig : KoinComponent {
     Message {
       messages("{prefix1} Test <gradient:blue:aqua>AnnouncerPlus</gradient> broadcast with sound<green>!")
       sounds(
-        sound(
-          key("minecraft:entity.strider.happy"),
-          Sound.Source.MASTER,
-          1.0f,
-          1.0f
-        ),
-        sound(
-          key("minecraft:entity.villager.ambient"),
-          Sound.Source.MASTER,
-          1.0f,
-          1.0f
-        ),
-        sound(
-          key("minecraft:block.note_block.cow_bell"),
-          Sound.Source.MASTER,
-          1.0f,
-          1.0f
-        )
+        sound(key("minecraft:entity.strider.happy"), Sound.Source.MASTER, 1.0f, 1.0f),
+        sound(key("minecraft:entity.villager.ambient"), Sound.Source.MASTER, 1.0f, 1.0f),
+        sound(key("minecraft:block.note_block.cow_bell"), Sound.Source.MASTER, 1.0f, 1.0f)
       )
     },
     Message {
@@ -159,7 +144,7 @@ class MessageConfig : KoinComponent {
   @Comment("Should duplicate comments be removed from this config?")
   var removeDuplicateComments = true
 
-  @Comment("Should disabled boss bar, action bar, title, and toast sections be removed?")
+  @Comment("Should disabled/inactive message elements be removed from this config?")
   var removeDisabledMessageElements = false
 
   companion object {

@@ -45,6 +45,7 @@ import xyz.jpenilla.announcerplus.config.message.BossBarSettings
 import xyz.jpenilla.announcerplus.config.message.MessageElement
 import xyz.jpenilla.announcerplus.config.message.TitleSettings
 import xyz.jpenilla.announcerplus.config.message.ToastSettings
+import xyz.jpenilla.announcerplus.config.visitor.DuplicateCommentRemovingVisitor
 import xyz.jpenilla.announcerplus.util.Constants
 import xyz.jpenilla.announcerplus.util.addDefaultPermission
 import xyz.jpenilla.announcerplus.util.dispatchCommandAsConsole
@@ -69,15 +70,22 @@ class JoinQuitConfig : KoinComponent {
   @Comment("Player Quit related settings")
   var quit = QuitSection()
 
+  @Comment("Should duplicate comments be removed from this config?")
+  var removeDuplicateComments = true
+
   @ConfigSerializable
   class JoinSection {
-    @Setting("randomize-join-sounds")
-    @Comment(Constants.CONFIG_COMMENT_SOUNDS_RANDOM)
-    var randomSound = true
-
     @Setting("randomize-join-broadcast-sounds")
     @Comment(Constants.CONFIG_COMMENT_SOUNDS_RANDOM)
     var randomBroadcastSound = true
+
+    @Setting("join-broadcast-sounds")
+    @Comment("These sound(s) will be played to online players on player join.")
+    val broadcastSounds = arrayListOf(sound(key("minecraft:entity.enderman.teleport"), Sound.Source.MASTER, 1.0f, 1.0f))
+
+    @Setting("randomize-join-sounds")
+    @Comment(Constants.CONFIG_COMMENT_SOUNDS_RANDOM)
+    var randomSound = true
 
     @Setting("join-sounds")
     @Comment("These sound(s) will be played to the joining player.")
@@ -86,10 +94,6 @@ class JoinQuitConfig : KoinComponent {
       sound(key("minecraft:entity.villager.ambient"), Sound.Source.MASTER, 1.0f, 1.0f),
       sound(key("minecraft:block.note_block.cow_bell"), Sound.Source.MASTER, 1.0f, 1.0f)
     )
-
-    @Setting("join-broadcast-sounds")
-    @Comment("These sound(s) will be played to online players on player join.")
-    val broadcastSounds = arrayListOf(sound(key("minecraft:entity.enderman.teleport"), Sound.Source.MASTER, 1.0f, 1.0f))
 
     @Setting("join-messages")
     @Comment("These messages will be sent to the joining Player. These messages are sometimes called a \"Message of the Day\" or a \"MotD\"")
@@ -184,6 +188,13 @@ class JoinQuitConfig : KoinComponent {
     node.node("version").apply {
       set(Transformations.JoinQuitConfig.LATEST_VERSION)
       comment("The version of this configuration. For internal use only, do not modify.")
+    }
+    if (this.name == null) {
+      node.removeChild("quit-section")
+    }
+
+    if (removeDuplicateComments) {
+      node.visit(DuplicateCommentRemovingVisitor())
     }
   }
 
