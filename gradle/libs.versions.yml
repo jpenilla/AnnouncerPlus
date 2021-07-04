@@ -1,0 +1,17 @@
+metadata:
+  format: { version: 1.0 }
+  polyglot-extensions:
+    - plugins
+
+plugins:
+  net.kyori.indra.license-header: &indra 2.0.5
+  net.kyori.indra.git: *indra
+  com.github.johnrengelman.shadow: 7.0.0
+  net.minecrell.plugin-yml.bukkit: 0.4.0
+  xyz.jpenilla.run-paper: 1.0.3
+
+versions: [ ]
+
+dependencies: [ ]
+
+bundles: [ ]

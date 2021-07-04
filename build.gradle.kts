@@ -1,12 +1,12 @@
 import net.kyori.indra.repository.sonatypeSnapshots
 
 plugins {
-  kotlin("jvm") version "1.5.10"
-  id("com.github.johnrengelman.shadow") version "7.0.0"
-  id("net.minecrell.plugin-yml.bukkit") version "0.4.0"
-  val indraVersion = "2.0.5"
-  id("net.kyori.indra.license-header") version indraVersion
-  id("net.kyori.indra.git") version indraVersion
+  kotlin("jvm") version "1.5.20"
+  id("net.kyori.indra.license-header")
+  id("net.kyori.indra.git")
+  id("xyz.jpenilla.run-paper")
+  id("com.github.johnrengelman.shadow")
+  id("net.minecrell.plugin-yml.bukkit")
 }
 
 group = "xyz.jpenilla"
@@ -32,23 +32,33 @@ repositories {
   }
 }
 
+configurations.all {
+  resolutionStrategy {
+    force("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.20")
+  }
+}
+
 dependencies {
   compileOnly("com.destroystokyo.paper", "paper-api", "1.13.2-R0.1-SNAPSHOT")
   compileOnly("com.github.MilkBowl", "VaultAPI", "1.7")
   compileOnly("net.ess3", "EssentialsX", "2.18.2")
   compileOnly("me.clip", "placeholderapi", "2.10.9")
 
-  platform(implementation("net.kyori", "adventure-bom", "4.8.0"))
-  implementation("net.kyori", "adventure-extra-kotlin", "4.8.0")
+  platform(implementation("net.kyori", "adventure-bom", "4.8.1"))
+  implementation("net.kyori", "adventure-extra-kotlin")
+  implementation("net.kyori", "adventure-serializer-configurate4")
 
   val cloudVersion = "1.5.0-SNAPSHOT"
   implementation("cloud.commandframework", "cloud-paper", cloudVersion)
   implementation("cloud.commandframework", "cloud-kotlin-extensions", cloudVersion)
   implementation("cloud.commandframework", "cloud-minecraft-extras", cloudVersion)
 
-  implementation("org.spongepowered", "configurate-hocon", "4.1.1")
+  platform(implementation("org.spongepowered", "configurate-bom", "4.1.1"))
+  implementation("org.spongepowered", "configurate-hocon")
+  implementation("org.spongepowered", "configurate-extra-kotlin")
+
   implementation("org.koin", "koin-core", "2.1.6")
-  implementation("xyz.jpenilla", "jmplib", "1.0.1+38-SNAPSHOT")
+  implementation("xyz.jpenilla", "jmplib", "1.0.1+40-SNAPSHOT")
   implementation("org.bstats", "bstats-bukkit", "2.2.1")
   implementation("io.papermc", "paperlib", "1.0.6")
 }
@@ -63,7 +73,7 @@ tasks {
     }
 
     minimize()
-    archiveClassifier.set("")
+    archiveClassifier.set(null as String?)
     archiveFileName.set("${project.name}-${project.version}.jar")
 
     val prefix = "${project.group}.${project.name.toLowerCase()}.lib"
@@ -88,6 +98,9 @@ tasks {
   }
   build {
     dependsOn(shadowJar)
+  }
+  runServer {
+    minecraftVersion("1.17")
   }
 }
 
