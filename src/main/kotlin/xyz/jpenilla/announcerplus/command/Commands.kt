@@ -27,30 +27,40 @@ import cloud.commandframework.bukkit.CloudBukkitCapabilities
 import cloud.commandframework.execution.AsynchronousCommandExecutionCoordinator
 import cloud.commandframework.kotlin.MutableCommandBuilder
 import cloud.commandframework.kotlin.extension.commandBuilder
+import cloud.commandframework.minecraft.extras.AudienceProvider.nativeAudience
 import cloud.commandframework.minecraft.extras.MinecraftExceptionHandler
 import cloud.commandframework.minecraft.extras.MinecraftHelp
 import cloud.commandframework.paper.PaperCommandManager
 import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
-import org.bukkit.command.CommandSender
+import org.bukkit.entity.Player
 import org.koin.core.context.loadKoinModules
 import org.koin.dsl.module
 import xyz.jpenilla.announcerplus.AnnouncerPlus
+import xyz.jpenilla.announcerplus.command.commands.AnnouncerPlusCommands
+import xyz.jpenilla.announcerplus.command.commands.BroadcastCommands
+import xyz.jpenilla.announcerplus.command.commands.ParseCommands
+import xyz.jpenilla.announcerplus.command.commands.SendCommands
 import xyz.jpenilla.announcerplus.util.Constants
-import java.util.function.Function
 
-class CommandManager(plugin: AnnouncerPlus) : PaperCommandManager<CommandSender>(
-  plugin,
-  AsynchronousCommandExecutionCoordinator.newBuilder<CommandSender>().build(),
-  Function.identity(),
-  Function.identity()
-) {
+class Commands(plugin: AnnouncerPlus) {
+  val commandManager = PaperCommandManager(
+    plugin,
+    AsynchronousCommandExecutionCoordinator.newBuilder<Commander>().build(),
+    { commandSender ->
+      when (commandSender) {
+        is Player -> BukkitPlayerCommander(commandSender, plugin.audiences().player(commandSender))
+        else -> BukkitCommander(commandSender, plugin.audiences().sender(commandSender))
+      }
+    },
+    { (it as BukkitCommander).commandSender }
+  )
 
   private val minecraftHelp = MinecraftHelp(
     "/announcerplus help",
-    plugin.audiences()::sender,
-    this
+    nativeAudience(),
+    commandManager
   ).apply {
     helpColors = MinecraftHelp.HelpColors.of(
       TextColor.color(0x00a3ff),
@@ -63,55 +73,54 @@ class CommandManager(plugin: AnnouncerPlus) : PaperCommandManager<CommandSender>
   }
 
   init {
-    MinecraftExceptionHandler<CommandSender>()
+    MinecraftExceptionHandler<Commander>()
       .withDefaultHandlers()
       .withDecorator {
         TextComponent.ofChildren(Constants.CHAT_PREFIX, it)
       }
-      .apply(this, plugin.audiences()::sender)
+      .apply(commandManager, nativeAudience())
 
-    if (queryCapability(CloudBukkitCapabilities.NATIVE_BRIGADIER)) {
-      this.registerBrigadier()
-      this.brigadierManager()?.setNativeNumberSuggestions(false)
+    if (commandManager.queryCapability(CloudBukkitCapabilities.NATIVE_BRIGADIER)) {
+      commandManager.registerBrigadier()
+      commandManager.brigadierManager()?.setNativeNumberSuggestions(false)
       plugin.logger.info("Successfully registered Mojang Brigadier support for commands.")
     }
 
-    if (queryCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION)) {
-      this.registerAsynchronousCompletions()
+    if (commandManager.queryCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION)) {
+      commandManager.registerAsynchronousCompletions()
       plugin.logger.info("Successfully registered asynchronous command completion listener.")
     }
 
     loadKoinModules(module {
-      single { this@CommandManager }
+      single { this@Commands }
       single { minecraftHelp }
       single { ArgumentFactory() }
     })
 
     listOf(
-      CommandAnnouncerPlus(),
-      CommandBroadcast(),
-      CommandSend(),
-      CommandParse()
+      AnnouncerPlusCommands(),
+      BroadcastCommands(),
+      SendCommands(),
+      ParseCommands()
     ).forEach(BaseCommand::register)
   }
 
   fun rootBuilder(
-    lambda: MutableCommandBuilder<CommandSender>.() -> Unit = {}
-  ) = this.commandBuilder("ap", aliases = arrayOf("announcerplus", "announcer"), lambda = lambda)
+    lambda: MutableCommandBuilder<Commander>.() -> Unit = {}
+  ) = commandManager.commandBuilder("ap", aliases = arrayOf("announcerplus", "announcer"), lambda = lambda)
 
   fun registerSubcommand(
     literal: String,
-    lambda: MutableCommandBuilder<CommandSender>.() -> Unit
+    lambda: MutableCommandBuilder<Commander>.() -> Unit
   ) = this.rootBuilder().literal(literal).apply(lambda).register()
 
   fun registerSubcommand(
     literal: String,
     registrationPredicate: Boolean,
-    lambda: MutableCommandBuilder<CommandSender>.() -> Unit
+    lambda: MutableCommandBuilder<Commander>.() -> Unit
   ) {
     if (registrationPredicate) {
       this.registerSubcommand(literal, lambda)
     }
   }
-
 }

@@ -24,35 +24,38 @@
 package xyz.jpenilla.announcerplus.command
 
 import cloud.commandframework.CommandHelpHandler
+import cloud.commandframework.CommandManager
 import cloud.commandframework.arguments.CommandArgument
 import cloud.commandframework.arguments.parser.ArgumentParseResult.failure
 import cloud.commandframework.arguments.parser.ArgumentParseResult.success
 import cloud.commandframework.arguments.standard.IntegerArgument
 import cloud.commandframework.arguments.standard.StringArgument
 import com.google.common.collect.ImmutableList
+import net.kyori.adventure.text.Component.text
+import net.kyori.adventure.text.ComponentLike
 import org.bukkit.Bukkit
-import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.config.message.MessageConfig
+import xyz.jpenilla.announcerplus.util.ComponentException
 
 class ArgumentFactory : KoinComponent {
-  private val commandManager: CommandManager by inject()
+  private val commands: Commands by inject()
   private val configManager: ConfigManager by inject()
 
   private fun <C> stringArgument(name: String, builder: StringArgument.Builder<C>.() -> Unit): StringArgument<C> =
     StringArgument.newBuilder<C>(name).apply(builder).build()
 
-  fun helpQuery(name: String) = stringArgument<CommandSender>(name) {
+  fun helpQuery(name: String) = stringArgument<Commander>(name) {
     greedy()
     asOptional()
     withSuggestionsProvider { context, _ ->
-      val helpTopic = commandManager.commandHelpHandler.queryHelp(
+      val helpTopic = commands.commandManager.commandHelpHandler.queryHelp(
         context.sender,
         ""
-      ) as CommandHelpHandler.IndexHelpTopic<CommandSender>
+      ) as CommandHelpHandler.IndexHelpTopic<Commander>
       helpTopic.entries.map { it.syntaxString }
     }
   }
@@ -69,12 +72,12 @@ class ArgumentFactory : KoinComponent {
     name: String,
     min: Int = Int.MIN_VALUE,
     max: Int = Int.MAX_VALUE
-  ) = integerArgumentBuilder<CommandSender>(name) {
+  ) = integerArgumentBuilder<Commander>(name) {
     if (min != Int.MIN_VALUE) withMin(min)
     if (max != Int.MAX_VALUE) withMax(max)
   }
 
-  private inline fun <C, reified T> cloud.commandframework.CommandManager<C>.argument(
+  private inline fun <C, reified T> CommandManager<C>.argument(
     name: String,
     builder: CommandArgument.Builder<C, T>.() -> Unit
   ): CommandArgument<C, T> {
@@ -82,20 +85,18 @@ class ArgumentFactory : KoinComponent {
     return argumentBuilder.apply(builder).build()
   }
 
-  fun messageConfig(name: String) = commandManager.argument<CommandSender, MessageConfig>(name) {
+  fun messageConfig(name: String) = commands.commandManager.argument<Commander, MessageConfig>(name) {
     withSuggestionsProvider { _, _ -> configManager.messageConfigs.keys.toList() }
     withParser { _, inputQueue ->
       val input = inputQueue.peek()
       val config = configManager.messageConfigs[input]
-        ?: return@withParser failure(
-          IllegalArgumentException("No message config for name '$input'. Must be one of: ${configManager.messageConfigs.keys.joinToString(", ")}")
-        )
+        ?: return@withParser failure(text("No message config with name '$input'. Known message configs: ${configManager.messageConfigs.keys.joinToString(", ")}"))
       inputQueue.remove()
       success(config)
     }
   }
 
-  fun worldPlayers(name: String) = commandManager.argument<CommandSender, WorldPlayers>(name) {
+  fun worldPlayers(name: String) = commands.commandManager.argument<Commander, WorldPlayers>(name) {
     withSuggestionsProvider { _, _ ->
       Bukkit.getWorlds().map { it.name }.toMutableList().apply {
         add("all")
@@ -108,11 +109,13 @@ class ArgumentFactory : KoinComponent {
         return@withParser success(WorldPlayers(Bukkit.getWorlds().flatMap { it.players }))
       }
       val world = Bukkit.getWorld(input)
-        ?: return@withParser failure(IllegalArgumentException("No such world: $input"))
+        ?: return@withParser failure(text("No such world: $input"))
       inputQueue.remove()
       success(WorldPlayers(ImmutableList.copyOf(world.players)))
     }
   }
+
+  private fun <R> failure(message: ComponentLike) = failure<R>(ComponentException(message))
 
   data class WorldPlayers(val players: Collection<Player>)
 }

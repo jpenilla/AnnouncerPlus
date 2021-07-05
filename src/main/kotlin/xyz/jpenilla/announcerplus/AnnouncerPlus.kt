@@ -34,7 +34,7 @@ import org.koin.core.KoinComponent
 import org.koin.core.context.startKoin
 import org.koin.core.inject
 import org.koin.dsl.module
-import xyz.jpenilla.announcerplus.command.CommandManager
+import xyz.jpenilla.announcerplus.command.Commands
 import xyz.jpenilla.announcerplus.compatibility.EssentialsHook
 import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.config.message.MessageConfig
@@ -50,7 +50,7 @@ class AnnouncerPlus : BasePlugin(), KoinComponent {
   var perms: Permission? = null
   var essentials: EssentialsHook? = null
   var toastTask: ToastTask? = null
-  private lateinit var commandManager: CommandManager
+  private lateinit var commands: Commands
 
   override fun onPluginEnable() {
     if (!setupPermissions()) {
@@ -79,7 +79,7 @@ class AnnouncerPlus : BasePlugin(), KoinComponent {
     } else {
       logger.info("Sorry, but Toast/Achievement style messages do not work on this version. Update to 1.12 or newer to use this feature.")
     }
-    commandManager = CommandManager(this)
+    commands = Commands(this)
 
     server.pluginManager.registerEvents(JoinQuitListener(), this)
     broadcast()

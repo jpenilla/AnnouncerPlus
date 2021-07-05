@@ -34,6 +34,8 @@ import org.spongepowered.configurate.hocon.HoconConfigurationLoader
 import org.spongepowered.configurate.objectmapping.ObjectMapper
 import org.spongepowered.configurate.objectmapping.meta.NodeResolver
 import xyz.jpenilla.announcerplus.AnnouncerPlus
+import xyz.jpenilla.announcerplus.command.BukkitCommander
+import xyz.jpenilla.announcerplus.command.Commander
 import xyz.jpenilla.announcerplus.compatibility.PlaceholderAPIMiniMessagePreprocessor
 import xyz.jpenilla.announcerplus.config.message.MessageConfig
 import xyz.jpenilla.announcerplus.config.serializer.SoundSerializer
@@ -155,7 +157,7 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
       announcerPlus.logger.info("Creating join quit config folder")
       path.createDirectories()
     }
-    if (path.listDirectoryEntries().isEmpty()) {
+    if (path.listDirectoryEntries("*.conf").isEmpty()) {
       announcerPlus.logger.info("No join/quit configs found, creating default.conf")
 
       val defaultConfig = path.resolve("default.conf")
@@ -193,7 +195,7 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
       announcerPlus.logger.info("Creating message config folder")
       path.createDirectories()
     }
-    if (path.listDirectoryEntries().isEmpty()) {
+    if (path.listDirectoryEntries("*.conf").isEmpty()) {
       announcerPlus.logger.info("No message configs found, creating demo.conf")
 
       val defaultConfig = path.resolve("demo.conf")
@@ -242,6 +244,14 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
   }
 
   private val legacyChecker: LegacyFormatting = LegacyFormatting(announcerPlus)
+
+  fun parse(commander: Commander, message: String): String {
+    if (commander is BukkitCommander) {
+      return parse(commander.commandSender, message)
+    }
+
+    error("Unknown sender type: ${commander.javaClass.name}")
+  }
 
   fun parse(commandSender: CommandSender?, message: String): String {
     var msg = message

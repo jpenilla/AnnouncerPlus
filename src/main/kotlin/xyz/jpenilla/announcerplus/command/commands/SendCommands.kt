@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package xyz.jpenilla.announcerplus.command
+package xyz.jpenilla.announcerplus.command.commands
 
 import cloud.commandframework.arguments.standard.EnumArgument
 import cloud.commandframework.arguments.standard.StringArgument
@@ -31,9 +31,12 @@ import cloud.commandframework.bukkit.parsers.selector.MultiplePlayerSelectorArgu
 import cloud.commandframework.context.CommandContext
 import net.kyori.adventure.bossbar.BossBar
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
-import org.bukkit.command.CommandSender
 import org.koin.core.inject
 import xyz.jpenilla.announcerplus.AnnouncerPlus
+import xyz.jpenilla.announcerplus.command.ArgumentFactory
+import xyz.jpenilla.announcerplus.command.BaseCommand
+import xyz.jpenilla.announcerplus.command.Commander
+import xyz.jpenilla.announcerplus.command.Commands
 import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.config.message.ToastSettings
 import xyz.jpenilla.announcerplus.task.ActionBarUpdateTask
@@ -42,22 +45,22 @@ import xyz.jpenilla.announcerplus.task.TitleUpdateTask
 import xyz.jpenilla.announcerplus.util.description
 import xyz.jpenilla.announcerplus.util.miniMessage
 
-class CommandSend : BaseCommand {
-  private val commandManager: CommandManager by inject()
+class SendCommands : BaseCommand {
+  private val commands: Commands by inject()
   private val configManager: ConfigManager by inject()
   private val argumentFactory: ArgumentFactory by inject()
   private val announcerPlus: AnnouncerPlus by inject()
   private val audiences: BukkitAudiences by inject()
 
   override fun register() {
-    commandManager.registerSubcommand("send") {
+    commands.registerSubcommand("send") {
       permission = "announcerplus.command.send.chat"
       commandDescription("Parses a message and sends it to the specified players.")
       argument(MultiplePlayerSelectorArgument.of("players"))
       argument(StringArgument.greedy("message"))
       handler(::executeSend)
     }
-    commandManager.registerSubcommand("sendtoast", announcerPlus.toastTask != null) {
+    commands.registerSubcommand("sendtoast", announcerPlus.toastTask != null) {
       permission = "announcerplus.command.send.toast"
       commandDescription("Parses and sends a Toast style message to the specified players.")
       argument(MultiplePlayerSelectorArgument.of("players"))
@@ -71,7 +74,7 @@ class CommandSend : BaseCommand {
       }
       handler(::executeSendToast)
     }
-    commandManager.registerSubcommand("sendtitle") {
+    commands.registerSubcommand("sendtitle") {
       permission = "announcerplus.command.send.title"
       commandDescription("Parses and sends a Title and Subtitle style message to the specified players.")
       argument(MultiplePlayerSelectorArgument.of("players"))
@@ -82,7 +85,7 @@ class CommandSend : BaseCommand {
       argument(StringArgument.quoted("subtitle"), description("Quoted String"))
       handler(::executeSendTitle)
     }
-    commandManager.registerSubcommand("sendactionbar") {
+    commands.registerSubcommand("sendactionbar") {
       permission = "announcerplus.command.send.actionbar"
       commandDescription("Parses and sends an Action Bar style message to the specified players.")
       argument(MultiplePlayerSelectorArgument.of("players"))
@@ -90,7 +93,7 @@ class CommandSend : BaseCommand {
       argument(StringArgument.greedy("text"))
       handler(::executeSendActionBar)
     }
-    commandManager.registerSubcommand("sendbossbar") {
+    commands.registerSubcommand("sendbossbar") {
       permission = "announcerplus.command.send.bossbar"
       commandDescription("Parses and sends a Boss Bar style message to the specified players.")
       argument(MultiplePlayerSelectorArgument.of("players"))
@@ -103,14 +106,14 @@ class CommandSend : BaseCommand {
     }
   }
 
-  private fun executeSend(ctx: CommandContext<CommandSender>) {
+  private fun executeSend(ctx: CommandContext<Commander>) {
     for (player in ctx.get<MultiplePlayerSelector>("players").players) {
       val audience = audiences.player(player)
       audience.sendMessage(miniMessage(configManager.parse(player, ctx.get<String>("message"))))
     }
   }
 
-  private fun executeSendToast(ctx: CommandContext<CommandSender>) {
+  private fun executeSendToast(ctx: CommandContext<Commander>) {
     val customModelData = ctx.flags().getValue<Int>("custom-model-data").orElse(-1)
     val toast = ToastSettings(ctx.get("icon"), ctx.get("frame"), ctx.get("header"), ctx.get("body"), ctx.flags().isPresent("enchant"), customModelData)
     for (player in ctx.get<MultiplePlayerSelector>("players").players) {
@@ -118,7 +121,7 @@ class CommandSend : BaseCommand {
     }
   }
 
-  private fun executeSendTitle(ctx: CommandContext<CommandSender>) {
+  private fun executeSendTitle(ctx: CommandContext<Commander>) {
     for (player in ctx.get<MultiplePlayerSelector>("players").players) {
       TitleUpdateTask(
         player,
@@ -131,13 +134,13 @@ class CommandSend : BaseCommand {
     }
   }
 
-  private fun executeSendActionBar(ctx: CommandContext<CommandSender>) {
+  private fun executeSendActionBar(ctx: CommandContext<Commander>) {
     for (player in ctx.get<MultiplePlayerSelector>("players").players) {
       ActionBarUpdateTask(player, ctx.get<Int>("seconds") * 20L, true, ctx.get("text")).start()
     }
   }
 
-  private fun executeSendBossBar(ctx: CommandContext<CommandSender>) {
+  private fun executeSendBossBar(ctx: CommandContext<Commander>) {
     for (player in ctx.get<MultiplePlayerSelector>("players").players) {
       BossBarUpdateTask(
         player,

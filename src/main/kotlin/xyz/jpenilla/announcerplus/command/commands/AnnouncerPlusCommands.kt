@@ -21,13 +21,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package xyz.jpenilla.announcerplus.command
+package xyz.jpenilla.announcerplus.command.commands
 
 import cloud.commandframework.context.CommandContext
 import cloud.commandframework.minecraft.extras.MinecraftHelp
 import net.kyori.adventure.extra.kotlin.style
 import net.kyori.adventure.extra.kotlin.text
-import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.Component.space
 import net.kyori.adventure.text.Component.text
@@ -36,17 +35,22 @@ import net.kyori.adventure.text.event.ClickEvent
 import net.kyori.adventure.text.event.ClickEvent.copyToClipboard
 import net.kyori.adventure.text.event.ClickEvent.openUrl
 import net.kyori.adventure.text.feature.pagination.Pagination
+import net.kyori.adventure.text.feature.pagination.Pagination.Renderer
 import net.kyori.adventure.text.format.NamedTextColor.GRAY
 import net.kyori.adventure.text.format.NamedTextColor.GREEN
 import net.kyori.adventure.text.format.NamedTextColor.RED
 import net.kyori.adventure.text.format.NamedTextColor.WHITE
 import net.kyori.adventure.text.format.Style
+import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.format.TextDecoration.BOLD
 import net.kyori.adventure.text.format.TextDecoration.ITALIC
 import net.kyori.adventure.text.format.TextDecoration.STRIKETHROUGH
-import org.bukkit.command.CommandSender
 import org.koin.core.inject
 import xyz.jpenilla.announcerplus.AnnouncerPlus
+import xyz.jpenilla.announcerplus.command.ArgumentFactory
+import xyz.jpenilla.announcerplus.command.BaseCommand
+import xyz.jpenilla.announcerplus.command.Commander
+import xyz.jpenilla.announcerplus.command.Commands
 import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.config.message.MessageConfig
 import xyz.jpenilla.announcerplus.util.center
@@ -55,36 +59,34 @@ import xyz.jpenilla.announcerplus.util.measurePlain
 import xyz.jpenilla.announcerplus.util.miniMessage
 import xyz.jpenilla.announcerplus.util.modifyHSV
 import xyz.jpenilla.announcerplus.util.randomColor
-import java.util.Collections
 import java.util.logging.Level
 import kotlin.math.roundToInt
 
-class CommandAnnouncerPlus : BaseCommand {
+class AnnouncerPlusCommands : BaseCommand {
   private val announcerPlus: AnnouncerPlus by inject()
-  private val commandManager: CommandManager by inject()
+  private val commands: Commands by inject()
   private val configManager: ConfigManager by inject()
-  private val minecraftHelp: MinecraftHelp<CommandSender> by inject()
+  private val minecraftHelp: MinecraftHelp<Commander> by inject()
   private val argumentFactory: ArgumentFactory by inject()
-  private val audiences: BukkitAudiences by inject()
 
   override fun register() {
-    commandManager.registerSubcommand("help") {
+    commands.registerSubcommand("help") {
       permission = "announcerplus.command.help"
       commandDescription("Shows help for AnnouncerPlus commands.")
       argument(argumentFactory.helpQuery("query"), description("Help Query"))
       handler(::executeHelp)
     }
-    commandManager.registerSubcommand("about") {
+    commands.registerSubcommand("about") {
       permission = "announcerplus.command.about"
       commandDescription("Prints some information about AnnouncerPlus.")
       handler(::executeAbout)
     }
-    commandManager.registerSubcommand("reload") {
+    commands.registerSubcommand("reload") {
       permission = "announcerplus.command.reload"
       commandDescription("Reloads AnnouncerPlus configs.")
       handler(::executeReload)
     }
-    commandManager.registerSubcommand("list") {
+    commands.registerSubcommand("list") {
       permission = "announcerplus.command.list"
       commandDescription("Displays the chat messages of a message config to the command sender.")
       argument(argumentFactory.messageConfig("config"))
@@ -93,12 +95,12 @@ class CommandAnnouncerPlus : BaseCommand {
     }
   }
 
-  private fun executeHelp(ctx: CommandContext<CommandSender>) {
-    minecraftHelp.queryCommands(ctx.getOrDefault("query", "")!!, ctx.sender)
+  private fun executeHelp(ctx: CommandContext<Commander>) {
+    minecraftHelp.queryCommands(ctx.getOrDefault("query", "") as String, ctx.sender)
   }
 
-  private fun executeAbout(ctx: CommandContext<CommandSender>) {
-    val audience = announcerPlus.audiences().sender(ctx.sender)
+  private fun executeAbout(ctx: CommandContext<Commander>) {
+    val audience = ctx.sender
     val color = randomColor()
     val nameAndVersion = text {
       hoverEvent(miniMessage("<rainbow>click me!"))
@@ -121,8 +123,8 @@ class CommandAnnouncerPlus : BaseCommand {
     ).forEach(audience::sendMessage)
   }
 
-  private fun executeReload(ctx: CommandContext<CommandSender>) {
-    val audience = audiences.sender(ctx.sender)
+  private fun executeReload(ctx: CommandContext<Commander>) {
+    val audience = ctx.sender
     audience.sendMessage(miniMessage("<italic><gradient:${randomColor()}:${randomColor()}>Reloading ${announcerPlus.name} config...").center())
     try {
       announcerPlus.reload()
@@ -133,70 +135,12 @@ class CommandAnnouncerPlus : BaseCommand {
     }
   }
 
-  private fun executeList(ctx: CommandContext<CommandSender>) {
+  private fun executeList(ctx: CommandContext<Commander>) {
+    val audience = ctx.sender
     val color = randomColor()
     val config = ctx.get<MessageConfig>("config")
     val page = ctx.getOrDefault("page", 1) ?: 1
-    val pagination = Pagination.builder().apply {
-      resultsPerPage(17)
-      width(53)
-      line { characterAndStyle ->
-        characterAndStyle.character('-')
-        characterAndStyle.style(style {
-          color(color)
-          decorate(STRIKETHROUGH)
-        })
-      }
-      renderer(object : Pagination.Renderer {
-        private fun renderButton(character: Char, style: Style, clickEvent: ClickEvent): Component =
-          TextComponent.ofChildren(
-            space(),
-            text("[", WHITE),
-            text(character, style.clickEvent(clickEvent)),
-            text("]", WHITE),
-            space()
-          )
 
-        override fun renderPreviousPageButton(character: Char, style: Style, clickEvent: ClickEvent): Component =
-          renderButton(character, style, clickEvent)
-
-        override fun renderNextPageButton(character: Char, style: Style, clickEvent: ClickEvent) =
-          renderButton(character, style, clickEvent)
-      })
-      nextButton { characterAndStyle ->
-        characterAndStyle.style(style {
-          decorate(BOLD)
-          color(color)
-          hoverEvent(text("Next Page", GREEN))
-        })
-      }
-      previousButton { characterAndStyle ->
-        characterAndStyle.style(style {
-          decorate(BOLD)
-          color(color)
-          hoverEvent(text("Previous Page", RED))
-        })
-      }
-    }.build<Component>(
-      text("Messages"),
-      { value, _ -> Collections.singleton(value) },
-      { "/announcerplus list ${config.name} $it" }
-    )
-
-    val messages = arrayListOf<Component>()
-    for (msg in config.messages) {
-      for (line in msg.messageText) {
-        messages.add(text {
-          if (msg.messageText.indexOf(line) != 0) {
-            append(text("  "))
-          }
-          append(text(" - ", color))
-          append(text('"', WHITE))
-          append(miniMessage(configManager.parse(ctx.sender, line)))
-          append(text('"', WHITE))
-        })
-      }
-    }
     val header = text {
       content("Config")
       append(text(":", GRAY))
@@ -212,9 +156,71 @@ class CommandAnnouncerPlus : BaseCommand {
       })
       append(text(")", WHITE))
     }
-    val audience = audiences.sender(ctx.sender)
     audience.sendMessage(header)
-    pagination.render(messages, page)
+
+    val messages = arrayListOf<Component>()
+    for (msg in config.messages) {
+      for (line in msg.messageText) {
+        messages.add(text {
+          if (msg.messageText.indexOf(line) != 0) {
+            append(text("  "))
+          }
+          append(text(" - ", color))
+          append(text('"', WHITE))
+          append(miniMessage(configManager.parse(ctx.sender, line)))
+          append(text('"', WHITE))
+        })
+      }
+    }
+    buildPagination(color, config)
+      .render(messages, page)
       .forEach(audience::sendMessage)
   }
+
+  private fun buildPagination(color: TextColor, config: MessageConfig): Pagination<Component> = Pagination.builder()
+    .resultsPerPage(17)
+    .width(53)
+    .line { characterAndStyle ->
+      characterAndStyle.character('-')
+      characterAndStyle.style(style {
+        color(color)
+        decorate(STRIKETHROUGH)
+      })
+    }
+    .renderer(object : Renderer {
+      private fun renderButton(character: Char, style: Style, clickEvent: ClickEvent): Component =
+        TextComponent.ofChildren(
+          space(),
+          text('[', WHITE),
+          text(character, style.clickEvent(clickEvent)),
+          text(']', WHITE),
+          space()
+        )
+
+      override fun renderPreviousPageButton(character: Char, style: Style, clickEvent: ClickEvent): Component =
+        renderButton(character, style, clickEvent)
+
+      override fun renderNextPageButton(character: Char, style: Style, clickEvent: ClickEvent) =
+        renderButton(character, style, clickEvent)
+    })
+    .nextButton { characterAndStyle ->
+      characterAndStyle.style(style {
+        decorate(BOLD)
+        color(color)
+        hoverEvent(text("Next Page", GREEN))
+      })
+    }
+    .previousButton { characterAndStyle ->
+      characterAndStyle.style(style {
+        decorate(BOLD)
+        color(color)
+        hoverEvent(text("Previous Page", RED))
+      })
+    }
+    .build(
+      text("Messages"),
+      { value, _ -> setOf(value) },
+      { "/announcerplus list ${config.name} $it" }
+    )
+
 }
