@@ -48,7 +48,7 @@ dependencies {
   implementation("net.kyori", "adventure-extra-kotlin")
   implementation("net.kyori", "adventure-serializer-configurate4")
 
-  val cloudVersion = "1.5.0-SNAPSHOT"
+  val cloudVersion = "1.5.0"
   implementation("cloud.commandframework", "cloud-paper", cloudVersion)
   implementation("cloud.commandframework", "cloud-kotlin-extensions", cloudVersion)
   implementation("cloud.commandframework", "cloud-minecraft-extras", cloudVersion)
