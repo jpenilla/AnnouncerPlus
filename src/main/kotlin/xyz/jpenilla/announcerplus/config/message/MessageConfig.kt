@@ -34,12 +34,15 @@ import org.bukkit.scheduler.BukkitTask
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import org.spongepowered.configurate.CommentedConfigurationNode
+import org.spongepowered.configurate.NodePath.path
 import org.spongepowered.configurate.kotlin.extensions.get
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
 import org.spongepowered.configurate.objectmapping.meta.Comment
 import org.spongepowered.configurate.objectmapping.meta.Setting
+import org.spongepowered.configurate.transformation.ConfigurationTransformation
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.ConfigManager
+import xyz.jpenilla.announcerplus.config.ConfigurationUpgrader
 import xyz.jpenilla.announcerplus.config.Transformations
 import xyz.jpenilla.announcerplus.config.visitor.DuplicateCommentRemovingVisitor
 import xyz.jpenilla.announcerplus.util.addDefaultPermission
@@ -146,29 +149,6 @@ class MessageConfig : KoinComponent {
 
   @Comment("Should disabled/inactive message elements be removed from this config?")
   var removeDisabledMessageElements = false
-
-  companion object {
-    fun loadFrom(node: CommentedConfigurationNode, name: String): MessageConfig {
-      val config = node.get<MessageConfig>()?.populate(name) ?: error("Failed to deserialize MessageConfig")
-      addDefaultPermission("announcerplus.messages.${config.name}", PermissionDefault.FALSE)
-      return config
-    }
-  }
-
-  fun saveTo(node: CommentedConfigurationNode) {
-    node.set(this)
-    node.node("version").apply {
-      set(Transformations.MessageConfig.LATEST_VERSION)
-      comment("The version of this configuration. For internal use only, do not modify.")
-    }
-
-    if (removeDisabledMessageElements) {
-      removeDisabledMessageElements(node)
-    }
-    if (removeDuplicateComments) {
-      node.visit(DuplicateCommentRemovingVisitor())
-    }
-  }
 
   private fun removeDisabledMessageElements(node: CommentedConfigurationNode) {
     for ((i, message) in node.node("messages").childrenList().withIndex()) {
@@ -278,12 +258,51 @@ class MessageConfig : KoinComponent {
     broadcastTask?.cancel()
   }
 
+  fun saveTo(node: CommentedConfigurationNode) {
+    node.set(this)
+    node.node("version").apply {
+      set(LATEST_VERSION)
+      comment("The version of this configuration. For internal use only, do not modify.")
+    }
+
+    if (removeDisabledMessageElements) {
+      removeDisabledMessageElements(node)
+    }
+    if (removeDuplicateComments) {
+      node.visit(DuplicateCommentRemovingVisitor())
+    }
+  }
+
+  companion object : ConfigurationUpgrader {
+    const val LATEST_VERSION = 0
+
+    override val upgrader = ConfigurationTransformation.versionedBuilder()
+      .addVersion(LATEST_VERSION, initial())
+      .build()
+
+    private fun initial() = ConfigurationTransformation.builder()
+      .addAction(path("messages")) { path, value ->
+        for (childNode in value.childrenList()) {
+          val soundsNode = childNode.node("sounds")
+          // the path here is wrong, but we don't use it
+          Transformations.upgradeSoundsString.visitPath(path, soundsNode)
+        }
+        return@addAction null
+      }
+      .build()
+
+    fun loadFrom(node: CommentedConfigurationNode, name: String): MessageConfig {
+      val config = node.get<MessageConfig>()?.populate(name) ?: error("Failed to deserialize MessageConfig")
+      addDefaultPermission("announcerplus.messages.${config.name}", PermissionDefault.FALSE)
+      return config
+    }
+  }
+
   enum class TimeUnit(val ticks: Long) {
     SECONDS(20L),
     MINUTES(1200L),
     HOURS(72000L);
 
-    fun getTicks(units: Int): Long =
-      ticks * units
+    fun getTicks(units: Int): Long = ticks * units
   }
 }

@@ -28,6 +28,7 @@ import net.kyori.adventure.sound.Sound
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import org.spongepowered.configurate.CommentedConfigurationNode
 import org.spongepowered.configurate.ConfigurationNode
 import org.spongepowered.configurate.ConfigurationOptions
 import org.spongepowered.configurate.hocon.HoconConfigurationLoader
@@ -49,6 +50,7 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
+import kotlin.io.path.nameWithoutExtension
 import kotlin.io.path.notExists
 
 class ConfigManager(private val announcerPlus: AnnouncerPlus) {
@@ -128,7 +130,7 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
     try {
       val node = firstJoinConfigLoader.load()
       if (firstJoinConfigPath.isRegularFile()) {
-        upgradeNode(Transformations.JoinQuitConfig, node, "first join", firstJoinConfigPath.name)
+        upgradeNode(JoinQuitConfig, node, "first join", firstJoinConfigPath.name)
       }
       firstJoinConfig = JoinQuitConfig.loadFrom(node, null)
     } catch (e: Exception) {
@@ -152,15 +154,12 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
 
   private fun loadJoinQuitConfigs() {
     joinQuitConfigs.clear()
-    val path = announcerPlus.dataPath.resolve("join-quit-configs")
-    if (path.notExists()) {
-      announcerPlus.logger.info("Creating join quit config folder")
-      path.createDirectories()
-    }
-    if (path.listDirectoryEntries("*.conf").isEmpty()) {
+    val joinQuitConfigsDirectory = announcerPlus.dataPath.resolve("join-quit-configs")
+
+    val createDefaultConfig = {
       announcerPlus.logger.info("No join/quit configs found, creating default.conf")
 
-      val defaultConfig = path.resolve("default.conf")
+      val defaultConfig = joinQuitConfigsDirectory.resolve("default.conf")
       val defaultConfigLoader = createLoader(defaultConfig) {
         it.header(
           "To give a player these join/quit messages give them the announcerplus.join.default\n" +
@@ -171,34 +170,24 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
       JoinQuitConfig().saveTo(defaultConfigRoot)
       defaultConfigLoader.save(defaultConfigRoot)
     }
-    path.listDirectoryEntries("*.conf").forEach {
-      val configLoader = createLoader(it)
-      val name = it.toFile().nameWithoutExtension
-      try {
-        val node = configLoader.load()
-        upgradeNode(Transformations.JoinQuitConfig, node, "join quit", it.name).node
-        joinQuitConfigs[name] = JoinQuitConfig.loadFrom(node, name)
 
-        joinQuitConfigs[name]?.saveTo(node)
-        configLoader.save(node)
-      } catch (e: Exception) {
-        throw IllegalArgumentException("Failed to load message config: ${it.name}. This is likely due to an invalid config file.", e)
-      }
-    }
+    joinQuitConfigs += joinQuitConfigsDirectory.loadConfigs(
+      createDefaultConfig,
+      { node, name -> JoinQuitConfig.loadFrom(upgradeNode(JoinQuitConfig, node, "join quit", name).node, name) },
+      { config, node -> config.saveTo(node) },
+      { ex, file -> throw IllegalArgumentException("Failed to load join/quit config: ${file.name}. This is likely due to an invalid config file.", ex) }
+    )
   }
 
   private fun loadMessageConfigs() {
     messageConfigs.values.forEach(MessageConfig::stop)
     messageConfigs.clear()
-    val path = announcerPlus.dataPath.resolve("message-configs")
-    if (path.notExists()) {
-      announcerPlus.logger.info("Creating message config folder")
-      path.createDirectories()
-    }
-    if (path.listDirectoryEntries("*.conf").isEmpty()) {
+    val messageConfigsDirectory = announcerPlus.dataPath.resolve("message-configs")
+
+    val createDefaultConfig = {
       announcerPlus.logger.info("No message configs found, creating demo.conf")
 
-      val defaultConfig = path.resolve("demo.conf")
+      val defaultConfig = messageConfigsDirectory.resolve("demo.conf")
       val defaultConfigLoader = createLoader(defaultConfig) {
         it.header(
           """For a player to get these messages give them the announcerplus.messages.demo permission
@@ -210,23 +199,49 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
       MessageConfig().saveTo(defaultConfigRoot)
       defaultConfigLoader.save(defaultConfigRoot)
     }
-    path.listDirectoryEntries("*.conf").forEach {
-      val configLoader = createLoader(it)
-      val name = it.toFile().nameWithoutExtension
-      try {
-        val node = configLoader.load()
-        upgradeNode(Transformations.MessageConfig, node, "message", it.name)
-        messageConfigs[name] = MessageConfig.loadFrom(node, name)
 
-        messageConfigs[name]?.saveTo(node)
-        configLoader.save(node)
-      } catch (e: Exception) {
-        throw IllegalArgumentException("Failed to load join/quit config: ${it.name}. This is likely due to an invalid config file.", e)
-      }
-    }
+    messageConfigs += messageConfigsDirectory.loadConfigs(
+      createDefaultConfig,
+      { node, name -> MessageConfig.loadFrom(upgradeNode(MessageConfig, node, "message", name).node, name) },
+      { config, node -> config.saveTo(node) },
+      { ex, file -> throw IllegalArgumentException("Failed to load message config: ${file.name}. This is likely due to an invalid config file.", ex) }
+    )
   }
 
-  private fun <N : ConfigurationNode> upgradeNode(upgrader: Transformations.ConfigurationUpgrader, node: N, configType: String, fileName: String): UpgradeResult<N> {
+  private fun <T> Path.loadConfigs(
+    noConfigs: () -> Unit,
+    load: (CommentedConfigurationNode, String) -> T,
+    save: (T, CommentedConfigurationNode) -> Unit,
+    error: (Exception, Path) -> Unit
+  ): Map<String, T> {
+    if (notExists()) {
+      createDirectories()
+    }
+    if (listDirectoryEntries("*.conf").isEmpty()) {
+      noConfigs()
+    }
+    val result = hashMapOf<String, T>()
+    listDirectoryEntries("*.conf").forEach { configFile ->
+      val loader = createLoader(configFile)
+      val name = configFile.nameWithoutExtension
+      try {
+        val node = loader.load()
+        val config = load(node, name)
+        save(config, node)
+        result[name] = config
+      } catch (ex: Exception) {
+        error(ex, configFile)
+      }
+    }
+    return result
+  }
+
+  private fun <N : ConfigurationNode> upgradeNode(
+    upgrader: ConfigurationUpgrader,
+    node: N,
+    configType: String,
+    fileName: String
+  ): ConfigurationUpgrader.UpgradeResult<N> {
     val result = upgrader.upgrade(node)
     val (old, new, _, didUpgrade) = result
     if (didUpgrade) {

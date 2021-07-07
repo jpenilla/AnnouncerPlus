@@ -23,19 +23,23 @@
  */
 package xyz.jpenilla.announcerplus.config
 
-import net.kyori.adventure.key.Key.key
-import net.kyori.adventure.sound.Sound
-import net.kyori.adventure.sound.Sound.sound
-import org.spongepowered.configurate.kotlin.extensions.get
-import org.spongepowered.configurate.transformation.TransformAction
+import org.spongepowered.configurate.ConfigurationNode
+import org.spongepowered.configurate.transformation.ConfigurationTransformation.Versioned
 
-object Transformations {
-  val upgradeSoundsString = TransformAction { _, value ->
-    val soundStrings = value.get<String>()?.split(",") ?: emptyList()
-    val sounds = soundStrings.map {
-      sound(key(it), Sound.Source.MASTER, 1.0f, 1.0f)
-    }
-    value.setList(Sound::class.java, sounds)
-    return@TransformAction null
+interface ConfigurationUpgrader {
+  val upgrader: Versioned
+
+  fun <N : ConfigurationNode> upgrade(node: N): UpgradeResult<N> {
+    val original = upgrader.version(node)
+    upgrader.apply(node)
+    val new = upgrader.version(node)
+    return UpgradeResult(original, new, node)
   }
+
+  data class UpgradeResult<N : ConfigurationNode>(
+    val originalVersion: Int,
+    val newVersion: Int,
+    val node: N,
+    val didUpgrade: Boolean = originalVersion != newVersion
+  )
 }

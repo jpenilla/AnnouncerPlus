@@ -23,8 +23,110 @@
  */
 package xyz.jpenilla.announcerplus.util
 
+import net.kyori.adventure.audience.Audience
+import net.kyori.adventure.sound.Sound
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.TextComponent
+import net.kyori.adventure.text.flattener.ComponentFlattener
+import net.kyori.adventure.text.flattener.FlattenerListener
+import net.kyori.adventure.text.format.TextColor
+import net.kyori.adventure.util.HSVLike
 import org.bukkit.plugin.Plugin
+import org.bukkit.scheduler.BukkitTask
+import xyz.jpenilla.jmplib.ChatCentering
 import java.nio.file.Path
+import java.util.concurrent.CompletableFuture
+import kotlin.math.max
+import kotlin.math.min
 
 val Plugin.dataPath: Path
   get() = dataFolder.toPath()
+
+fun Plugin.runSync(
+  delay: Long = 0L,
+  runnable: Runnable
+): BukkitTask =
+  server.scheduler.runTaskLater(this, runnable, delay)
+
+fun Plugin.runAsync(
+  delay: Long = 0L,
+  runnable: Runnable
+): BukkitTask =
+  server.scheduler.runTaskLaterAsynchronously(this, runnable, delay)
+
+fun Plugin.asyncTimer(
+  delay: Long,
+  interval: Long,
+  runnable: Runnable
+): BukkitTask =
+  server.scheduler.runTaskTimerAsynchronously(this, runnable, delay, interval)
+
+fun Plugin.syncTimer(
+  delay: Long,
+  interval: Long,
+  runnable: Runnable
+): BukkitTask =
+  server.scheduler.runTaskTimer(this, runnable, delay, interval)
+
+fun <T> Plugin.getOnMain(supplier: () -> T): T {
+  val future = CompletableFuture<T>()
+  runSync { future.complete(supplier()) }
+  return future.join()
+}
+
+fun Audience.playSounds(sounds: List<Sound>, randomize: Boolean) {
+  if (sounds.isEmpty()) {
+    return
+  }
+
+  if (randomize) {
+    playSound(sounds.random())
+  } else {
+    for (sound in sounds) {
+      playSound(sound)
+    }
+  }
+}
+
+/**
+ * Measure the approximate length of this [Component] by flattening it and summing
+ * the lengths of each string provided to the [FlattenerListener].
+ *
+ * @param flattener [ComponentFlattener] to use
+ * @return approximate length of this [Component]
+ */
+fun Component.measurePlain(flattener: ComponentFlattener = ComponentFlattener.basic()): Int {
+  val listener = object : FlattenerListener {
+    var length: Int = 0
+
+    override fun component(text: String) {
+      length += text.length
+    }
+  }
+  flattener.flatten(this, listener)
+  return listener.length
+}
+
+fun Component.center(): Component =
+  TextComponent.ofChildren(Component.text(ChatCentering.spacePrefix(this)), this)
+
+fun TextColor.modifyHSV(
+  hRatio: Float = 1f,
+  sRatio: Float = 1f,
+  vRatio: Float = 1f
+): TextColor {
+  val (h, s, v) = asHSV()
+  return TextColor.color(
+    HSVLike.of(
+      (h * hRatio).clamp(0f, 1f),
+      (s * sRatio).clamp(0f, 1f),
+      (v * vRatio).clamp(0f, 1f)
+    )
+  )
+}
+
+fun Float.clamp(min: Float, max: Float): Float = min(max, max(this, min))
+
+operator fun HSVLike.component1(): Float = h()
+operator fun HSVLike.component2(): Float = s()
+operator fun HSVLike.component3(): Float = v()

@@ -54,7 +54,7 @@ class PlaceholderAPIMiniMessagePreprocessor(private val miniMessage: MiniMessage
     while (matcher.find()) {
       val match = matcher.group()
       val replaced = placeholderResolver(match)
-      if (match == replaced || !containsLegacyColorCodes(replaced)) {
+      if (match == replaced || !replaced.contains(LegacyComponentSerializer.SECTION_CHAR)) {
         matcher.appendReplacement(buffer, replaced)
       } else {
         matcher.appendReplacement(buffer, miniMessage.serialize(LegacyComponentSerializer.legacySection().deserialize(replaced)))
@@ -62,15 +62,5 @@ class PlaceholderAPIMiniMessagePreprocessor(private val miniMessage: MiniMessage
     }
     matcher.appendTail(buffer)
     return buffer.toString()
-  }
-
-  private fun containsLegacyColorCodes(string: String): Boolean {
-    val charArray = string.toCharArray()
-    for (i in charArray.indices) {
-      if (charArray[i] == LegacyComponentSerializer.SECTION_CHAR) {
-        return true
-      }
-    }
-    return false
   }
 }

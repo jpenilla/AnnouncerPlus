@@ -35,10 +35,12 @@ import org.bukkit.permissions.PermissionDefault
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import org.spongepowered.configurate.CommentedConfigurationNode
+import org.spongepowered.configurate.NodePath.path
 import org.spongepowered.configurate.kotlin.extensions.get
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
 import org.spongepowered.configurate.objectmapping.meta.Comment
 import org.spongepowered.configurate.objectmapping.meta.Setting
+import org.spongepowered.configurate.transformation.ConfigurationTransformation
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.message.ActionBarSettings
 import xyz.jpenilla.announcerplus.config.message.BossBarSettings
@@ -172,29 +174,6 @@ class JoinQuitConfig : KoinComponent {
     val commands = arrayListOf<String>()
   }
 
-  companion object {
-    fun loadFrom(node: CommentedConfigurationNode, name: String?): JoinQuitConfig {
-      val config = node.get<JoinQuitConfig>()?.populate(name) ?: error("Failed to deserialize JoinQuitConfig")
-      if (name != null) {
-        addDefaultPermission("announcerplus.join.${config.name}", PermissionDefault.FALSE)
-        addDefaultPermission("announcerplus.quit.${config.name}", PermissionDefault.FALSE)
-      }
-      return config
-    }
-  }
-
-  fun saveTo(node: CommentedConfigurationNode) {
-    node.set(this)
-    node.node("version").apply {
-      set(Transformations.JoinQuitConfig.LATEST_VERSION)
-      comment("The version of this configuration. For internal use only, do not modify.")
-    }
-
-    if (removeDuplicateComments) {
-      node.visit(DuplicateCommentRemovingVisitor())
-    }
-  }
-
   fun populate(name: String?): JoinQuitConfig =
     this.apply { this.name = name }
 
@@ -258,5 +237,40 @@ class JoinQuitConfig : KoinComponent {
       return announcerPlus.essentials!!.isVanished(player)
     }
     return false
+  }
+
+  fun saveTo(node: CommentedConfigurationNode) {
+    node.set(this)
+    node.node("version").apply {
+      set(LATEST_VERSION)
+      comment("The version of this configuration. For internal use only, do not modify.")
+    }
+
+    if (removeDuplicateComments) {
+      node.visit(DuplicateCommentRemovingVisitor())
+    }
+  }
+
+  companion object : ConfigurationUpgrader {
+    const val LATEST_VERSION = 0
+
+    override val upgrader = ConfigurationTransformation.versionedBuilder()
+      .addVersion(LATEST_VERSION, initial())
+      .build()
+
+    private fun initial(): ConfigurationTransformation = ConfigurationTransformation.builder()
+      .addAction(path("join-section", "join-sounds"), Transformations.upgradeSoundsString)
+      .addAction(path("join-section", "join-broadcast-sounds"), Transformations.upgradeSoundsString)
+      .addAction(path("quit-section", "quit-sounds"), Transformations.upgradeSoundsString)
+      .build()
+
+    fun loadFrom(node: CommentedConfigurationNode, name: String?): JoinQuitConfig {
+      val config = node.get<JoinQuitConfig>()?.populate(name) ?: error("Failed to deserialize JoinQuitConfig")
+      if (name != null) {
+        addDefaultPermission("announcerplus.join.${config.name}", PermissionDefault.FALSE)
+        addDefaultPermission("announcerplus.quit.${config.name}", PermissionDefault.FALSE)
+      }
+      return config
+    }
   }
 }
