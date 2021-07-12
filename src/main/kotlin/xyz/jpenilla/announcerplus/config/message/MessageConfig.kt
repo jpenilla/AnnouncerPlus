@@ -43,6 +43,8 @@ import org.spongepowered.configurate.transformation.ConfigurationTransformation
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.config.ConfigurationUpgrader
+import xyz.jpenilla.announcerplus.config.NamedConfigurationFactory
+import xyz.jpenilla.announcerplus.config.SelfSavable
 import xyz.jpenilla.announcerplus.config.Transformations
 import xyz.jpenilla.announcerplus.config.visitor.DuplicateCommentRemovingVisitor
 import xyz.jpenilla.announcerplus.util.addDefaultPermission
@@ -56,7 +58,7 @@ import kotlin.collections.component1
 import kotlin.collections.component2
 
 @ConfigSerializable
-class MessageConfig : KoinComponent {
+class MessageConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
 
   @Setting
   @Comment("The list of messages for a config")
@@ -258,7 +260,7 @@ class MessageConfig : KoinComponent {
     broadcastTask?.cancel()
   }
 
-  fun saveTo(node: CommentedConfigurationNode) {
+  override fun saveTo(node: CommentedConfigurationNode) {
     node.set(this)
     node.node("version").apply {
       set(LATEST_VERSION)
@@ -273,7 +275,7 @@ class MessageConfig : KoinComponent {
     }
   }
 
-  companion object : ConfigurationUpgrader {
+  companion object : ConfigurationUpgrader, NamedConfigurationFactory<MessageConfig, CommentedConfigurationNode> {
     const val LATEST_VERSION = 0
 
     override val upgrader = ConfigurationTransformation.versionedBuilder()
@@ -291,8 +293,10 @@ class MessageConfig : KoinComponent {
       }
       .build()
 
-    fun loadFrom(node: CommentedConfigurationNode, name: String): MessageConfig {
-      val config = node.get<MessageConfig>()?.populate(name) ?: error("Failed to deserialize MessageConfig")
+    override fun loadFrom(node: CommentedConfigurationNode, configName: String?): MessageConfig {
+      if (configName == null) error("Message configs require a name!")
+
+      val config = node.get<MessageConfig>()?.populate(configName) ?: error("Failed to deserialize MessageConfig")
       addDefaultPermission("announcerplus.messages.${config.name}", PermissionDefault.FALSE)
       return config
     }

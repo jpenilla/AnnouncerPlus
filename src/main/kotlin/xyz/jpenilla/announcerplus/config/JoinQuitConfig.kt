@@ -58,7 +58,7 @@ import xyz.jpenilla.jmplib.Chat
 import xyz.jpenilla.jmplib.Environment
 
 @ConfigSerializable
-class JoinQuitConfig : KoinComponent {
+class JoinQuitConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
 
   @Setting("visible-permission")
   @Comment("If set to something other than \"\", this setting's value will be the permission required to see these join/quit messages when they are broadcasted for a player")
@@ -239,7 +239,7 @@ class JoinQuitConfig : KoinComponent {
     return false
   }
 
-  fun saveTo(node: CommentedConfigurationNode) {
+  override fun saveTo(node: CommentedConfigurationNode) {
     node.set(this)
     node.node("version").apply {
       set(LATEST_VERSION)
@@ -251,7 +251,7 @@ class JoinQuitConfig : KoinComponent {
     }
   }
 
-  companion object : ConfigurationUpgrader {
+  companion object : ConfigurationUpgrader, NamedConfigurationFactory<JoinQuitConfig, CommentedConfigurationNode> {
     const val LATEST_VERSION = 0
 
     override val upgrader = ConfigurationTransformation.versionedBuilder()
@@ -264,9 +264,9 @@ class JoinQuitConfig : KoinComponent {
       .addAction(path("quit-section", "quit-sounds"), Transformations.upgradeSoundsString)
       .build()
 
-    fun loadFrom(node: CommentedConfigurationNode, name: String?): JoinQuitConfig {
-      val config = node.get<JoinQuitConfig>()?.populate(name) ?: error("Failed to deserialize JoinQuitConfig")
-      if (name != null) {
+    override fun loadFrom(node: CommentedConfigurationNode, configName: String?): JoinQuitConfig {
+      val config = node.get<JoinQuitConfig>()?.populate(configName) ?: error("Failed to deserialize JoinQuitConfig")
+      if (configName != null) {
         addDefaultPermission("announcerplus.join.${config.name}", PermissionDefault.FALSE)
         addDefaultPermission("announcerplus.quit.${config.name}", PermissionDefault.FALSE)
       }

@@ -172,10 +172,10 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
     }
 
     joinQuitConfigs += joinQuitConfigsDirectory.loadConfigs(
-      createDefaultConfig,
-      { node, name -> JoinQuitConfig.loadFrom(upgradeNode(JoinQuitConfig, node, "join quit", name).node, name) },
-      { config, node -> config.saveTo(node) },
-      { ex, file -> throw IllegalArgumentException("Failed to load join/quit config: ${file.name}. This is likely due to an invalid config file.", ex) }
+      "join quit",
+      JoinQuitConfig,
+      JoinQuitConfig,
+      createDefaultConfig
     )
   }
 
@@ -201,18 +201,18 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
     }
 
     messageConfigs += messageConfigsDirectory.loadConfigs(
-      createDefaultConfig,
-      { node, name -> MessageConfig.loadFrom(upgradeNode(MessageConfig, node, "message", name).node, name) },
-      { config, node -> config.saveTo(node) },
-      { ex, file -> throw IllegalArgumentException("Failed to load message config: ${file.name}. This is likely due to an invalid config file.", ex) }
+      "message",
+      MessageConfig,
+      MessageConfig,
+      createDefaultConfig
     )
   }
 
-  private fun <T> Path.loadConfigs(
+  private fun <T : SelfSavable<CommentedConfigurationNode>> Path.loadConfigs(
+    configTypeName: String,
+    upgrader: ConfigurationUpgrader,
+    factory: NamedConfigurationFactory<T, CommentedConfigurationNode>,
     noConfigs: () -> Unit,
-    load: (CommentedConfigurationNode, String) -> T,
-    save: (T, CommentedConfigurationNode) -> Unit,
-    error: (Exception, Path) -> Unit
   ): Map<String, T> {
     if (notExists()) {
       createDirectories()
@@ -223,14 +223,15 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
     val result = hashMapOf<String, T>()
     listDirectoryEntries("*.conf").forEach { configFile ->
       val loader = createLoader(configFile)
-      val name = configFile.nameWithoutExtension
+      val configName = configFile.nameWithoutExtension
       try {
         val node = loader.load()
-        val config = load(node, name)
-        save(config, node)
-        result[name] = config
+        upgradeNode(upgrader, node, configTypeName, configName)
+        val loadedConfiguration = factory.loadFrom(node, configName)
+        loadedConfiguration.saveTo(node)
+        result[configName] = loadedConfiguration
       } catch (ex: Exception) {
-        error(ex, configFile)
+        throw IllegalArgumentException("Failed to load $configTypeName config: ${configFile.name}. This is likely due to an invalid config file.", ex)
       }
     }
     return result
