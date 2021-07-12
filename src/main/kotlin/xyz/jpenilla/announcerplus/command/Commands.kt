@@ -91,11 +91,13 @@ class Commands(plugin: AnnouncerPlus) {
       plugin.logger.info("Successfully registered asynchronous command completion listener.")
     }
 
-    loadKoinModules(module {
-      single { this@Commands }
-      single { minecraftHelp }
-      single { ArgumentFactory() }
-    })
+    loadKoinModules(
+      module {
+        single { this@Commands }
+        single { minecraftHelp }
+        single { ArgumentFactory() }
+      }
+    )
 
     listOf(
       AnnouncerPlusCommands(),

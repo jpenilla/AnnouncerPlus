@@ -9,6 +9,7 @@ plugins:
   com.github.johnrengelman.shadow: 7.0.0
   net.minecrell.plugin-yml.bukkit: 0.4.0
   xyz.jpenilla.run-paper: 1.0.3
+  org.jlleitschuh.gradle.ktlint: 10.0.0
 
 versions: [ ]
 

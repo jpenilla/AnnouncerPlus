@@ -91,10 +91,12 @@ class ToastSettings : MessageElement {
       if (iconEnchanted) {
         put(
           "Enchantments",
-          listBinaryTag(compoundBinaryTag {
-            putString("id", "aqua_affinity")
-            putInt("lvl", 1)
-          })
+          listBinaryTag(
+            compoundBinaryTag {
+              putString("id", "aqua_affinity")
+              putInt("lvl", 1)
+            }
+          )
         )
       }
     }

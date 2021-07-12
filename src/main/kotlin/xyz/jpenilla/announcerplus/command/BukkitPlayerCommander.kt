@@ -27,6 +27,6 @@ import net.kyori.adventure.audience.Audience
 import org.bukkit.entity.Player
 
 class BukkitPlayerCommander(
-    val player: Player,
-    audience: Audience
+  val player: Player,
+  audience: Audience
 ) : BukkitCommander(player, audience), PlayerCommander

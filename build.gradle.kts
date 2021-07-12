@@ -5,6 +5,7 @@ plugins {
   id("net.kyori.indra.license-header")
   id("net.kyori.indra.git")
   id("xyz.jpenilla.run-paper")
+  id("org.jlleitschuh.gradle.ktlint")
   id("com.github.johnrengelman.shadow")
   id("net.minecrell.plugin-yml.bukkit")
 }
@@ -15,7 +16,7 @@ version = "1.3.0-SNAPSHOT"
 description = "Announcement plugin with support for permissions. Supports Hex colors and clickable messages/hover text using MiniMessage."
 
 repositories {
-  //mavenLocal()
+  // mavenLocal()
   mavenCentral()
   sonatypeSnapshots()
   maven("https://papermc.io/repo/repository/maven-public/")
@@ -100,7 +101,12 @@ tasks {
     dependsOn(shadowJar)
   }
   runServer {
-    minecraftVersion("1.17")
+    minecraftVersion("1.17.1")
+  }
+  register("format") {
+    group = "formatting"
+    description = "Formats source code according to project style."
+    dependsOn(licenseFormat, ktlintFormat)
   }
 }
 

@@ -112,10 +112,10 @@ class ToastTask : KoinComponent {
     val SerializedAdvancement_class = Crafty.needNMSClassOrElse("Advancement\$SerializedAdvancement", "net.minecraft.advancements.Advancement\$SerializedAdvancement")
 
     val SerializedAdvancement_getAdvancement = SerializedAdvancement_class.declaredMethods.find { method ->
-      method.returnType == Advancement_class
-        && method.parameterCount == 1
-        && method.parameterTypes[0] == MinecraftKey_class
-        && !Modifier.isStatic(method.modifiers)
+      method.returnType == Advancement_class &&
+        method.parameterCount == 1 &&
+        method.parameterTypes[0] == MinecraftKey_class &&
+        !Modifier.isStatic(method.modifiers)
     } ?: error("Cannot find SerializedAdvancement#getAdvancement")
 
     val EntityPlayer_class = Crafty.needNMSClassOrElse("EntityPlayer", "net.minecraft.server.level.EntityPlayer")
@@ -128,14 +128,14 @@ class ToastTask : KoinComponent {
     val AdvancementProgress_class = Crafty.needNMSClassOrElse("AdvancementProgress", "net.minecraft.advancements.AdvancementProgress")
     val AdvancementDataPlayer_class = Crafty.needNMSClassOrElse("AdvancementDataPlayer", "net.minecraft.server.AdvancementDataPlayer")
     val EntityPlayer_getAdvancementData = EntityPlayer_class.methods.find { method ->
-      method.returnType == AdvancementDataPlayer_class
-        && method.parameterCount == 0
+      method.returnType == AdvancementDataPlayer_class &&
+        method.parameterCount == 0
     } ?: error("Cannot find EntityPlayer#getAdvancementData")
 
     val AdvancementDataPlayer_getProgress = AdvancementDataPlayer_class.methods.find { method ->
-      method.returnType == AdvancementProgress_class
-        && method.parameterCount == 1
-        && method.parameterTypes[0] == Advancement_class
+      method.returnType == AdvancementProgress_class &&
+        method.parameterCount == 1 &&
+        method.parameterTypes[0] == Advancement_class
     } ?: error("Cannot find AdvancementDataPlayer#getProgress")
 
     val AdvancementDataPlayer_grantCriteria =
@@ -157,10 +157,10 @@ class ToastTask : KoinComponent {
 
     val ChatDeserializer_deserialize by lazy {
       ChatDeserializer_class.methods.find { method ->
-        method.parameterCount == 3
-          && method.parameterTypes.contains(Gson::class.java)
-          && method.parameterTypes.contains(String::class.java)
-          && method.parameterTypes.contains(Class::class.java)
+        method.parameterCount == 3 &&
+          method.parameterTypes.contains(Gson::class.java) &&
+          method.parameterTypes.contains(String::class.java) &&
+          method.parameterTypes.contains(Class::class.java)
       } ?: error("Cannot find ChatDeserializer.deserialize")
     }
 
@@ -174,8 +174,8 @@ class ToastTask : KoinComponent {
     val LootPredicateManager_class by lazy { Crafty.needNMSClassOrElse("LootPredicateManager", "net.minecraft.world.level.storage.loot.LootPredicateManager") }
     val MinecraftServer_getLootPredicateManager by lazy {
       MinecraftServer_class.declaredMethods.find { method ->
-        method.returnType == LootPredicateManager_class
-          && method.parameterCount == 0
+        method.returnType == LootPredicateManager_class &&
+          method.parameterCount == 0
       } ?: error("Cannot find MinecraftServer#getLootPredicateManager")
     }
 
@@ -187,10 +187,10 @@ class ToastTask : KoinComponent {
 
     val SerializedAdvancement_deserialize by lazy {
       SerializedAdvancement_class.declaredMethods.find { method ->
-        method.returnType == SerializedAdvancement_class
-          && method.parameterCount == 2
-          && method.parameterTypes.contains(JsonObject::class.java)
-          && method.parameterTypes.contains(LootDeserializationContext_class)
+        method.returnType == SerializedAdvancement_class &&
+          method.parameterCount == 2 &&
+          method.parameterTypes.contains(JsonObject::class.java) &&
+          method.parameterTypes.contains(LootDeserializationContext_class)
       } ?: error("Cannot find SerializedAdvancement.deserialize")
     }
     // end 1.16+

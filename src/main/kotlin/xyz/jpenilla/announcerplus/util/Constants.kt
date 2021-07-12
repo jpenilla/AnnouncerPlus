@@ -44,12 +44,14 @@ object Constants {
     append(text("P", color(0x2CF58B)))
     append(text("]", WHITE))
     append(space())
-    hoverEvent(text {
-      append(text("Announcer", color(0x47EB46)))
-      append(text("Plus", color(0x2CF58B), ITALIC))
-      append(newline())
-      append(text("  Click for help", GRAY, ITALIC))
-    })
+    hoverEvent(
+      text {
+        append(text("Announcer", color(0x47EB46)))
+        append(text("Plus", color(0x2CF58B), ITALIC))
+        append(newline())
+        append(text("  Click for help", GRAY, ITALIC))
+      }
+    )
     clickEvent(runCommand("/announcerplus help"))
   }
 }

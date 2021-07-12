@@ -67,40 +67,48 @@ class TitleUpdateTask(
     if (fadeOut == 0) {
       return
     }
-    audience.showTitle(title(
-      title(),
-      subtitle(),
-      times(
-        stay = Duration.ofMillis(200L),
-        fadeOut = Duration.ofSeconds(fadeOut.toLong())
+    audience.showTitle(
+      title(
+        title(),
+        subtitle(),
+        times(
+          stay = Duration.ofMillis(200L),
+          fadeOut = Duration.ofSeconds(fadeOut.toLong())
+        )
       )
-    ))
+    )
   }
 
   override fun update() {
     if (fadeIn == 0) {
-      audience.showTitle(title(
-        title(),
-        subtitle(),
-        times(stay = Duration.ofMillis(200L))
-      ))
+      audience.showTitle(
+        title(
+          title(),
+          subtitle(),
+          times(stay = Duration.ofMillis(200L))
+        )
+      )
       return
     }
     if (ticksLived == 0L) {
-      audience.showTitle(title(
-        title(),
-        subtitle(),
-        times(
-          fadeIn = Duration.ofSeconds(fadeIn.toLong()),
-          stay = Duration.ofMillis(200L)
+      audience.showTitle(
+        title(
+          title(),
+          subtitle(),
+          times(
+            fadeIn = Duration.ofSeconds(fadeIn.toLong()),
+            stay = Duration.ofMillis(200L)
+          )
         )
-      ))
+      )
     } else if (ticksLived > fadeIn * 20L) {
-      audience.showTitle(title(
-        title(),
-        subtitle(),
-        times(stay = Duration.ofMillis(200L))
-      ))
+      audience.showTitle(
+        title(
+          title(),
+          subtitle(),
+          times(stay = Duration.ofMillis(200L))
+        )
+      )
     }
   }
 

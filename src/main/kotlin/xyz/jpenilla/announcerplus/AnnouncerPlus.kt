@@ -64,14 +64,16 @@ class AnnouncerPlus : BasePlugin(), KoinComponent {
     }
 
     startKoin {
-      modules(module {
-        single { this@AnnouncerPlus }
-        single { audiences() }
-        single { miniMessage() }
-        single { chat() }
-        single { ConfigManager(get()) }
-        single { gson }
-      })
+      modules(
+        module {
+          single { this@AnnouncerPlus }
+          single { audiences() }
+          single { miniMessage() }
+          single { chat() }
+          single { ConfigManager(get()) }
+          single { gson }
+        }
+      )
     }
 
     if (getMinecraftVersion() > 11) {

@@ -52,7 +52,7 @@ class ScrollingText(
     return try {
       configManager.parse(player, text).substring(index, index + windowSize)
     } catch (e: Exception) {
-      //if the placeholders changed in a way that causes us to out of bounds
+      // if the placeholders changed in a way that causes us to out of bounds
       index = 0
       configManager.parse(player, text).substring(index, index + windowSize)
     }

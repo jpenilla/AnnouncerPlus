@@ -218,8 +218,8 @@ class MessageConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
     val onlinePlayers = announcerPlus.getOnMain { ImmutableList.copyOf(Bukkit.getOnlinePlayers()) }
     for (onlinePlayer in onlinePlayers) {
       if (announcerPlus.essentials != null) {
-        if (announcerPlus.essentials!!.isAfk(onlinePlayer)
-          && announcerPlus.perms!!.playerHas(onlinePlayer, "${announcerPlus.name}.messages.$name.afk")
+        if (announcerPlus.essentials!!.isAfk(onlinePlayer) &&
+          announcerPlus.perms!!.playerHas(onlinePlayer, "${announcerPlus.name}.messages.$name.afk")
         ) {
           continue
         }

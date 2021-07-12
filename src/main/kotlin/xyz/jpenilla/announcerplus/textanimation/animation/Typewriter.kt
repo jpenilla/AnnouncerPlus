@@ -38,7 +38,7 @@ class Typewriter(private val player: Player?, private val text: String, private 
     val s = try {
       configManager.parse(player, text).substring(0, index)
     } catch (e: Exception) {
-      //if the placeholders changed in a way that causes us to out of bounds
+      // if the placeholders changed in a way that causes us to out of bounds
       index = 0
       configManager.parse(player, text).substring(0, index)
     }

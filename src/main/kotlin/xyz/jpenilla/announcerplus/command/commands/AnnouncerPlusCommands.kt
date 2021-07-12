@@ -148,12 +148,14 @@ class AnnouncerPlusCommands : BaseCommand {
       append(text(config.name, color))
       append(space())
       append(text("(", WHITE))
-      append(text {
-        content("announcerplus.messages.${config.name}")
-        color(GRAY)
-        hoverEvent(text("Click to copy", WHITE, ITALIC))
-        clickEvent(copyToClipboard("announcerplus.messages.${config.name}"))
-      })
+      append(
+        text {
+          content("announcerplus.messages.${config.name}")
+          color(GRAY)
+          hoverEvent(text("Click to copy", WHITE, ITALIC))
+          clickEvent(copyToClipboard("announcerplus.messages.${config.name}"))
+        }
+      )
       append(text(")", WHITE))
     }
     audience.sendMessage(header)
@@ -161,15 +163,17 @@ class AnnouncerPlusCommands : BaseCommand {
     val messages = arrayListOf<Component>()
     for (msg in config.messages) {
       for (line in msg.messageText) {
-        messages.add(text {
-          if (msg.messageText.indexOf(line) != 0) {
-            append(text("  "))
+        messages.add(
+          text {
+            if (msg.messageText.indexOf(line) != 0) {
+              append(text("  "))
+            }
+            append(text(" - ", color))
+            append(text('"', WHITE))
+            append(miniMessage(configManager.parse(ctx.sender, line)))
+            append(text('"', WHITE))
           }
-          append(text(" - ", color))
-          append(text('"', WHITE))
-          append(miniMessage(configManager.parse(ctx.sender, line)))
-          append(text('"', WHITE))
-        })
+        )
       }
     }
     buildPagination(color, config)
@@ -182,10 +186,12 @@ class AnnouncerPlusCommands : BaseCommand {
     .width(53)
     .line { characterAndStyle ->
       characterAndStyle.character('-')
-      characterAndStyle.style(style {
-        color(color)
-        decorate(STRIKETHROUGH)
-      })
+      characterAndStyle.style(
+        style {
+          color(color)
+          decorate(STRIKETHROUGH)
+        }
+      )
     }
     .renderer(object : Renderer {
       private fun renderButton(character: Char, style: Style, clickEvent: ClickEvent): Component =
@@ -204,23 +210,26 @@ class AnnouncerPlusCommands : BaseCommand {
         renderButton(character, style, clickEvent)
     })
     .nextButton { characterAndStyle ->
-      characterAndStyle.style(style {
-        decorate(BOLD)
-        color(color)
-        hoverEvent(text("Next Page", GREEN))
-      })
+      characterAndStyle.style(
+        style {
+          decorate(BOLD)
+          color(color)
+          hoverEvent(text("Next Page", GREEN))
+        }
+      )
     }
     .previousButton { characterAndStyle ->
-      characterAndStyle.style(style {
-        decorate(BOLD)
-        color(color)
-        hoverEvent(text("Previous Page", RED))
-      })
+      characterAndStyle.style(
+        style {
+          decorate(BOLD)
+          color(color)
+          hoverEvent(text("Previous Page", RED))
+        }
+      )
     }
     .build(
       text("Messages"),
       { value, _ -> setOf(value) },
       { "/announcerplus list ${config.name} $it" }
     )
-
 }
