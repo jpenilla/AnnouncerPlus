@@ -4,7 +4,7 @@ metadata:
     - plugins
 
 plugins:
-  net.kyori.indra.license-header: &indra 2.0.5
+  net.kyori.indra.license-header: &indra 2.0.6
   net.kyori.indra.git: *indra
   com.github.johnrengelman.shadow: 7.0.0
   net.minecrell.plugin-yml.bukkit: 0.4.0

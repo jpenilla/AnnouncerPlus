@@ -1,7 +1,7 @@
 import net.kyori.indra.repository.sonatypeSnapshots
 
 plugins {
-  kotlin("jvm") version "1.5.20"
+  kotlin("jvm") version "1.5.21"
   id("net.kyori.indra.license-header")
   id("net.kyori.indra.git")
   id("xyz.jpenilla.run-paper")
