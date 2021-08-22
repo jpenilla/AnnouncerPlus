@@ -33,21 +33,19 @@ class PlaceholderAPIMiniMessagePreprocessor(private val miniMessage: MiniMessage
   fun process(player: Player, input: String): String =
     this.process(
       PlaceholderAPI.getPlaceholderPattern(),
-      { PlaceholderAPI.setPlaceholders(player, it) },
       input
-    )
+    ) { PlaceholderAPI.setPlaceholders(player, it) }
 
   fun process(one: Player, two: Player, input: String): String =
     this.process(
       PlaceholderAPI.getPlaceholderPattern(),
-      { PlaceholderAPI.setPlaceholders(one, PlaceholderAPI.setRelationalPlaceholders(one, two, it)) },
       input
-    )
+    ) { PlaceholderAPI.setPlaceholders(one, PlaceholderAPI.setRelationalPlaceholders(one, two, it)) }
 
   private fun process(
     pattern: Pattern,
-    placeholderResolver: (String) -> String,
     input: String,
+    placeholderResolver: (String) -> String,
   ): String {
     val matcher = pattern.matcher(input)
     val buffer = StringBuffer()

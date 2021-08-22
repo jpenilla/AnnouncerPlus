@@ -63,17 +63,17 @@ class AnnouncerPlus : BasePlugin(), KoinComponent {
       essentials = EssentialsHook()
     }
 
+    val module = module {
+      single { this@AnnouncerPlus }
+      single { audiences() }
+      single { miniMessage() }
+      single { chat() }
+      single { ConfigManager(get()) }
+      single { gson }
+    }
+
     startKoin {
-      modules(
-        module {
-          single { this@AnnouncerPlus }
-          single { audiences() }
-          single { miniMessage() }
-          single { chat() }
-          single { ConfigManager(get()) }
-          single { gson }
-        }
-      )
+      modules(module)
     }
 
     if (getMinecraftVersion() > 11) {

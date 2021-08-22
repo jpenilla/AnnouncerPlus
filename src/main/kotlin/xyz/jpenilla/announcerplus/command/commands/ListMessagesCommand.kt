@@ -24,7 +24,6 @@
 package xyz.jpenilla.announcerplus.command.commands
 
 import cloud.commandframework.context.CommandContext
-import cloud.commandframework.minecraft.extras.MinecraftHelp
 import net.kyori.adventure.extra.kotlin.style
 import net.kyori.adventure.extra.kotlin.text
 import net.kyori.adventure.text.Component
@@ -33,7 +32,6 @@ import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.event.ClickEvent
 import net.kyori.adventure.text.event.ClickEvent.copyToClipboard
-import net.kyori.adventure.text.event.ClickEvent.openUrl
 import net.kyori.adventure.text.feature.pagination.Pagination
 import net.kyori.adventure.text.feature.pagination.Pagination.Renderer
 import net.kyori.adventure.text.format.NamedTextColor.GRAY
@@ -46,96 +44,31 @@ import net.kyori.adventure.text.format.TextDecoration.BOLD
 import net.kyori.adventure.text.format.TextDecoration.ITALIC
 import net.kyori.adventure.text.format.TextDecoration.STRIKETHROUGH
 import org.koin.core.inject
-import xyz.jpenilla.announcerplus.AnnouncerPlus
-import xyz.jpenilla.announcerplus.command.ArgumentFactory
 import xyz.jpenilla.announcerplus.command.BaseCommand
 import xyz.jpenilla.announcerplus.command.Commander
 import xyz.jpenilla.announcerplus.command.Commands
+import xyz.jpenilla.announcerplus.command.argument.MessageConfigArgument
+import xyz.jpenilla.announcerplus.command.argument.positiveInteger
 import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.config.message.MessageConfig
-import xyz.jpenilla.announcerplus.util.center
-import xyz.jpenilla.announcerplus.util.description
-import xyz.jpenilla.announcerplus.util.measurePlain
 import xyz.jpenilla.announcerplus.util.miniMessage
-import xyz.jpenilla.announcerplus.util.modifyHSV
 import xyz.jpenilla.announcerplus.util.randomColor
-import java.util.logging.Level
-import kotlin.math.roundToInt
 
-class AnnouncerPlusCommands : BaseCommand {
-  private val announcerPlus: AnnouncerPlus by inject()
+class ListMessagesCommand : BaseCommand {
   private val commands: Commands by inject()
   private val configManager: ConfigManager by inject()
-  private val minecraftHelp: MinecraftHelp<Commander> by inject()
-  private val argumentFactory: ArgumentFactory by inject()
 
   override fun register() {
-    commands.registerSubcommand("help") {
-      permission = "announcerplus.command.help"
-      commandDescription("Shows help for AnnouncerPlus commands.")
-      argument(argumentFactory.helpQuery("query"), description("Help Query"))
-      handler(::executeHelp)
-    }
-    commands.registerSubcommand("about") {
-      permission = "announcerplus.command.about"
-      commandDescription("Prints some information about AnnouncerPlus.")
-      handler(::executeAbout)
-    }
-    commands.registerSubcommand("reload") {
-      permission = "announcerplus.command.reload"
-      commandDescription("Reloads AnnouncerPlus configs.")
-      handler(::executeReload)
-    }
     commands.registerSubcommand("list") {
       permission = "announcerplus.command.list"
       commandDescription("Displays the chat messages of a message config to the command sender.")
-      argument(argumentFactory.messageConfig("config"))
-      argument(argumentFactory.positiveInteger("page").asOptional())
-      handler(::executeList)
+      argument(MessageConfigArgument("config"))
+      argument(positiveInteger("page").asOptional())
+      handler(::execute)
     }
   }
 
-  private fun executeHelp(ctx: CommandContext<Commander>) {
-    minecraftHelp.queryCommands(ctx.getOrDefault("query", "") as String, ctx.sender)
-  }
-
-  private fun executeAbout(ctx: CommandContext<Commander>) {
-    val audience = ctx.sender
-    val color = randomColor()
-    val nameAndVersion = text {
-      hoverEvent(miniMessage("<rainbow>click me!"))
-      clickEvent(openUrl(announcerPlus.description.website!!))
-      append(text(announcerPlus.description.name))
-      append(space())
-      val lightenedColor = color.modifyHSV(sRatio = 0.3f, vRatio = 2.0f)
-      append(miniMessage("<gradient:$color:$lightenedColor>${announcerPlus.description.version}"))
-    }
-    val spaces = " ".repeat((nameAndVersion.measurePlain() * 1.5).roundToInt())
-    val header = miniMessage("<gradient:$color:white:$color><strikethrough>$spaces").center()
-    sequenceOf(
-      header,
-      nameAndVersion.center(),
-      text {
-        content("By ")
-        append(text("jmp", color))
-      }.center(),
-      header
-    ).forEach(audience::sendMessage)
-  }
-
-  private fun executeReload(ctx: CommandContext<Commander>) {
-    val audience = ctx.sender
-    audience.sendMessage(miniMessage("<italic><gradient:${randomColor()}:${randomColor()}>Reloading ${announcerPlus.name} config...").center())
-    try {
-      announcerPlus.reload()
-      audience.sendMessage(miniMessage("<green>Done.").center())
-    } catch (e: Exception) {
-      audience.sendMessage(text("I'm sorry, but there was an error reloading the plugin. This is most likely due to misconfiguration. Check the console for more information.", RED))
-      announcerPlus.logger.log(Level.WARNING, "Failed to reload configs", e)
-    }
-  }
-
-  private fun executeList(ctx: CommandContext<Commander>) {
+  private fun execute(ctx: CommandContext<Commander>) {
     val audience = ctx.sender
     val color = randomColor()
     val config = ctx.get<MessageConfig>("config")

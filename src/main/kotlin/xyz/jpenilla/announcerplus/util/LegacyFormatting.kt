@@ -27,7 +27,7 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import org.bukkit.plugin.Plugin
 
 class LegacyFormatting(private val plugin: Plugin) {
-  companion object {
+  private companion object {
     private const val DISABLE_LEGACY_CHECK_PROPERTY_NAME = "AnnouncerPlus.disableLegacyCheck"
     private const val SECTION_SYMBOL_STRING = LegacyComponentSerializer.SECTION_CHAR.toString()
     private const val EMPTY_STRING = ""

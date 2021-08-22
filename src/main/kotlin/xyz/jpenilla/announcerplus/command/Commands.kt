@@ -29,18 +29,18 @@ import cloud.commandframework.kotlin.MutableCommandBuilder
 import cloud.commandframework.kotlin.extension.commandBuilder
 import cloud.commandframework.minecraft.extras.AudienceProvider.nativeAudience
 import cloud.commandframework.minecraft.extras.MinecraftExceptionHandler
-import cloud.commandframework.minecraft.extras.MinecraftHelp
 import cloud.commandframework.paper.PaperCommandManager
 import net.kyori.adventure.text.TextComponent
-import net.kyori.adventure.text.format.NamedTextColor
-import net.kyori.adventure.text.format.TextColor
 import org.bukkit.entity.Player
 import org.koin.core.context.loadKoinModules
 import org.koin.dsl.module
 import xyz.jpenilla.announcerplus.AnnouncerPlus
-import xyz.jpenilla.announcerplus.command.commands.AnnouncerPlusCommands
+import xyz.jpenilla.announcerplus.command.commands.AboutCommand
 import xyz.jpenilla.announcerplus.command.commands.BroadcastCommands
+import xyz.jpenilla.announcerplus.command.commands.HelpCommand
+import xyz.jpenilla.announcerplus.command.commands.ListMessagesCommand
 import xyz.jpenilla.announcerplus.command.commands.ParseCommands
+import xyz.jpenilla.announcerplus.command.commands.ReloadCommand
 import xyz.jpenilla.announcerplus.command.commands.SendCommands
 import xyz.jpenilla.announcerplus.util.Constants
 
@@ -56,21 +56,6 @@ class Commands(plugin: AnnouncerPlus) {
     },
     { (it as BukkitCommander).commandSender }
   )
-
-  private val minecraftHelp = MinecraftHelp(
-    "/announcerplus help",
-    nativeAudience(),
-    commandManager
-  ).apply {
-    helpColors = MinecraftHelp.HelpColors.of(
-      TextColor.color(0x00a3ff),
-      NamedTextColor.WHITE,
-      TextColor.color(0x284fff),
-      NamedTextColor.GRAY,
-      NamedTextColor.DARK_GRAY
-    )
-    setMessage(MinecraftHelp.MESSAGE_HELP_TITLE, "AnnouncerPlus Help")
-  }
 
   init {
     MinecraftExceptionHandler<Commander>()
@@ -94,13 +79,18 @@ class Commands(plugin: AnnouncerPlus) {
     loadKoinModules(
       module {
         single { this@Commands }
-        single { minecraftHelp }
-        single { ArgumentFactory() }
       }
     )
 
-    listOf(
-      AnnouncerPlusCommands(),
+    registerCommands()
+  }
+
+  private fun registerCommands() {
+    setOf(
+      AboutCommand(),
+      HelpCommand(),
+      ListMessagesCommand(),
+      ReloadCommand(),
       BroadcastCommands(),
       SendCommands(),
       ParseCommands()
@@ -114,7 +104,9 @@ class Commands(plugin: AnnouncerPlus) {
   fun registerSubcommand(
     literal: String,
     lambda: MutableCommandBuilder<Commander>.() -> Unit
-  ) = this.rootBuilder().literal(literal).apply(lambda).register()
+  ) {
+    rootBuilder().literal(literal).apply(lambda).register()
+  }
 
   fun registerSubcommand(
     literal: String,
@@ -122,7 +114,7 @@ class Commands(plugin: AnnouncerPlus) {
     lambda: MutableCommandBuilder<Commander>.() -> Unit
   ) {
     if (registrationPredicate) {
-      this.registerSubcommand(literal, lambda)
+      registerSubcommand(literal, lambda)
     }
   }
 }

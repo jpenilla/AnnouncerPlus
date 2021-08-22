@@ -24,11 +24,13 @@
 package xyz.jpenilla.announcerplus.util
 
 import cloud.commandframework.ArgumentDescription
+import cloud.commandframework.arguments.parser.ArgumentParseResult
 import cloud.commandframework.kotlin.extension.argumentDescription
 import net.kyori.adventure.nbt.BinaryTag
 import net.kyori.adventure.nbt.CompoundBinaryTag
 import net.kyori.adventure.nbt.ListBinaryTag
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.ComponentLike
 import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.format.TextColor.color
 import net.kyori.adventure.text.minimessage.MiniMessage
@@ -50,6 +52,8 @@ fun addDefaultPermission(permission: String, default: PermissionDefault) {
 }
 
 fun description(description: String = ""): ArgumentDescription = argumentDescription(description)
+
+fun <R> failure(message: ComponentLike): ArgumentParseResult<R> = ArgumentParseResult.failure(ComponentException(message))
 
 fun miniMessage(): MiniMessage = MiniMessage.get()
 
