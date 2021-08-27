@@ -1,7 +1,7 @@
 import net.kyori.indra.repository.sonatypeSnapshots
 
 plugins {
-  kotlin("jvm") version "1.5.21"
+  kotlin("jvm") version "1.5.30"
   id("net.kyori.indra.license-header")
   id("net.kyori.indra.git")
   id("xyz.jpenilla.run-paper")
@@ -35,7 +35,7 @@ repositories {
 
 configurations.all {
   resolutionStrategy {
-    force("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.20")
+    force("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.30")
   }
 }
 
