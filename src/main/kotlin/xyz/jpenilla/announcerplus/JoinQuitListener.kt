@@ -37,7 +37,7 @@ import xyz.jpenilla.jmplib.RandomCollection
 class JoinQuitListener : Listener, KoinComponent {
   private val configManager: ConfigManager by inject()
 
-  @EventHandler(priority = EventPriority.LOWEST)
+  @EventHandler(priority = EventPriority.HIGHEST)
   fun onJoin(event: PlayerJoinEvent) {
     if (configManager.mainConfig.joinFeatures) {
       event.joinMessage = ""
@@ -57,7 +57,7 @@ class JoinQuitListener : Listener, KoinComponent {
     }
   }
 
-  @EventHandler(priority = EventPriority.LOWEST)
+  @EventHandler(priority = EventPriority.HIGHEST)
   fun onQuit(event: PlayerQuitEvent) {
     if (configManager.mainConfig.quitFeatures) {
       event.quitMessage = ""
