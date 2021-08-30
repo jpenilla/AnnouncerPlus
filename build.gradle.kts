@@ -54,7 +54,7 @@ dependencies {
   implementation("cloud.commandframework", "cloud-kotlin-extensions", cloudVersion)
   implementation("cloud.commandframework", "cloud-minecraft-extras", cloudVersion)
 
-  platform(implementation("org.spongepowered", "configurate-bom", "4.1.1"))
+  platform(implementation("org.spongepowered", "configurate-bom", "4.1.2"))
   implementation("org.spongepowered", "configurate-hocon")
   implementation("org.spongepowered", "configurate-extra-kotlin")
 
