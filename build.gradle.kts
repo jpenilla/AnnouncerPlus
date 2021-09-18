@@ -35,7 +35,7 @@ repositories {
 
 configurations.all {
   resolutionStrategy {
-    force("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.30")
+    force("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.31")
   }
 }
 
