@@ -30,7 +30,6 @@ import cloud.commandframework.kotlin.extension.commandBuilder
 import cloud.commandframework.minecraft.extras.AudienceProvider.nativeAudience
 import cloud.commandframework.minecraft.extras.MinecraftExceptionHandler
 import cloud.commandframework.paper.PaperCommandManager
-import net.kyori.adventure.text.TextComponent
 import org.bukkit.entity.Player
 import org.koin.core.context.loadKoinModules
 import org.koin.dsl.module
@@ -43,6 +42,7 @@ import xyz.jpenilla.announcerplus.command.commands.ParseCommands
 import xyz.jpenilla.announcerplus.command.commands.ReloadCommand
 import xyz.jpenilla.announcerplus.command.commands.SendCommands
 import xyz.jpenilla.announcerplus.util.Constants
+import xyz.jpenilla.announcerplus.util.ofChildren
 
 class Commands(plugin: AnnouncerPlus) {
   val commandManager = PaperCommandManager(
@@ -60,9 +60,7 @@ class Commands(plugin: AnnouncerPlus) {
   init {
     MinecraftExceptionHandler<Commander>()
       .withDefaultHandlers()
-      .withDecorator {
-        TextComponent.ofChildren(Constants.CHAT_PREFIX, it)
-      }
+      .withDecorator { ofChildren(Constants.CHAT_PREFIX, it) }
       .apply(commandManager, nativeAudience())
 
     if (commandManager.queryCapability(CloudBukkitCapabilities.NATIVE_BRIGADIER)) {

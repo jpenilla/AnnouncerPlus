@@ -30,7 +30,10 @@ import net.kyori.adventure.nbt.BinaryTag
 import net.kyori.adventure.nbt.CompoundBinaryTag
 import net.kyori.adventure.nbt.ListBinaryTag
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.Component.empty
+import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.ComponentLike
+import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.format.TextColor.color
 import net.kyori.adventure.text.minimessage.MiniMessage
@@ -75,3 +78,8 @@ fun listBinaryTag(builder: ListBinaryTag.Builder<BinaryTag>.() -> Unit): ListBin
 
 fun listBinaryTag(vararg tags: BinaryTag): ListBinaryTag =
   listBinaryTag { tags.forEach(this::add) }
+
+fun ofChildren(vararg children: ComponentLike): TextComponent {
+  if (children.isEmpty()) return empty()
+  return text().append(*children).build()
+}

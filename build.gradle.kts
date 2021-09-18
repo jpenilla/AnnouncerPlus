@@ -45,7 +45,7 @@ dependencies {
   compileOnly("net.ess3", "EssentialsX", "2.18.2")
   compileOnly("me.clip", "placeholderapi", "2.10.9")
 
-  platform(implementation("net.kyori", "adventure-bom", "4.8.1"))
+  platform(implementation("net.kyori", "adventure-bom", "4.9.1"))
   implementation("net.kyori", "adventure-extra-kotlin")
   implementation("net.kyori", "adventure-serializer-configurate4")
 
@@ -54,12 +54,12 @@ dependencies {
   implementation("cloud.commandframework", "cloud-kotlin-extensions", cloudVersion)
   implementation("cloud.commandframework", "cloud-minecraft-extras", cloudVersion)
 
-  platform(implementation("org.spongepowered", "configurate-bom", "4.1.1"))
+  platform(implementation("org.spongepowered", "configurate-bom", "4.1.2"))
   implementation("org.spongepowered", "configurate-hocon")
   implementation("org.spongepowered", "configurate-extra-kotlin")
 
   implementation("org.koin", "koin-core", "2.1.6")
-  implementation("xyz.jpenilla", "jmplib", "1.0.1+40-SNAPSHOT")
+  implementation("xyz.jpenilla", "jmplib", "1.0.1+42-SNAPSHOT")
   implementation("org.bstats", "bstats-bukkit", "2.2.1")
   implementation("io.papermc", "paperlib", "1.0.6")
 }

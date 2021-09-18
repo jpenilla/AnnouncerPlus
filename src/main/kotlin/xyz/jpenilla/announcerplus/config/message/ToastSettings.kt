@@ -27,7 +27,6 @@ import com.google.gson.JsonObject
 import io.papermc.lib.PaperLib.getMinecraftVersion
 import net.kyori.adventure.nbt.TagStringIO
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -38,6 +37,7 @@ import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.util.compoundBinaryTag
 import xyz.jpenilla.announcerplus.util.listBinaryTag
 import xyz.jpenilla.announcerplus.util.miniMessage
+import xyz.jpenilla.announcerplus.util.ofChildren
 
 @ConfigSerializable
 class ToastSettings : MessageElement {
@@ -102,7 +102,7 @@ class ToastSettings : MessageElement {
     }
     icon.addProperty("nbt", TagStringIO.get().asString(nbt))
     display.add("icon", icon)
-    val titleComponent = TextComponent.ofChildren(
+    val titleComponent = ofChildren(
       miniMessage(announcerPlus.configManager.parse(player, header)),
       Component.newline(),
       miniMessage(announcerPlus.configManager.parse(player, footer))

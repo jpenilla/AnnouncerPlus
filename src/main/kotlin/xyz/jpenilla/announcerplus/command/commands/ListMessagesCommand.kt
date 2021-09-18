@@ -29,7 +29,6 @@ import net.kyori.adventure.extra.kotlin.text
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.Component.space
 import net.kyori.adventure.text.Component.text
-import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.event.ClickEvent
 import net.kyori.adventure.text.event.ClickEvent.copyToClipboard
 import net.kyori.adventure.text.feature.pagination.Pagination
@@ -52,6 +51,7 @@ import xyz.jpenilla.announcerplus.command.argument.positiveInteger
 import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.config.message.MessageConfig
 import xyz.jpenilla.announcerplus.util.miniMessage
+import xyz.jpenilla.announcerplus.util.ofChildren
 import xyz.jpenilla.announcerplus.util.randomColor
 
 class ListMessagesCommand : BaseCommand {
@@ -127,14 +127,13 @@ class ListMessagesCommand : BaseCommand {
       )
     }
     .renderer(object : Renderer {
-      private fun renderButton(character: Char, style: Style, clickEvent: ClickEvent): Component =
-        TextComponent.ofChildren(
-          space(),
-          text('[', WHITE),
-          text(character, style.clickEvent(clickEvent)),
-          text(']', WHITE),
-          space()
-        )
+      private fun renderButton(character: Char, style: Style, clickEvent: ClickEvent): Component = ofChildren(
+        space(),
+        text('[', WHITE),
+        text(character, style.clickEvent(clickEvent)),
+        text(']', WHITE),
+        space()
+      )
 
       override fun renderPreviousPageButton(character: Char, style: Style, clickEvent: ClickEvent): Component =
         renderButton(character, style, clickEvent)

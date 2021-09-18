@@ -26,7 +26,6 @@ package xyz.jpenilla.announcerplus.util
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.sound.Sound
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.flattener.ComponentFlattener
 import net.kyori.adventure.text.flattener.FlattenerListener
 import net.kyori.adventure.text.format.TextColor
@@ -107,8 +106,7 @@ fun Component.measurePlain(flattener: ComponentFlattener = ComponentFlattener.ba
   return listener.length
 }
 
-fun Component.center(): Component =
-  TextComponent.ofChildren(Component.text(ChatCentering.spacePrefix(this)), this)
+fun Component.center(): Component = ofChildren(Component.text(ChatCentering.spacePrefix(this)), this)
 
 fun TextColor.modifyHSV(
   hRatio: Float = 1f,
