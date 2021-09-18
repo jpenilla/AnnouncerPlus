@@ -58,7 +58,7 @@ dependencies {
   implementation("org.spongepowered", "configurate-hocon")
   implementation("org.spongepowered", "configurate-extra-kotlin")
 
-  implementation("org.koin", "koin-core", "2.1.6")
+  implementation("org.koin", "koin-core", "2.2.2")
   implementation("xyz.jpenilla", "jmplib", "1.0.1+42-SNAPSHOT")
   implementation("org.bstats", "bstats-bukkit", "2.2.1")
   implementation("io.papermc", "paperlib", "1.0.6")
