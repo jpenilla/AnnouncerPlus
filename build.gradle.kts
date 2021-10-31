@@ -45,7 +45,7 @@ dependencies {
   compileOnly("net.ess3", "EssentialsX", "2.18.2")
   compileOnly("me.clip", "placeholderapi", "2.10.9")
 
-  platform(implementation("net.kyori", "adventure-bom", "4.9.1"))
+  platform(implementation("net.kyori", "adventure-bom", "4.9.3"))
   implementation("net.kyori", "adventure-extra-kotlin")
   implementation("net.kyori", "adventure-serializer-configurate4")
 
