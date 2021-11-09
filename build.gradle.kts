@@ -1,7 +1,7 @@
 import net.kyori.indra.repository.sonatypeSnapshots
 
 plugins {
-  kotlin("jvm") version "1.5.30"
+  kotlin("jvm") version "1.5.31"
   id("net.kyori.indra.license-header")
   id("net.kyori.indra.git")
   id("xyz.jpenilla.run-paper")
@@ -35,17 +35,17 @@ repositories {
 
 configurations.all {
   resolutionStrategy {
-    force("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.30")
+    force("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.31")
   }
 }
 
 dependencies {
   compileOnly("com.destroystokyo.paper", "paper-api", "1.13.2-R0.1-SNAPSHOT")
-  compileOnly("com.github.MilkBowl", "VaultAPI", "1.7")
+  compileOnly("com.github.MilkBowl", "VaultAPI", "1.7.1")
   compileOnly("net.ess3", "EssentialsX", "2.18.2")
   compileOnly("me.clip", "placeholderapi", "2.10.9")
 
-  platform(implementation("net.kyori", "adventure-bom", "4.9.1"))
+  platform(implementation("net.kyori", "adventure-bom", "4.9.3"))
   implementation("net.kyori", "adventure-extra-kotlin")
   implementation("net.kyori", "adventure-serializer-configurate4")
 
@@ -59,7 +59,7 @@ dependencies {
   implementation("org.spongepowered", "configurate-extra-kotlin")
 
   implementation("org.koin", "koin-core", "2.1.6")
-  implementation("xyz.jpenilla", "jmplib", "1.0.1+42-SNAPSHOT")
+  implementation("xyz.jpenilla", "jmplib", "1.0.1+44-SNAPSHOT")
   implementation("org.bstats", "bstats-bukkit", "2.2.1")
   implementation("io.papermc", "paperlib", "1.0.6")
 }
@@ -74,7 +74,6 @@ tasks {
     }
 
     minimize()
-    archiveClassifier.set(null as String?)
     archiveFileName.set("${project.name}-${project.version}.jar")
 
     val prefix = "${project.group}.${project.name.toLowerCase()}.lib"

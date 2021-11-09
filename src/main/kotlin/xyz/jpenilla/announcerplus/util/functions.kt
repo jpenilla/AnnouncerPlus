@@ -58,9 +58,9 @@ fun description(description: String = ""): ArgumentDescription = argumentDescrip
 
 fun <R> failure(message: ComponentLike): ArgumentParseResult<R> = ArgumentParseResult.failure(ComponentException(message))
 
-fun miniMessage(): MiniMessage = MiniMessage.get()
+val miniMessage: MiniMessage = MiniMessage.miniMessage()
 
-fun miniMessage(message: String): Component = miniMessage().parse(message)
+fun miniMessage(message: String): Component = miniMessage.deserialize(message)
 
 fun randomColor(): TextColor = color(
   HSVLike.of(

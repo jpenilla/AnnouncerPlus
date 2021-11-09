@@ -253,7 +253,7 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
 
   private val preprocessor: PlaceholderAPIMiniMessagePreprocessor? by lazy {
     if (Bukkit.getServer().pluginManager.isPluginEnabled("PlaceholderAPI")) {
-      PlaceholderAPIMiniMessagePreprocessor(miniMessage())
+      PlaceholderAPIMiniMessagePreprocessor(miniMessage)
     } else {
       null
     }
