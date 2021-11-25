@@ -61,7 +61,7 @@ dependencies {
   implementation("org.koin", "koin-core", "2.1.6")
   implementation("xyz.jpenilla", "jmplib", "1.0.1+44-SNAPSHOT")
   implementation("org.bstats", "bstats-bukkit", "2.2.1")
-  implementation("io.papermc", "paperlib", "1.0.6")
+  implementation("io.papermc", "paperlib", "1.0.7")
 }
 
 tasks {
