@@ -1,9 +1,10 @@
 import net.kyori.indra.repository.sonatypeSnapshots
 
 plugins {
-  kotlin("jvm") version "1.5.31"
-  id("net.kyori.indra.license-header")
+  kotlin("jvm") version "1.6.0"
+  id("net.kyori.indra")
   id("net.kyori.indra.git")
+  id("net.kyori.indra.license-header")
   id("xyz.jpenilla.run-paper")
   id("org.jlleitschuh.gradle.ktlint")
   id("com.github.johnrengelman.shadow")
@@ -11,8 +12,7 @@ plugins {
 }
 
 group = "xyz.jpenilla"
-version = "1.3.0-SNAPSHOT"
-  .run { if (endsWith("-SNAPSHOT")) "$this+${lastCommitHash()}" else this }
+version = "1.3.0-SNAPSHOT".decorateVersion()
 description = "Announcement plugin with support for permissions. Supports Hex colors and clickable messages/hover text using MiniMessage."
 
 repositories {
@@ -33,28 +33,24 @@ repositories {
   }
 }
 
-configurations.all {
-  resolutionStrategy {
-    force("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.31")
-  }
-}
-
 dependencies {
+  implementation(platform(kotlin("bom")))
+
   compileOnly("com.destroystokyo.paper", "paper-api", "1.13.2-R0.1-SNAPSHOT")
   compileOnly("com.github.MilkBowl", "VaultAPI", "1.7.1")
   compileOnly("net.ess3", "EssentialsX", "2.18.2")
   compileOnly("me.clip", "placeholderapi", "2.10.9")
 
-  platform(implementation("net.kyori", "adventure-bom", "4.9.3"))
+  implementation(platform("net.kyori:adventure-bom:4.9.3"))
   implementation("net.kyori", "adventure-extra-kotlin")
   implementation("net.kyori", "adventure-serializer-configurate4")
 
-  val cloudVersion = "1.5.0"
-  implementation("cloud.commandframework", "cloud-paper", cloudVersion)
-  implementation("cloud.commandframework", "cloud-kotlin-extensions", cloudVersion)
-  implementation("cloud.commandframework", "cloud-minecraft-extras", cloudVersion)
+  implementation(platform("cloud.commandframework:cloud-bom:1.6.0-SNAPSHOT"))
+  implementation("cloud.commandframework", "cloud-paper")
+  implementation("cloud.commandframework", "cloud-kotlin-extensions")
+  implementation("cloud.commandframework", "cloud-minecraft-extras")
 
-  platform(implementation("org.spongepowered", "configurate-bom", "4.1.2"))
+  implementation(platform("org.spongepowered:configurate-bom:4.1.2"))
   implementation("org.spongepowered", "configurate-hocon")
   implementation("org.spongepowered", "configurate-extra-kotlin")
 
@@ -64,9 +60,20 @@ dependencies {
   implementation("io.papermc", "paperlib", "1.0.7")
 }
 
+kotlin {
+  jvmToolchain {
+    (this as JavaToolchainSpec).apply {
+      languageVersion.set(JavaLanguageVersion.of(8))
+    }
+  }
+}
+
 tasks {
   compileKotlin {
     kotlinOptions.jvmTarget = "1.8"
+  }
+  jar {
+    archiveClassifier.set("not-shadowed")
   }
   shadowJar {
     from(rootProject.file("license.txt")) {
@@ -74,7 +81,8 @@ tasks {
     }
 
     minimize()
-    archiveFileName.set("${project.name}-${project.version}.jar")
+    archiveClassifier.set(null as String?)
+    archiveBaseName.set(project.name) // Use uppercase name for final jar
 
     val prefix = "${project.group}.${project.name.toLowerCase()}.lib"
     sequenceOf(
@@ -117,6 +125,9 @@ bukkit {
   depend = listOf("Vault")
   softDepend = listOf("PlaceholderAPI", "Essentials", "ViaVersion")
 }
+
+fun String.decorateVersion(): String =
+  if (endsWith("-SNAPSHOT")) "$this+${lastCommitHash()}" else this
 
 fun lastCommitHash(): String = indraGit.commit()?.name?.substring(0, 7)
   ?: error("Failed to determine git hash.")
