@@ -26,7 +26,6 @@ package xyz.jpenilla.announcerplus.task
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import io.papermc.lib.PaperLib.getMinecraftVersion
-import io.papermc.lib.PaperLib.isPaper
 import org.bukkit.entity.Player
 import org.koin.core.KoinComponent
 import org.koin.core.inject
@@ -181,9 +180,6 @@ class ToastTask : KoinComponent {
         AdvancementProgress_remainingCriteria = AdvancementProgress_class.getDeclaredMethod("getRemainingCriteria")
         AdvancementProgress_completedCriteria = AdvancementProgress_class.getDeclaredMethod("getAwardedCriteria")
       } else {
-        if (!isPaper()) {
-          error("Could not locate Paper mappings, Toast/Advancement announcements will not function.")
-        }
         val reflectionRemapper = ReflectionRemapper.forReobfMappingsInPaperJar()
 
         PlayerAdvancements_award = PlayerAdvancements_class.getDeclaredMethod(

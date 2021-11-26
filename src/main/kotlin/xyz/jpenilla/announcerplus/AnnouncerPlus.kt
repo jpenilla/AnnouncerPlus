@@ -100,7 +100,7 @@ class AnnouncerPlus : BasePlugin(), KoinComponent {
       if (isPaper()) {
         toastTask = ToastTask()
       } else {
-        logger.info("Toast/Advancement style messages require Paper in order to function on this version.")
+        logger.info("Toast/Advancement style messages require Paper in order to function on this version, consider using Paper if you want to take advantage of this feature!")
       }
       return
     }
