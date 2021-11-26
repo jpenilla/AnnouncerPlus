@@ -26,6 +26,7 @@ package xyz.jpenilla.announcerplus.task
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import io.papermc.lib.PaperLib.getMinecraftVersion
+import io.papermc.lib.PaperLib.isPaper
 import org.bukkit.entity.Player
 import org.koin.core.KoinComponent
 import org.koin.core.inject
@@ -34,6 +35,9 @@ import xyz.jpenilla.announcerplus.config.message.ToastSettings
 import xyz.jpenilla.announcerplus.util.asyncTimer
 import xyz.jpenilla.announcerplus.util.runSync
 import xyz.jpenilla.jmplib.Crafty
+import xyz.jpenilla.reflectionremapper.ReflectionRemapper
+import java.lang.reflect.Constructor
+import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.util.concurrent.ConcurrentLinkedDeque
 import kotlin.random.Random.Default.nextInt
@@ -41,6 +45,10 @@ import kotlin.random.Random.Default.nextInt
 class ToastTask : KoinComponent {
   private val announcerPlus: AnnouncerPlus by inject()
   private val queuedToasts = ConcurrentLinkedDeque<QueuedToast>()
+
+  init {
+    ensureInitialized() // Load mappings on init (not lazily on first advancement)
+  }
 
   private val toastTask = announcerPlus.asyncTimer(0L, 1L) {
     if (queuedToasts.isNotEmpty()) {
@@ -64,15 +72,15 @@ class ToastTask : KoinComponent {
   private fun displayToastImmediately(queuedToast: QueuedToast) {
     val (player, toast) = queuedToast
     announcerPlus.runSync {
-      val minecraftKey =
-        MinecraftKey_ctr.newInstance(announcerPlus.name.lowercase(), nextInt(1000000).toString())
-      val serializedAdvancement = if (getMinecraftVersion() >= 16) {
-        SerializedAdvancement_deserialize(
+      val resourceLocation =
+        ResourceLocation_ctr.newInstance(announcerPlus.name.lowercase(), nextInt(1000000).toString())
+      val advancementBuilder = if (getMinecraftVersion() >= 16) {
+        AdvancementBuilder_fromJson(
           null,
           toast.getJson(player),
-          LootDeserializationContext_ctr.newInstance(
-            minecraftKey,
-            MinecraftServer_getLootPredicateManager(MinecraftServer_getServer())
+          DeserializationContext_ctr.newInstance(
+            resourceLocation,
+            MinecraftServer_getPredicateManager(MinecraftServer_getServer())
           )
         )
       } else {
@@ -80,45 +88,60 @@ class ToastTask : KoinComponent {
           null,
           AdvancementDataWorld_DESERIALIZER,
           announcerPlus.gson.toJson(toast.getJson(player)),
-          SerializedAdvancement_class
+          AdvancementBuilder_class
         )
       }
-      val advancement = SerializedAdvancement_getAdvancement(serializedAdvancement, minecraftKey)
-      val nmsPlayer = player.handle
-      val advancementData = EntityPlayer_getAdvancementData(nmsPlayer)
-      val advancementProgress = AdvancementDataPlayer_getProgress(advancementData, advancement)
+      val advancement = AdvancementBuilder_build(advancementBuilder, resourceLocation)
+      val playerAdvancements = ServerPlayer_getAdvancements(player.handle)
+      val advancementProgress = PlayerAdvancements_getProgress(playerAdvancements, advancement)
       (AdvancementProgress_remainingCriteria(advancementProgress) as Iterable<*>).forEach {
-        AdvancementDataPlayer_grantCriteria(advancementData, advancement, it)
+        PlayerAdvancements_award(playerAdvancements, advancement, it)
       }
       announcerPlus.runSync(20L) {
-        (AdvancementProgress_awardedCriteria(advancementProgress) as Iterable<*>).forEach {
-          AdvancementDataPlayer_revokeCriteria(advancementData, advancement, it)
+        (AdvancementProgress_completedCriteria(advancementProgress) as Iterable<*>).forEach {
+          PlayerAdvancements_revoke(playerAdvancements, advancement, it)
         }
       }
     }
   }
 
   private companion object Reflect {
+    fun ensureInitialized() {
+      // no-op
+    }
+
     val MinecraftServer_class = Crafty.needNMSClassOrElse("MinecraftServer", "net.minecraft.server.MinecraftServer")
     val MinecraftServer_getServer =
       Crafty.findStaticMethod(MinecraftServer_class, "getServer", MinecraftServer_class)
         ?: error("Cannot find getServer")
 
-    val MinecraftKey_class = Crafty.needNMSClassOrElse("MinecraftKey", "net.minecraft.resources.MinecraftKey")
-    val MinecraftKey_ctr = MinecraftKey_class.getDeclaredConstructor(String::class.java, String::class.java)
-      ?: error("Cannot find MinecraftKey constructor")
+    val ResourceLocation_class = Crafty.needNMSClassOrElse(
+      "MinecraftKey",
+      "net.minecraft.resources.MinecraftKey",
+      "net.minecraft.resources.ResourceLocation"
+    )
+    val ResourceLocation_ctr = ResourceLocation_class.getDeclaredConstructor(String::class.java, String::class.java)
+      ?: error("Cannot find ResourceLocation constructor")
 
     val Advancement_class = Crafty.needNMSClassOrElse("Advancement", "net.minecraft.advancements.Advancement")
-    val SerializedAdvancement_class = Crafty.needNMSClassOrElse("Advancement\$SerializedAdvancement", "net.minecraft.advancements.Advancement\$SerializedAdvancement")
+    val AdvancementBuilder_class = Crafty.needNMSClassOrElse(
+      "Advancement\$SerializedAdvancement",
+      "net.minecraft.advancements.Advancement\$SerializedAdvancement",
+      "net.minecraft.advancements.Advancement\$Builder"
+    )
 
-    val SerializedAdvancement_getAdvancement = SerializedAdvancement_class.declaredMethods.find { method ->
+    val AdvancementBuilder_build = AdvancementBuilder_class.declaredMethods.find { method ->
       method.returnType == Advancement_class &&
         method.parameterCount == 1 &&
-        method.parameterTypes[0] == MinecraftKey_class &&
+        method.parameterTypes[0] == ResourceLocation_class &&
         !Modifier.isStatic(method.modifiers)
-    } ?: error("Cannot find SerializedAdvancement#getAdvancement")
+    } ?: error("Cannot find Advancement\$Builder#build")
 
-    val EntityPlayer_class = Crafty.needNMSClassOrElse("EntityPlayer", "net.minecraft.server.level.EntityPlayer")
+    val ServerPlayer_class = Crafty.needNMSClassOrElse(
+      "EntityPlayer",
+      "net.minecraft.server.level.EntityPlayer",
+      "net.minecraft.server.level.ServerPlayer"
+    )
     val CraftPlayer_class = Crafty.needCraftClass("entity.CraftPlayer")
     val CraftPlayer_getHandle = CraftPlayer_class.getMethod("getHandle")
       ?: error("Cannot find CraftPlayer#getHandle")
@@ -126,30 +149,61 @@ class ToastTask : KoinComponent {
       get() = CraftPlayer_getHandle(this)
 
     val AdvancementProgress_class = Crafty.needNMSClassOrElse("AdvancementProgress", "net.minecraft.advancements.AdvancementProgress")
-    val AdvancementDataPlayer_class = Crafty.needNMSClassOrElse("AdvancementDataPlayer", "net.minecraft.server.AdvancementDataPlayer")
-    val EntityPlayer_getAdvancementData = EntityPlayer_class.methods.find { method ->
-      method.returnType == AdvancementDataPlayer_class &&
+    val PlayerAdvancements_class = Crafty.needNMSClassOrElse(
+      "AdvancementDataPlayer",
+      "net.minecraft.server.AdvancementDataPlayer",
+      "net.minecraft.server.PlayerAdvancements"
+    )
+    val ServerPlayer_getAdvancements = ServerPlayer_class.methods.find { method ->
+      method.returnType == PlayerAdvancements_class &&
         method.parameterCount == 0
-    } ?: error("Cannot find EntityPlayer#getAdvancementData")
+    } ?: error("Cannot find ServerPlayer#getAdvancements")
 
-    val AdvancementDataPlayer_getProgress = AdvancementDataPlayer_class.methods.find { method ->
+    val PlayerAdvancements_getProgress = PlayerAdvancements_class.methods.find { method ->
       method.returnType == AdvancementProgress_class &&
         method.parameterCount == 1 &&
         method.parameterTypes[0] == Advancement_class
-    } ?: error("Cannot find AdvancementDataPlayer#getProgress")
+    } ?: error("Cannot find PlayerAdvancements#getProgress")
 
-    val AdvancementDataPlayer_grantCriteria =
-      AdvancementDataPlayer_class.getDeclaredMethod("grantCriteria", Advancement_class, String::class.java)
-        ?: error("Cannot find AdvancementDataPlayer#grantCriteria")
-    val AdvancementDataPlayer_revokeCriteria = try {
-      AdvancementDataPlayer_class.getDeclaredMethod("revokeCritera", Advancement_class, String::class.java) // lol
-    } catch (e: NoSuchMethodException) {
-      AdvancementDataPlayer_class.getDeclaredMethod("revokeCriteria", Advancement_class, String::class.java)
-    } ?: error("Cannot find AdvancementDataPlayer#revokeCriteria")
-    val AdvancementProgress_remainingCriteria = AdvancementProgress_class.getDeclaredMethod("getRemainingCriteria")
-      ?: error("Cannot find AdvancementProgress#getRemainingCriteria")
-    val AdvancementProgress_awardedCriteria = AdvancementProgress_class.getDeclaredMethod("getAwardedCriteria")
-      ?: error("Cannot find AdvancementProgress#getAwardedCriteria")
+    val PlayerAdvancements_award: Method
+    val PlayerAdvancements_revoke: Method
+    val AdvancementProgress_remainingCriteria: Method
+    val AdvancementProgress_completedCriteria: Method
+
+    init {
+      if (getMinecraftVersion() < 17) {
+        PlayerAdvancements_award = PlayerAdvancements_class.getDeclaredMethod("grantCriteria", Advancement_class, String::class.java)
+        PlayerAdvancements_revoke = try {
+          PlayerAdvancements_class.getDeclaredMethod("revokeCritera", Advancement_class, String::class.java) // lol
+        } catch (e: NoSuchMethodException) {
+          PlayerAdvancements_class.getDeclaredMethod("revokeCriteria", Advancement_class, String::class.java)
+        }
+        AdvancementProgress_remainingCriteria = AdvancementProgress_class.getDeclaredMethod("getRemainingCriteria")
+        AdvancementProgress_completedCriteria = AdvancementProgress_class.getDeclaredMethod("getAwardedCriteria")
+      } else {
+        if (!isPaper()) {
+          error("Could not locate Paper mappings, Toast/Advancement announcements will not function.")
+        }
+        val reflectionRemapper = ReflectionRemapper.forReobfMappingsInPaperJar()
+
+        PlayerAdvancements_award = PlayerAdvancements_class.getDeclaredMethod(
+          reflectionRemapper.remapMethodName(PlayerAdvancements_class, "award", Advancement_class, String::class.java),
+          Advancement_class,
+          String::class.java
+        )
+        PlayerAdvancements_revoke = PlayerAdvancements_class.getDeclaredMethod(
+          reflectionRemapper.remapMethodName(PlayerAdvancements_class, "revoke", Advancement_class, String::class.java),
+          Advancement_class,
+          String::class.java
+        )
+        AdvancementProgress_remainingCriteria = AdvancementProgress_class.getDeclaredMethod(
+          reflectionRemapper.remapMethodName(AdvancementProgress_class, "getRemainingCriteria")
+        )
+        AdvancementProgress_completedCriteria = AdvancementProgress_class.getDeclaredMethod(
+          reflectionRemapper.remapMethodName(AdvancementProgress_class, "getCompletedCriteria")
+        )
+      }
+    }
 
     // start 1.12 -> 1.15
     val ChatDeserializer_class by lazy { Crafty.needNmsClass("ChatDeserializer") }
@@ -171,27 +225,38 @@ class ToastTask : KoinComponent {
     // end 1.12 -> 1.15
 
     // start 1.16+
-    val LootPredicateManager_class by lazy { Crafty.needNMSClassOrElse("LootPredicateManager", "net.minecraft.world.level.storage.loot.LootPredicateManager") }
-    val MinecraftServer_getLootPredicateManager by lazy {
+    val PredicateManager_class by lazy {
+      Crafty.needNMSClassOrElse(
+        "LootPredicateManager",
+        "net.minecraft.world.level.storage.loot.LootPredicateManager",
+        "net.minecraft.world.level.storage.loot.PredicateManager"
+      )
+    }
+    val MinecraftServer_getPredicateManager by lazy {
       MinecraftServer_class.declaredMethods.find { method ->
-        method.returnType == LootPredicateManager_class &&
+        method.returnType == PredicateManager_class &&
           method.parameterCount == 0
-      } ?: error("Cannot find MinecraftServer#getLootPredicateManager")
+      } ?: error("Cannot find MinecraftServer#getPredicateManager")
     }
 
-    val LootDeserializationContext_class by lazy { Crafty.needNMSClassOrElse("LootDeserializationContext", "net.minecraft.advancements.critereon.LootDeserializationContext") }
-    val LootDeserializationContext_ctr by lazy {
-      LootDeserializationContext_class.getDeclaredConstructor(MinecraftKey_class, LootPredicateManager_class)
-        ?: error("Cannot find LootDeserializationContext constructor")
+    val DeserializationContext_class by lazy {
+      Crafty.needNMSClassOrElse(
+        "LootDeserializationContext",
+        "net.minecraft.advancements.critereon.LootDeserializationContext",
+        "net.minecraft.advancements.critereon.DeserializationContext"
+      )
+    }
+    val DeserializationContext_ctr: Constructor<*> by lazy {
+      DeserializationContext_class.getDeclaredConstructor(ResourceLocation_class, PredicateManager_class)
     }
 
-    val SerializedAdvancement_deserialize by lazy {
-      SerializedAdvancement_class.declaredMethods.find { method ->
-        method.returnType == SerializedAdvancement_class &&
+    val AdvancementBuilder_fromJson by lazy {
+      AdvancementBuilder_class.declaredMethods.find { method ->
+        method.returnType == AdvancementBuilder_class &&
           method.parameterCount == 2 &&
           method.parameterTypes.contains(JsonObject::class.java) &&
-          method.parameterTypes.contains(LootDeserializationContext_class)
-      } ?: error("Cannot find SerializedAdvancement.deserialize")
+          method.parameterTypes.contains(DeserializationContext_class)
+      } ?: error("Cannot find Advancement\$Builder#fromJson")
     }
     // end 1.16+
   }

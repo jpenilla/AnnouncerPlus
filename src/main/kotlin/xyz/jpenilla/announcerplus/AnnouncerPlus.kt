@@ -26,6 +26,7 @@ package xyz.jpenilla.announcerplus
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import io.papermc.lib.PaperLib.getMinecraftVersion
+import io.papermc.lib.PaperLib.isPaper
 import io.papermc.lib.PaperLib.suggestPaper
 import net.milkbowl.vault.permission.Permission
 import org.bstats.bukkit.Metrics
@@ -76,11 +77,7 @@ class AnnouncerPlus : BasePlugin(), KoinComponent {
       modules(module)
     }
 
-    if (getMinecraftVersion() > 11) {
-      toastTask = ToastTask()
-    } else {
-      logger.info("Sorry, but Toast/Achievement style messages do not work on this version. Update to 1.12 or newer to use this feature.")
-    }
+    initToastTask()
     commands = Commands(this)
 
     server.pluginManager.registerEvents(JoinQuitListener(), this)
@@ -91,6 +88,24 @@ class AnnouncerPlus : BasePlugin(), KoinComponent {
     val metrics = Metrics(this, 8067)
     metrics.addCustomChart(SimplePie("join_quit_configs") { configManager.joinQuitConfigs.size.toString() })
     metrics.addCustomChart(SimplePie("message_configs") { configManager.messageConfigs.size.toString() })
+  }
+
+  private fun initToastTask() {
+    if (getMinecraftVersion() < 12) {
+      logger.info("Sorry, but Toast/Advancement style messages do not work on this version. Update to 1.12 or newer to use this feature.")
+      return
+    }
+
+    if (getMinecraftVersion() > 16) {
+      if (isPaper()) {
+        toastTask = ToastTask()
+      } else {
+        logger.info("Toast/Advancement style messages require Paper in order to function on this version.")
+      }
+      return
+    }
+
+    toastTask = ToastTask()
   }
 
   private fun broadcast() {

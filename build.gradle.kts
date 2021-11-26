@@ -23,6 +23,7 @@ repositories {
   maven("https://repo.spongepowered.org/repository/maven-public/")
   maven("https://repo.incendo.org/content/repositories/snapshots/")
   maven("https://repo.jpenilla.xyz/snapshots")
+  maven("https://maven.fabricmc.net/")
   maven("https://ci.ender.zone/plugin/repository/everything/")
   maven("https://repo.codemc.org/repository/maven-public")
   maven("https://repo.extendedclip.com/content/repositories/placeholderapi/") {
@@ -58,6 +59,12 @@ dependencies {
   implementation("xyz.jpenilla", "jmplib", "1.0.1+44-SNAPSHOT")
   implementation("org.bstats", "bstats-bukkit", "2.2.1")
   implementation("io.papermc", "paperlib", "1.0.7")
+
+  implementation("xyz.jpenilla:reflection-remapper:0.1.0-SNAPSHOT")
+}
+
+java {
+  disableAutoTargetJvm()
 }
 
 kotlin {
@@ -96,6 +103,8 @@ tasks {
       "org.spongepowered.configurate",
       "org.bstats",
       "kotlin",
+      "xyz.jpenilla.reflectionremapper",
+      "net.fabricmc.mappingio"
     ).forEach { pkg ->
       relocate(pkg, "$prefix.$pkg")
     }
