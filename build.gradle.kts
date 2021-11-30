@@ -16,7 +16,6 @@ version = "1.3.0-SNAPSHOT".decorateVersion()
 description = "Announcement plugin with support for permissions. Supports Hex colors and clickable messages/hover text using MiniMessage."
 
 repositories {
-  // mavenLocal()
   mavenCentral()
   sonatypeSnapshots()
   maven("https://papermc.io/repo/repository/maven-public/")
@@ -58,7 +57,7 @@ dependencies {
   implementation("org.koin", "koin-core", "2.1.6")
   implementation("xyz.jpenilla", "jmplib", "1.0.1+44-SNAPSHOT")
   implementation("org.bstats", "bstats-bukkit", "2.2.1")
-  implementation("io.papermc", "paperlib", "1.0.7")
+  implementation("io.papermc", "paperlib", "1.0.8-SNAPSHOT")
 
   implementation("xyz.jpenilla:reflection-remapper:0.1.0-SNAPSHOT")
 }
