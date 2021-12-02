@@ -184,7 +184,7 @@ class JoinQuitConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
   private var name: String? = null
 
   fun onJoin(player: Player) {
-    /* name is null for first-join config */
+    // name is null for first-join config
     if (name != null && !player.hasPermission("announcerplus.join.$name")) return
     chat.send(player, announcerPlus.configManager.parse(player, join.messages))
     announcerPlus.runSync(3L) {
@@ -216,7 +216,7 @@ class JoinQuitConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
 
   fun onQuit(player: Player) {
     if (name == null || !player.hasPermission("announcerplus.quit.$name") || isVanished(player)) return
-    ImmutableList.copyOf(Bukkit.getOnlinePlayers()).forEach { onlinePlayer ->
+    for (onlinePlayer in Bukkit.getOnlinePlayers()) {
       if (onlinePlayer.name != player.name) {
         if (announcerPlus.perms!!.playerHas(onlinePlayer, permission) || permission.isEmpty()) {
           chat.send(onlinePlayer, announcerPlus.configManager.parse(player, quit.broadcasts))
