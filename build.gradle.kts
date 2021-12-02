@@ -117,9 +117,11 @@ tasks {
   }
   runServer {
     minecraftVersion("1.18")
-    javaLauncher.set(project.javaToolchains.launcherFor {
-      languageVersion.set(JavaLanguageVersion.of(17))
-    })
+    javaLauncher.set(
+      project.javaToolchains.launcherFor {
+        languageVersion.set(JavaLanguageVersion.of(17))
+      }
+    )
   }
   register("format") {
     group = "formatting"
