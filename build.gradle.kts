@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "xyz.jpenilla"
-version = "1.3.0".decorateVersion()
+version = "1.3.1-SNAPSHOT".decorateVersion()
 description = "Announcement plugin with support for permissions. Supports Hex colors and clickable messages/hover text using MiniMessage."
 
 repositories {
