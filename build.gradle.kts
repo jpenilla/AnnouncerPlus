@@ -1,7 +1,7 @@
 import net.kyori.indra.repository.sonatypeSnapshots
 
 plugins {
-  kotlin("jvm") version "1.6.0"
+  kotlin("jvm") version "1.6.10"
   id("net.kyori.indra")
   id("net.kyori.indra.git")
   id("net.kyori.indra.license-header")
