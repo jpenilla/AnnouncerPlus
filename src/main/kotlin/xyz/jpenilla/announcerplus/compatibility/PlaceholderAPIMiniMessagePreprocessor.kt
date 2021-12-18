@@ -27,6 +27,7 @@ import me.clip.placeholderapi.PlaceholderAPI
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import org.bukkit.entity.Player
+import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 class PlaceholderAPIMiniMessagePreprocessor(private val miniMessage: MiniMessage) {
@@ -53,9 +54,9 @@ class PlaceholderAPIMiniMessagePreprocessor(private val miniMessage: MiniMessage
       val match = matcher.group()
       val replaced = placeholderResolver(match)
       if (match == replaced || !replaced.contains(LegacyComponentSerializer.SECTION_CHAR)) {
-        matcher.appendReplacement(buffer, replaced)
+        matcher.appendReplacement(buffer, Matcher.quoteReplacement(replaced))
       } else {
-        matcher.appendReplacement(buffer, miniMessage.serialize(LegacyComponentSerializer.legacySection().deserialize(replaced)))
+        matcher.appendReplacement(buffer, Matcher.quoteReplacement(miniMessage.serialize(LegacyComponentSerializer.legacySection().deserialize(replaced))))
       }
     }
     matcher.appendTail(buffer)
