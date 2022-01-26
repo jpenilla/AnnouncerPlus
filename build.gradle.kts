@@ -56,7 +56,7 @@ dependencies {
 
   implementation("org.koin", "koin-core", "2.1.6")
   implementation("xyz.jpenilla", "jmplib", "1.0.1+45-SNAPSHOT")
-  implementation("org.bstats", "bstats-bukkit", "2.2.1")
+  implementation("org.bstats", "bstats-bukkit", "3.0.0")
   implementation("io.papermc", "paperlib", "1.0.8-SNAPSHOT")
 
   implementation("xyz.jpenilla:reflection-remapper:0.1.0-SNAPSHOT")
