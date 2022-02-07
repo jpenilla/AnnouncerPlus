@@ -18,6 +18,9 @@ description = "Announcement plugin with support for permissions. Supports Hex co
 repositories {
   mavenCentral()
   sonatypeSnapshots()
+  maven("https://s01.oss.sonatype.org/content/repositories/snapshots/") {
+    mavenContent { snapshotsOnly() }
+  }
   maven("https://papermc.io/repo/repository/maven-public/")
   maven("https://repo.spongepowered.org/repository/maven-public/")
   maven("https://repo.incendo.org/content/repositories/snapshots/")

@@ -4,7 +4,7 @@ metadata:
     - plugins
 
 plugins:
-  net.kyori.indra: &indra 2.0.6
+  net.kyori.indra: &indra 2.1.1
   net.kyori.indra.git: *indra
   net.kyori.indra.license-header: *indra
   com.github.johnrengelman.shadow: 7.1.2
