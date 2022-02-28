@@ -34,6 +34,9 @@ import xyz.jpenilla.announcerplus.util.addDefaultPermission
 @ConfigSerializable
 class MainConfig {
 
+  @Comment("Set whether to check for updates on startup")
+  var checkForUpdates = true
+
   @Comment("Here you can define custom placeholders for use in plugin messages\n  These placeholders can be used like \"{placeholder}\", i.e. \"{nick}\" or \"{r}rainbow text{rc}\"")
   val customPlaceholders = hashMapOf(
     "nick" to "%essentials_nickname%",

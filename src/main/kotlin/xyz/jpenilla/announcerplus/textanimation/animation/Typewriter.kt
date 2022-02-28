@@ -24,7 +24,7 @@
 package xyz.jpenilla.announcerplus.textanimation.animation
 
 import org.bukkit.entity.Player
-import org.koin.core.inject
+import org.koin.core.component.inject
 import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.textanimation.TextAnimation
 

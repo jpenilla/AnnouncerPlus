@@ -26,8 +26,8 @@ package xyz.jpenilla.announcerplus.textanimation
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.entity.Player
-import org.koin.core.KoinComponent
-import org.koin.core.inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.textanimation.animation.FlashingText
 import xyz.jpenilla.announcerplus.textanimation.animation.PulsingColor

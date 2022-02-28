@@ -23,42 +23,50 @@
  */
 package xyz.jpenilla.announcerplus.util
 
-import com.google.common.base.Charsets
-import com.google.gson.JsonParser
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonArray
 import org.bukkit.plugin.java.JavaPlugin
+import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
 import java.net.URL
 import java.util.LinkedList
 
 class UpdateChecker(private val plugin: JavaPlugin, private val githubRepo: String) {
-  private val parser = JsonParser()
+  private val gson: Gson = GsonBuilder().create()
 
-  fun updateCheck() {
+  fun run() {
     plugin.runAsync {
-      val result = try {
-        parser.parse(InputStreamReader(URL("https://api.github.com/repos/$githubRepo/releases").openStream(), Charsets.UTF_8)).asJsonArray
-      } catch (exception: IOException) {
-        plugin.logger.info("Cannot look for updates: " + exception.message)
-        return@runAsync
-      }
-      val versionMap = LinkedHashMap<String, String>()
-      result.forEach { versionMap[it.asJsonObject["tag_name"].asString] = it.asJsonObject["html_url"].asString }
-      val versionList = LinkedList(versionMap.keys)
-      val currentVersion = "v" + plugin.description.version
-      if (versionList[0] == currentVersion) {
-        return@runAsync // Up to date, do nothing
-      }
-      if (currentVersion.contains("SNAPSHOT")) {
-        plugin.logger.info("This server is running a development build of ${plugin.name}! ($currentVersion)")
-        plugin.logger.info("The latest official release is " + versionList[0])
-        return@runAsync
-      }
-      val versionsBehind = versionList.indexOf(currentVersion)
-      plugin.logger.info("There is an update available for ${plugin.name}!")
-      plugin.logger.info("This server is running version $currentVersion, which is ${if (versionsBehind == -1) "UNKNOWN" else versionsBehind} versions outdated.")
-      plugin.logger.info("Download the latest version, ${versionList[0]} from GitHub at the link below:")
-      plugin.logger.info(versionMap[versionList[0]])
+      updateCheck()
     }
+  }
+
+  private fun updateCheck() {
+    val result = try {
+      BufferedReader(InputStreamReader(URL("https://api.github.com/repos/$githubRepo/releases").openStream(), Charsets.UTF_8)).use {
+        gson.fromJson(it, JsonArray::class.java)
+      }
+    } catch (exception: IOException) {
+      plugin.logger.info("Cannot look for updates: " + exception.message)
+      return
+    }
+    val versionMap = LinkedHashMap<String, String>()
+    result.forEach { versionMap[it.asJsonObject["tag_name"].asString] = it.asJsonObject["html_url"].asString }
+    val versionList = LinkedList(versionMap.keys)
+    val currentVersion = "v" + plugin.description.version
+    if (versionList[0] == currentVersion) {
+      return // Up to date, do nothing
+    }
+    if (currentVersion.contains("SNAPSHOT")) {
+      plugin.logger.info("This server is running a development build of ${plugin.name}! ($currentVersion)")
+      plugin.logger.info("The latest official release is " + versionList[0])
+      return
+    }
+    val versionsBehind = versionList.indexOf(currentVersion)
+    plugin.logger.info("There is an update available for ${plugin.name}!")
+    plugin.logger.info("This server is running version $currentVersion, which is ${if (versionsBehind == -1) "UNKNOWN" else versionsBehind} versions outdated.")
+    plugin.logger.info("Download the latest version, ${versionList[0]} from GitHub at the link below:")
+    plugin.logger.info(versionMap[versionList[0]])
   }
 }

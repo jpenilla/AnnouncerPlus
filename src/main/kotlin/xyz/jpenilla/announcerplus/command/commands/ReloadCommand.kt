@@ -26,7 +26,7 @@ package xyz.jpenilla.announcerplus.command.commands
 import cloud.commandframework.context.CommandContext
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor
-import org.koin.core.inject
+import org.koin.core.component.inject
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.command.BaseCommand
 import xyz.jpenilla.announcerplus.command.Commander

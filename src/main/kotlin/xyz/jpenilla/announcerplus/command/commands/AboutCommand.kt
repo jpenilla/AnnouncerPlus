@@ -28,7 +28,7 @@ import net.kyori.adventure.extra.kotlin.text
 import net.kyori.adventure.text.Component.space
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.event.ClickEvent.openUrl
-import org.koin.core.inject
+import org.koin.core.component.inject
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.command.BaseCommand
 import xyz.jpenilla.announcerplus.command.Commander

@@ -27,7 +27,7 @@ import cloud.commandframework.arguments.standard.StringArgument
 import cloud.commandframework.bukkit.parsers.MaterialArgument
 import cloud.commandframework.context.CommandContext
 import net.kyori.adventure.bossbar.BossBar
-import org.koin.core.inject
+import org.koin.core.component.inject
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.command.BaseCommand
 import xyz.jpenilla.announcerplus.command.BukkitPlayerCommander

@@ -32,8 +32,8 @@ import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.permissions.PermissionDefault
-import org.koin.core.KoinComponent
-import org.koin.core.inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import org.spongepowered.configurate.CommentedConfigurationNode
 import org.spongepowered.configurate.NodePath.path
 import org.spongepowered.configurate.kotlin.extensions.get

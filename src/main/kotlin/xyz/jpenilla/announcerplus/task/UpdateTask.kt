@@ -24,8 +24,8 @@
 package xyz.jpenilla.announcerplus.task
 
 import org.bukkit.scheduler.BukkitTask
-import org.koin.core.KoinComponent
-import org.koin.core.inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.util.asyncTimer
 import xyz.jpenilla.announcerplus.util.syncTimer

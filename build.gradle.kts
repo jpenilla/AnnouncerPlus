@@ -22,12 +22,10 @@ repositories {
     mavenContent { snapshotsOnly() }
   }
   maven("https://papermc.io/repo/repository/maven-public/")
-  maven("https://repo.spongepowered.org/repository/maven-public/")
   maven("https://repo.incendo.org/content/repositories/snapshots/")
-  maven("https://repo.jpenilla.xyz/snapshots")
+  maven("https://repo.jpenilla.xyz/snapshots/")
   maven("https://maven.fabricmc.net/")
-  maven("https://ci.ender.zone/plugin/repository/everything/")
-  maven("https://repo.codemc.org/repository/maven-public")
+  maven("https://repo.essentialsx.net/releases/")
   maven("https://repo.extendedclip.com/content/repositories/placeholderapi/") {
     content { includeGroup("me.clip") }
   }
@@ -41,7 +39,9 @@ dependencies {
 
   compileOnly("com.destroystokyo.paper", "paper-api", "1.13.2-R0.1-SNAPSHOT")
   compileOnly("com.github.MilkBowl", "VaultAPI", "1.7.1")
-  compileOnly("net.ess3", "EssentialsX", "2.18.2")
+  compileOnly("net.essentialsx", "EssentialsX", "2.19.2") {
+    isTransitive = false
+  }
   compileOnly("me.clip", "placeholderapi", "2.10.9")
 
   implementation(platform("net.kyori:adventure-bom:4.9.3"))
@@ -57,7 +57,7 @@ dependencies {
   implementation("org.spongepowered", "configurate-hocon")
   implementation("org.spongepowered", "configurate-extra-kotlin")
 
-  implementation("org.koin", "koin-core", "2.1.6")
+  implementation("io.insert-koin", "koin-core", "3.1.5")
   implementation("xyz.jpenilla", "jmplib", "1.0.1+45-SNAPSHOT")
   implementation("org.bstats", "bstats-bukkit", "3.0.0")
   implementation("io.papermc", "paperlib", "1.0.8-SNAPSHOT")

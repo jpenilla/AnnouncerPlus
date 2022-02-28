@@ -26,7 +26,7 @@ package xyz.jpenilla.announcerplus.task
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import net.kyori.adventure.text.Component.empty
 import org.bukkit.entity.Player
-import org.koin.core.get
+import org.koin.core.component.get
 import xyz.jpenilla.announcerplus.textanimation.AnimationHolder
 import xyz.jpenilla.announcerplus.util.miniMessage
 

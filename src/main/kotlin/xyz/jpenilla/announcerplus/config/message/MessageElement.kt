@@ -24,7 +24,7 @@
 package xyz.jpenilla.announcerplus.config.message
 
 import org.bukkit.entity.Player
-import org.koin.core.KoinComponent
+import org.koin.core.component.KoinComponent
 
 interface MessageElement : KoinComponent {
   fun isEnabled(): Boolean

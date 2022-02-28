@@ -23,7 +23,7 @@
  */
 package xyz.jpenilla.announcerplus.command
 
-import org.koin.core.KoinComponent
+import org.koin.core.component.KoinComponent
 
 interface BaseCommand : KoinComponent {
   fun register()

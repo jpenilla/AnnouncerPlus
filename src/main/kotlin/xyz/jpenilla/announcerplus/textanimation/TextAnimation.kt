@@ -23,7 +23,7 @@
  */
 package xyz.jpenilla.announcerplus.textanimation
 
-import org.koin.core.KoinComponent
+import org.koin.core.component.KoinComponent
 
 interface TextAnimation : KoinComponent {
   fun getValue(): String

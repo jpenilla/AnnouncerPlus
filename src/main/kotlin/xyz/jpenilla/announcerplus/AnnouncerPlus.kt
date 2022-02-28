@@ -31,9 +31,9 @@ import io.papermc.lib.PaperLib.suggestPaper
 import net.milkbowl.vault.permission.Permission
 import org.bstats.bukkit.Metrics
 import org.bstats.charts.SimplePie
-import org.koin.core.KoinComponent
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import org.koin.core.context.startKoin
-import org.koin.core.inject
 import org.koin.dsl.module
 import xyz.jpenilla.announcerplus.command.Commands
 import xyz.jpenilla.announcerplus.compatibility.EssentialsHook
@@ -83,8 +83,14 @@ class AnnouncerPlus : BasePlugin(), KoinComponent {
     server.pluginManager.registerEvents(JoinQuitListener(), this)
     broadcast()
 
-    UpdateChecker(this, "jpenilla/AnnouncerPlus").updateCheck()
+    if (configManager.mainConfig.checkForUpdates) {
+      UpdateChecker(this, "jpenilla/AnnouncerPlus").run()
+    }
 
+    setupMetrics()
+  }
+
+  private fun setupMetrics() {
     val metrics = Metrics(this, 8067)
     metrics.addCustomChart(SimplePie("join_quit_configs") { configManager.joinQuitConfigs.size.toString() })
     metrics.addCustomChart(SimplePie("message_configs") { configManager.messageConfigs.size.toString() })

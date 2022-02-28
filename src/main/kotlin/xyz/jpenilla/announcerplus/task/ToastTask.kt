@@ -27,8 +27,8 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import io.papermc.lib.PaperLib.getMinecraftVersion
 import org.bukkit.entity.Player
-import org.koin.core.KoinComponent
-import org.koin.core.inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.message.ToastSettings
 import xyz.jpenilla.announcerplus.util.asyncTimer
