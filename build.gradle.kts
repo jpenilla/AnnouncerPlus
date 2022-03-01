@@ -44,7 +44,7 @@ dependencies {
   }
   compileOnly("me.clip", "placeholderapi", "2.10.9")
 
-  implementation(platform("net.kyori:adventure-bom:4.9.3"))
+  implementation(platform("net.kyori:adventure-bom:4.10.0"))
   implementation("net.kyori", "adventure-extra-kotlin")
   implementation("net.kyori", "adventure-serializer-configurate4")
 
@@ -58,7 +58,7 @@ dependencies {
   implementation("org.spongepowered", "configurate-extra-kotlin")
 
   implementation("io.insert-koin", "koin-core", "3.1.5")
-  implementation("xyz.jpenilla", "jmplib", "1.0.1+45-SNAPSHOT")
+  implementation("xyz.jpenilla", "jmplib", "1.0.1+46-SNAPSHOT")
   implementation("org.bstats", "bstats-bukkit", "3.0.0")
   implementation("io.papermc", "paperlib", "1.0.8-SNAPSHOT")
 
@@ -119,7 +119,7 @@ tasks {
     dependsOn(shadowJar)
   }
   runServer {
-    minecraftVersion("1.18.1")
+    minecraftVersion("1.18.2")
     javaLauncher.set(
       project.javaToolchains.launcherFor {
         languageVersion.set(JavaLanguageVersion.of(17))

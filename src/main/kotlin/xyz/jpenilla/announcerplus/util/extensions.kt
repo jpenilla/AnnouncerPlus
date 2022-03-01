@@ -115,7 +115,7 @@ fun TextColor.modifyHSV(
 ): TextColor {
   val (h, s, v) = asHSV()
   return TextColor.color(
-    HSVLike.of(
+    HSVLike.hsvLike(
       (h * hRatio).clamp(0f, 1f),
       (s * sRatio).clamp(0f, 1f),
       (v * vRatio).clamp(0f, 1f)

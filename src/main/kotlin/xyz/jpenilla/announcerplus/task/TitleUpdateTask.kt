@@ -54,7 +54,7 @@ class TitleUpdateTask(
     stay: Duration = ZERO,
     fadeOut: Duration = ZERO
   ): Title.Times =
-    Title.Times.of(fadeIn, stay, fadeOut)
+    Title.Times.times(fadeIn, stay, fadeOut)
 
   private fun title(): Component =
     miniMessage(configManager.parse(player, titleAnimation.parseNext(title)))

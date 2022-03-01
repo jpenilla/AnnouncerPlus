@@ -63,7 +63,7 @@ val miniMessage: MiniMessage = MiniMessage.miniMessage()
 fun miniMessage(message: String): Component = miniMessage.deserialize(message)
 
 fun randomColor(): TextColor = color(
-  HSVLike.of(
+  HSVLike.hsvLike(
     nextFloat(),
     nextDouble(0.5, 1.0).toFloat(),
     nextDouble(0.5, 1.0).toFloat()
