@@ -16,7 +16,7 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean build
       - run: mkdir staging && cp build/libs/AnnouncerPlus*.jar staging
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: Package
           path: staging
