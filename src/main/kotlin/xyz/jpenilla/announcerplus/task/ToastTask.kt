@@ -50,10 +50,9 @@ class ToastTask : KoinComponent {
   }
 
   private val toastTask = announcerPlus.asyncTimer(0L, 1L) {
-    if (queuedToasts.isNotEmpty()) {
-      val toast = queuedToasts.removeFirst()
-      if (toast.player.isOnline) {
-        displayToastImmediately(toast)
+    queuedToasts.pollFirst()?.let {
+      if (it.player.isOnline) {
+        displayToastImmediately(it)
       }
     }
   }
