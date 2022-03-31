@@ -22,7 +22,6 @@ repositories {
     mavenContent { snapshotsOnly() }
   }
   maven("https://papermc.io/repo/repository/maven-public/")
-  maven("https://repo.incendo.org/content/repositories/snapshots/")
   maven("https://repo.jpenilla.xyz/snapshots/")
   maven("https://maven.fabricmc.net/")
   maven("https://repo.essentialsx.net/releases/")
