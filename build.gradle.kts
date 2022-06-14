@@ -1,7 +1,7 @@
 import net.kyori.indra.repository.sonatypeSnapshots
 
 plugins {
-  kotlin("jvm") version "1.6.21"
+  kotlin("jvm") version "1.7.0"
   id("net.kyori.indra")
   id("net.kyori.indra.git")
   id("net.kyori.indra.license-header")
@@ -47,7 +47,7 @@ dependencies {
   implementation("net.kyori", "adventure-extra-kotlin")
   implementation("net.kyori", "adventure-serializer-configurate4")
 
-  implementation(platform("cloud.commandframework:cloud-bom:1.6.2"))
+  implementation(platform("cloud.commandframework:cloud-bom:1.7.0-SNAPSHOT"))
   implementation("cloud.commandframework", "cloud-paper")
   implementation("cloud.commandframework", "cloud-kotlin-extensions")
   implementation("cloud.commandframework", "cloud-minecraft-extras")
@@ -57,7 +57,7 @@ dependencies {
   implementation("org.spongepowered", "configurate-extra-kotlin")
 
   implementation("io.insert-koin", "koin-core", "3.2.0")
-  implementation("xyz.jpenilla", "jmplib", "1.0.1+48-SNAPSHOT")
+  implementation("xyz.jpenilla", "jmplib", "1.0.1+49-SNAPSHOT")
   implementation("org.bstats", "bstats-bukkit", "3.0.0")
   implementation("io.papermc", "paperlib", "1.0.8-SNAPSHOT")
 
@@ -118,7 +118,7 @@ tasks {
     dependsOn(shadowJar)
   }
   runServer {
-    minecraftVersion("1.18.2")
+    minecraftVersion("1.19")
     javaLauncher.set(
       project.javaToolchains.launcherFor {
         languageVersion.set(JavaLanguageVersion.of(17))

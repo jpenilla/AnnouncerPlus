@@ -8,9 +8,9 @@ plugins:
   net.kyori.indra.git: *indra
   net.kyori.indra.license-header: *indra
   com.github.johnrengelman.shadow: 7.1.2
-  net.minecrell.plugin-yml.bukkit: 0.5.1
+  net.minecrell.plugin-yml.bukkit: 0.5.2
   xyz.jpenilla.run-paper: 1.0.6
-  org.jlleitschuh.gradle.ktlint: 10.2.1
+  org.jlleitschuh.gradle.ktlint: 10.3.0
 
 versions: [ ]
 

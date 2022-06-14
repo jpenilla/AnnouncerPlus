@@ -83,7 +83,7 @@ class HelpCommand : BaseCommand {
       .build()
 
   private fun suggestHelpQueries(context: CommandContext<Commander>, input: String): List<String> {
-    val helpTopic = commands.commandManager.commandHelpHandler
+    val helpTopic = commands.commandManager.createCommandHelpHandler()
       .queryHelp(context.sender, "") as CommandHelpHandler.IndexHelpTopic<Commander>
 
     return helpTopic.entries.map { it.syntaxString }

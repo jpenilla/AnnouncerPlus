@@ -63,13 +63,13 @@ class Commands(plugin: AnnouncerPlus) {
       .withDecorator { ofChildren(Constants.CHAT_PREFIX, it) }
       .apply(commandManager, nativeAudience())
 
-    if (commandManager.queryCapability(CloudBukkitCapabilities.NATIVE_BRIGADIER)) {
+    if (commandManager.hasCapability(CloudBukkitCapabilities.NATIVE_BRIGADIER)) {
       commandManager.registerBrigadier()
       commandManager.brigadierManager()?.setNativeNumberSuggestions(false)
       plugin.logger.info("Successfully registered Mojang Brigadier support for commands.")
     }
 
-    if (commandManager.queryCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION)) {
+    if (commandManager.hasCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION)) {
       commandManager.registerAsynchronousCompletions()
       plugin.logger.info("Successfully registered asynchronous command completion listener.")
     }
