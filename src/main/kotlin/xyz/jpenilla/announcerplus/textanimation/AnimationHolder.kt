@@ -25,15 +25,22 @@ package xyz.jpenilla.announcerplus.textanimation
 
 import org.bukkit.entity.Player
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
+import org.koin.core.component.get
 import xyz.jpenilla.announcerplus.config.ConfigManager
 
-class AnimationHolder(private val player: Player?, private val message: String) : KoinComponent {
-  companion object {
+class AnimationHolder(
+  private val message: String,
+  private val stringProcessor: (String) -> String
+) : KoinComponent {
+  companion object : KoinComponent {
+    fun create(player: Player?, message: String): AnimationHolder {
+      val configManager: ConfigManager = get()
+      return AnimationHolder(message) { configManager.parse(player, it) }
+    }
+
     private val pattern = "\\{animate:/?([a-z][^}]*)/?}?".toPattern()
   }
 
-  private val configManager: ConfigManager by inject()
   private val animations: Map<String, TextAnimation> = findAnimations()
 
   private fun findAnimations(): Map<String, TextAnimation> {
@@ -45,7 +52,7 @@ class AnimationHolder(private val player: Player?, private val message: String) 
       val typeName = split.getOrNull(0)
         ?: continue
       val tokens = split.subList(1, split.size).toMutableList()
-      val animation = TextAnimation.types[typeName.lowercase()]?.create(player, tokens)
+      val animation = TextAnimation.types[typeName.lowercase()]?.create(stringProcessor, tokens)
         ?: continue
       map[matcher.group()] = animation
     }
@@ -58,7 +65,7 @@ class AnimationHolder(private val player: Player?, private val message: String) 
     animations.forEach { animation ->
       msg = msg.replace(animation.key, animation.value.nextValue())
     }
-    return configManager.parse(player, msg)
+    return stringProcessor(msg)
   }
 
   fun parseCurrent(text: String = message): String {
@@ -66,6 +73,6 @@ class AnimationHolder(private val player: Player?, private val message: String) 
     animations.forEach { animation ->
       msg = msg.replace(animation.key, animation.value.getValue())
     }
-    return configManager.parse(player, msg)
+    return stringProcessor(msg)
   }
 }

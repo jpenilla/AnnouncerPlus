@@ -24,13 +24,12 @@
 package xyz.jpenilla.announcerplus.textanimation.animation
 
 import net.kyori.adventure.text.format.TextColor
-import org.bukkit.entity.Player
 import xyz.jpenilla.announcerplus.textanimation.TextAnimation
 import xyz.jpenilla.announcerplus.util.randomColor
 
 class RandomColor(type: Type, ticks: Int) : TextAnimation {
   companion object : TextAnimation.Factory {
-    override fun create(player: Player?, tokens: MutableList<String>): TextAnimation {
+    override fun create(stringProcessor: (String) -> String, tokens: MutableList<String>): TextAnimation {
       val type = try {
         Type.of(tokens[0])
       } catch (e: Exception) {

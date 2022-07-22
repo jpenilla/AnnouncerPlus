@@ -23,36 +23,36 @@
  */
 package xyz.jpenilla.announcerplus.textanimation.animation
 
-import org.bukkit.entity.Player
-import org.koin.core.component.inject
-import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.textanimation.TextAnimation
 
-class Typewriter(private val player: Player?, private val text: String, private val ticks: Int) : TextAnimation {
+class Typewriter(
+  private val stringProcessor: (String) -> String,
+  private val text: String,
+  private val ticks: Int
+) : TextAnimation {
   companion object : TextAnimation.Factory {
-    override fun create(player: Player?, tokens: MutableList<String>): TextAnimation {
+    override fun create(stringProcessor: (String) -> String, tokens: MutableList<String>): TextAnimation {
       val text = tokens[0]
       val ticks = try {
         tokens[1].toInt()
       } catch (e: Exception) {
         6
       }
-      return Typewriter(player, text, ticks)
+      return Typewriter(stringProcessor, text, ticks)
     }
   }
 
-  private val configManager: ConfigManager by inject()
   private var index = 0
   private var ticksLived = 0
   private var showUnderscore = true
 
   override fun getValue(): String {
     val s = try {
-      configManager.parse(player, text).substring(0, index)
+      stringProcessor(text).substring(0, index)
     } catch (e: Exception) {
       // if the placeholders changed in a way that causes us to out of bounds
       index = 0
-      configManager.parse(player, text).substring(0, index)
+      stringProcessor(text).substring(0, index)
     }
     return "$s${if (showUnderscore) "_" else " "}"
   }
@@ -64,7 +64,7 @@ class Typewriter(private val player: Player?, private val text: String, private 
     }
     if (ticksLived % ticks == 0) {
       index++
-      if (index > configManager.parse(player, text).length) {
+      if (index > stringProcessor(text).length) {
         index = 0
       }
     }

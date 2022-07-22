@@ -43,8 +43,8 @@ class BossBarUpdateTask(
 ) : UpdateTask() {
   private val configManager: ConfigManager by inject()
   private val audience = get<BukkitAudiences>().player(player)
-  private val textAnimation = AnimationHolder(player, text)
-  private val colorAnimation = AnimationHolder(player, color)
+  private val textAnimation = AnimationHolder.create(player, text)
+  private val colorAnimation = AnimationHolder.create(player, color)
   private val bar = BossBar.bossBar(Component.empty(), 0.5f, BossBar.Color.BLUE, overlay)
 
   override fun stop() {

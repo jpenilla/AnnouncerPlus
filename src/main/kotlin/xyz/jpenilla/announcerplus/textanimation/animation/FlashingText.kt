@@ -23,12 +23,11 @@
  */
 package xyz.jpenilla.announcerplus.textanimation.animation
 
-import org.bukkit.entity.Player
 import xyz.jpenilla.announcerplus.textanimation.TextAnimation
 
 class FlashingText(private val colors: List<String>, private val ticks: Int) : TextAnimation {
   companion object : TextAnimation.Factory {
-    override fun create(player: Player?, tokens: MutableList<String>): TextAnimation {
+    override fun create(stringProcessor: (String) -> String, tokens: MutableList<String>): TextAnimation {
       var ticks: Int
       try {
         ticks = tokens.last().toInt()

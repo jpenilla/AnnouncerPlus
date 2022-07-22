@@ -23,19 +23,16 @@
  */
 package xyz.jpenilla.announcerplus.textanimation.animation
 
-import org.bukkit.entity.Player
-import org.koin.core.component.inject
-import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.textanimation.TextAnimation
 
 class ScrollingText(
-  private val player: Player?,
+  private val stringProcessor: (String) -> String,
   text: String,
   private val windowSize: Int,
   private val ticks: Int
 ) : TextAnimation {
   companion object : TextAnimation.Factory {
-    override fun create(player: Player?, tokens: MutableList<String>): TextAnimation {
+    override fun create(stringProcessor: (String) -> String, tokens: MutableList<String>): TextAnimation {
       val text = tokens[0]
       val window = try {
         tokens[1].toInt()
@@ -47,11 +44,10 @@ class ScrollingText(
       } catch (e: Exception) {
         4
       }
-      return ScrollingText(player, text, window, ticks)
+      return ScrollingText(stringProcessor, text, window, ticks)
     }
   }
 
-  private val configManager: ConfigManager by inject()
   private val spaces = getSpaces(windowSize)
   private val text = "$spaces$text$spaces"
   private var index = 0
@@ -67,11 +63,11 @@ class ScrollingText(
 
   override fun getValue(): String {
     return try {
-      configManager.parse(player, text).substring(index, index + windowSize)
+      stringProcessor(text).substring(index, index + windowSize)
     } catch (e: Exception) {
       // if the placeholders changed in a way that causes us to out of bounds
       index = 0
-      configManager.parse(player, text).substring(index, index + windowSize)
+      stringProcessor(text).substring(index, index + windowSize)
     }
   }
 
@@ -79,7 +75,7 @@ class ScrollingText(
     ticksLived++
     if (ticksLived % ticks == 0) {
       index++
-      if (index > configManager.parse(player, text).length - windowSize) {
+      if (index > stringProcessor(text).length - windowSize) {
         index = 0
       }
     }

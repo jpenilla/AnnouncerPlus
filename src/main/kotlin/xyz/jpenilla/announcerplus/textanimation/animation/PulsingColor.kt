@@ -25,13 +25,12 @@ package xyz.jpenilla.announcerplus.textanimation.animation
 
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
-import org.bukkit.entity.Player
 import xyz.jpenilla.announcerplus.textanimation.TextAnimation
 import kotlin.math.roundToInt
 
 class PulsingColor(colors: List<TextColor>, ticks: Int) : TextAnimation {
   companion object : TextAnimation.Factory {
-    override fun create(player: Player?, tokens: MutableList<String>): TextAnimation {
+    override fun create(stringProcessor: (String) -> String, tokens: MutableList<String>): TextAnimation {
       var ticks: Int
       try {
         ticks = tokens.last().toInt()

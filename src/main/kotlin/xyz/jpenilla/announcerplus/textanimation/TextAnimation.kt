@@ -23,8 +23,6 @@
  */
 package xyz.jpenilla.announcerplus.textanimation
 
-import org.bukkit.entity.Player
-import org.koin.core.component.KoinComponent
 import xyz.jpenilla.announcerplus.textanimation.animation.FlashingText
 import xyz.jpenilla.announcerplus.textanimation.animation.PulsingColor
 import xyz.jpenilla.announcerplus.textanimation.animation.RandomColor
@@ -32,12 +30,15 @@ import xyz.jpenilla.announcerplus.textanimation.animation.ScrollingGradient
 import xyz.jpenilla.announcerplus.textanimation.animation.ScrollingText
 import xyz.jpenilla.announcerplus.textanimation.animation.Typewriter
 
-interface TextAnimation : KoinComponent {
+interface TextAnimation {
   fun getValue(): String
   fun nextValue(): String
 
   fun interface Factory {
-    fun create(player: Player?, tokens: MutableList<String>): TextAnimation
+    fun create(
+      stringProcessor: (String) -> String,
+      tokens: MutableList<String>
+    ): TextAnimation
   }
 
   companion object {

@@ -37,7 +37,7 @@ class ActionBarUpdateTask(
   private val text: String
 ) : UpdateTask() {
   private val audience = get<BukkitAudiences>().player(player)
-  private val animationHolder = AnimationHolder(player, text)
+  private val animationHolder = AnimationHolder.create(player, text)
 
   override fun stop() {
     super.stop()

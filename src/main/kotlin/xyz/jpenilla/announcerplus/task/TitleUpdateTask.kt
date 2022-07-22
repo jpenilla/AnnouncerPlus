@@ -46,8 +46,8 @@ class TitleUpdateTask(
 ) : UpdateTask() {
   private val audience = get<BukkitAudiences>().player(player)
   private val configManager: ConfigManager by inject()
-  private val titleAnimation = AnimationHolder(player, title)
-  private val subTitleAnimation = AnimationHolder(player, subtitle)
+  private val titleAnimation = AnimationHolder.create(player, title)
+  private val subTitleAnimation = AnimationHolder.create(player, subtitle)
 
   private fun times(
     fadeIn: Duration = ZERO,
