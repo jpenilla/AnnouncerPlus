@@ -34,6 +34,23 @@ class ScrollingText(
   private val windowSize: Int,
   private val ticks: Int
 ) : TextAnimation {
+  companion object : TextAnimation.Factory {
+    override fun create(player: Player?, tokens: MutableList<String>): TextAnimation {
+      val text = tokens[0]
+      val window = try {
+        tokens[1].toInt()
+      } catch (e: Exception) {
+        10
+      }
+      val ticks = try {
+        tokens[2].toInt()
+      } catch (e: Exception) {
+        4
+      }
+      return ScrollingText(player, text, window, ticks)
+    }
+  }
+
   private val configManager: ConfigManager by inject()
   private val spaces = getSpaces(windowSize)
   private val text = "$spaces$text$spaces"

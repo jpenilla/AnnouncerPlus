@@ -23,11 +23,21 @@
  */
 package xyz.jpenilla.announcerplus.textanimation.animation
 
+import org.bukkit.entity.Player
 import xyz.jpenilla.announcerplus.textanimation.TextAnimation
 
 class ScrollingGradient(private val increment: Float) : TextAnimation {
-  companion object {
+  companion object : TextAnimation.Factory {
     private val GRADIENT_PHASE_RANGE = -1.0f..1.0f
+
+    override fun create(player: Player?, tokens: MutableList<String>): TextAnimation {
+      val speed = try {
+        tokens[0].toFloat()
+      } catch (e: Exception) {
+        0.1f
+      }
+      return ScrollingGradient(speed)
+    }
   }
 
   private var phase = -1f

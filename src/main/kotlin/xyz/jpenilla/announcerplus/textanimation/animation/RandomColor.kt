@@ -24,10 +24,27 @@
 package xyz.jpenilla.announcerplus.textanimation.animation
 
 import net.kyori.adventure.text.format.TextColor
+import org.bukkit.entity.Player
 import xyz.jpenilla.announcerplus.textanimation.TextAnimation
 import xyz.jpenilla.announcerplus.util.randomColor
 
 class RandomColor(type: Type, ticks: Int) : TextAnimation {
+  companion object : TextAnimation.Factory {
+    override fun create(player: Player?, tokens: MutableList<String>): TextAnimation {
+      val type = try {
+        Type.of(tokens[0])
+      } catch (e: Exception) {
+        Type.PULSE
+      }
+      val ticks = try {
+        tokens[1].toInt()
+      } catch (e: Exception) {
+        10
+      }
+      return RandomColor(type, ticks)
+    }
+  }
+
   private var animation = when (type) {
     Type.FLASH -> FlashingText(randomColors(128).map(TextColor::asHexString), ticks)
     Type.PULSE -> PulsingColor(randomColors(128), ticks)

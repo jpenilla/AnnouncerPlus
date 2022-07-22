@@ -29,6 +29,18 @@ import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.textanimation.TextAnimation
 
 class Typewriter(private val player: Player?, private val text: String, private val ticks: Int) : TextAnimation {
+  companion object : TextAnimation.Factory {
+    override fun create(player: Player?, tokens: MutableList<String>): TextAnimation {
+      val text = tokens[0]
+      val ticks = try {
+        tokens[1].toInt()
+      } catch (e: Exception) {
+        6
+      }
+      return Typewriter(player, text, ticks)
+    }
+  }
+
   private val configManager: ConfigManager by inject()
   private var index = 0
   private var ticksLived = 0
