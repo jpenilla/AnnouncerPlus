@@ -57,7 +57,7 @@ dependencies {
   implementation("org.spongepowered", "configurate-extra-kotlin")
 
   implementation("io.insert-koin", "koin-core", "3.2.0")
-  implementation("xyz.jpenilla", "jmplib", "1.0.1+49-SNAPSHOT")
+  implementation("xyz.jpenilla", "jmplib", "1.0.1+50-SNAPSHOT")
   implementation("org.bstats", "bstats-bukkit", "3.0.0")
   implementation("io.papermc", "paperlib", "1.0.8-SNAPSHOT")
 
@@ -116,7 +116,7 @@ tasks {
     dependsOn(shadowJar)
   }
   runServer {
-    minecraftVersion("1.19")
+    minecraftVersion("1.19.1")
     javaLauncher.set(
       project.javaToolchains.launcherFor {
         languageVersion.set(JavaLanguageVersion.of(17))
