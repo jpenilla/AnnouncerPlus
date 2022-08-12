@@ -38,7 +38,7 @@ dependencies {
 
   compileOnly("com.destroystokyo.paper", "paper-api", "1.13.2-R0.1-SNAPSHOT")
   compileOnly("com.github.MilkBowl", "VaultAPI", "1.7.1")
-  compileOnly("net.essentialsx", "EssentialsX", "2.19.4") {
+  compileOnly("net.essentialsx", "EssentialsX", "2.19.6") {
     isTransitive = false
   }
   compileOnly("me.clip", "placeholderapi", "2.10.9")
