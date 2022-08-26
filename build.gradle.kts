@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "xyz.jpenilla"
-version = "1.3.3-SNAPSHOT".decorateVersion()
+version = "1.3.3".decorateVersion()
 description = "Announcement plugin with support for permissions. Supports Hex colors and clickable messages/hover text using MiniMessage."
 
 repositories {
@@ -57,7 +57,7 @@ dependencies {
   implementation("org.spongepowered", "configurate-extra-kotlin")
 
   implementation("io.insert-koin", "koin-core", "3.2.0")
-  implementation("xyz.jpenilla", "jmplib", "1.0.1+50-SNAPSHOT")
+  implementation("xyz.jpenilla", "jmplib", "1.0.1+51-SNAPSHOT")
   implementation("org.bstats", "bstats-bukkit", "3.0.0")
   implementation("io.papermc", "paperlib", "1.0.8-SNAPSHOT")
 
