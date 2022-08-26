@@ -47,7 +47,7 @@ dependencies {
   implementation("net.kyori", "adventure-extra-kotlin")
   implementation("net.kyori", "adventure-serializer-configurate4")
 
-  implementation(platform("cloud.commandframework:cloud-bom:1.8.0-SNAPSHOT"))
+  implementation(platform("cloud.commandframework:cloud-bom:1.7.1"))
   implementation("cloud.commandframework", "cloud-paper")
   implementation("cloud.commandframework", "cloud-kotlin-extensions")
   implementation("cloud.commandframework", "cloud-minecraft-extras")
