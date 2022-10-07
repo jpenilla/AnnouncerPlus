@@ -96,7 +96,7 @@ tasks {
       "io.leangen.geantyref",
       "io.papermc.lib",
       "net.kyori",
-      "xyz.jpenilla.jmplib",
+      "xyz.jpenilla.pluginbase",
       "cloud.commandframework",
       "org.koin",
       "org.spongepowered.configurate",
