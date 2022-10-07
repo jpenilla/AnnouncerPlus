@@ -32,7 +32,7 @@ import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.util.HSVLike
 import org.bukkit.plugin.Plugin
 import org.bukkit.scheduler.BukkitTask
-import xyz.jpenilla.jmplib.ChatCentering
+import xyz.jpenilla.pluginbase.legacy.ChatCentering
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
 import kotlin.math.max

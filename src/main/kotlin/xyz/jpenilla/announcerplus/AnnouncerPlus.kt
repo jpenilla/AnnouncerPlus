@@ -41,10 +41,10 @@ import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.config.message.MessageConfig
 import xyz.jpenilla.announcerplus.task.ToastTask
 import xyz.jpenilla.announcerplus.util.UpdateChecker
-import xyz.jpenilla.jmplib.BasePlugin
+import xyz.jpenilla.pluginbase.legacy.PluginBase
 import java.util.logging.Level
 
-class AnnouncerPlus : BasePlugin(), KoinComponent {
+class AnnouncerPlus : PluginBase(), KoinComponent {
   val gson: Gson = GsonBuilder().create()
   val configManager: ConfigManager by inject()
 
@@ -53,7 +53,7 @@ class AnnouncerPlus : BasePlugin(), KoinComponent {
   var toastTask: ToastTask? = null
   private lateinit var commands: Commands
 
-  override fun onPluginEnable() {
+  override fun enable() {
     if (!setupPermissions()) {
       logger.warning("Permissions plugin not found. AnnouncerPlus will not work.")
       isEnabled = false

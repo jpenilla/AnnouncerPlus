@@ -43,7 +43,7 @@ import xyz.jpenilla.announcerplus.config.serializer.SoundSerializer
 import xyz.jpenilla.announcerplus.util.LegacyFormatting
 import xyz.jpenilla.announcerplus.util.dataPath
 import xyz.jpenilla.announcerplus.util.miniMessage
-import xyz.jpenilla.jmplib.ChatCentering
+import xyz.jpenilla.pluginbase.legacy.ChatCentering
 import java.nio.file.Path
 import kotlin.collections.set
 import kotlin.io.path.createDirectories

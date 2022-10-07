@@ -33,7 +33,7 @@ import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.message.ToastSettings
 import xyz.jpenilla.announcerplus.util.asyncTimer
 import xyz.jpenilla.announcerplus.util.runSync
-import xyz.jpenilla.jmplib.Crafty
+import xyz.jpenilla.pluginbase.legacy.Crafty
 import xyz.jpenilla.reflectionremapper.ReflectionRemapper
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method

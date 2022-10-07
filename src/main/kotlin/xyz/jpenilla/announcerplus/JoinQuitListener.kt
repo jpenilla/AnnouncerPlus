@@ -32,7 +32,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.config.MainConfig.JoinQuitPair
-import xyz.jpenilla.jmplib.RandomCollection
+import xyz.jpenilla.pluginbase.legacy.WeightedRandom
 
 class JoinQuitListener : Listener, KoinComponent {
   private val configManager: ConfigManager by inject()
@@ -75,7 +75,7 @@ class JoinQuitListener : Listener, KoinComponent {
 
   private fun Collection<JoinQuitPair>.selectRandomWeighted(): String {
     if (isEmpty()) error("Cannot randomly select from an empty collection")
-    return RandomCollection<String>().apply {
+    return WeightedRandom<String>().apply {
       for (pair in this@selectRandomWeighted) {
         add(pair.weight, pair.configName)
       }

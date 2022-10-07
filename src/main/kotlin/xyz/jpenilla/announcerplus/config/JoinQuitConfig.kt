@@ -54,8 +54,8 @@ import xyz.jpenilla.announcerplus.util.dispatchCommandAsConsole
 import xyz.jpenilla.announcerplus.util.playSounds
 import xyz.jpenilla.announcerplus.util.runAsync
 import xyz.jpenilla.announcerplus.util.runSync
-import xyz.jpenilla.jmplib.Chat
-import xyz.jpenilla.jmplib.Environment
+import xyz.jpenilla.pluginbase.legacy.Chat
+import xyz.jpenilla.pluginbase.legacy.Environment
 
 @ConfigSerializable
 class JoinQuitConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
