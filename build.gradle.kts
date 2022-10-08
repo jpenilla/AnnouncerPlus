@@ -2,13 +2,13 @@ import net.kyori.indra.repository.sonatypeSnapshots
 
 plugins {
   kotlin("jvm") version "1.7.20"
-  id("net.kyori.indra")
-  id("net.kyori.indra.git")
-  id("net.kyori.indra.license-header")
-  id("xyz.jpenilla.run-paper")
-  id("org.jlleitschuh.gradle.ktlint")
-  id("com.github.johnrengelman.shadow")
-  id("net.minecrell.plugin-yml.bukkit")
+  alias(libs.plugins.indra)
+  alias(libs.plugins.indraGit)
+  alias(libs.plugins.indraLicenseHeader)
+  alias(libs.plugins.runPaper)
+  alias(libs.plugins.ktlint)
+  alias(libs.plugins.shadow)
+  alias(libs.plugins.pluginYmlBukkit)
 }
 
 group = "xyz.jpenilla"

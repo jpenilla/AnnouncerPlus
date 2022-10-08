@@ -1,16 +1,28 @@
 metadata:
   format: { version: 1.0 }
-  polyglot-extensions:
-    - plugins
 
 plugins:
-  net.kyori.indra: &indra 2.1.1
-  net.kyori.indra.git: *indra
-  net.kyori.indra.license-header: *indra
-  com.github.johnrengelman.shadow: 7.1.2
-  net.minecrell.plugin-yml.bukkit: 0.5.2
-  xyz.jpenilla.run-paper: 1.0.6
-  org.jlleitschuh.gradle.ktlint: 10.3.0
+  indra:
+    id: net.kyori.indra
+    version: &indra 2.1.1
+  indraGit:
+    id: net.kyori.indra.git
+    version: *indra
+  indraLicenseHeader:
+    id: net.kyori.indra.license-header
+    version: *indra
+  shadow:
+    id: com.github.johnrengelman.shadow
+    version: 7.1.2
+  pluginYmlBukkit:
+    id: net.minecrell.plugin-yml.bukkit
+    version: 0.5.2
+  runPaper:
+    id: xyz.jpenilla.run-paper
+    version: 1.0.6
+  ktlint:
+    id: org.jlleitschuh.gradle.ktlint
+    version: 10.3.0
 
 versions: [ ]
 
