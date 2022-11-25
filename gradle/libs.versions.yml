@@ -19,10 +19,10 @@ plugins:
     version: 0.5.2
   runPaper:
     id: xyz.jpenilla.run-paper
-    version: 1.0.6
+    version: 2.0.0
   ktlint:
     id: org.jlleitschuh.gradle.ktlint
-    version: 10.3.0
+    version: 11.0.0
 
 versions: [ ]
 
