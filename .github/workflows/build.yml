@@ -7,16 +7,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: gradle/wrapper-validation-action@v1
-      - name: Set up JDK
+      - name: "setup up jdk"
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
-      - name: Build with Gradle
-        run: ./gradlew clean build
-      - run: mkdir staging && cp build/libs/AnnouncerPlus*.jar staging
-      - uses: actions/upload-artifact@v3
+      - name: "gradle and caching setup"
+        uses: jpenilla/actions/minecraft-gradle-setup@v0
+      - name: "execute gradle build"
+        run: ./gradlew build
+      - name: "copy artifacts to staging directory"
+        run: mkdir staging && cp build/libs/AnnouncerPlus*.jar staging
+      - name: "upload artifacts"
+        uses: actions/upload-artifact@v3
         with:
-          name: Package
+          name: Jars
           path: staging
