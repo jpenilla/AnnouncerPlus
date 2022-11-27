@@ -43,7 +43,7 @@ dependencies {
   }
   compileOnly("me.clip", "placeholderapi", "2.11.2")
 
-  implementation(platform("net.kyori:adventure-bom:4.11.0"))
+  implementation(platform("net.kyori:adventure-bom:4.12.0"))
   implementation("net.kyori", "adventure-extra-kotlin")
   implementation("net.kyori", "adventure-serializer-configurate4")
 
