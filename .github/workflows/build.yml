@@ -1,25 +1,13 @@
-name: Build
-on: [ push, pull_request ]
+name: "build"
+
+on:
+  push:
+    branches: [ "**" ]
+    tags-ignore: [ "**" ]
+  pull_request:
+
 jobs:
-  build:
-    # Only run on PRs if the source branch is on someone else's repo
-    if: ${{ github.event_name != 'pull_request' || github.repository != github.event.pull_request.head.repo.full_name }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: "setup up jdk"
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-      - name: "gradle and caching setup"
-        uses: jpenilla/actions/minecraft-gradle-setup@v0
-      - name: "execute gradle build"
-        run: ./gradlew build
-      - name: "copy artifacts to staging directory"
-        run: mkdir staging && cp build/libs/AnnouncerPlus*.jar staging
-      - name: "upload artifacts"
-        uses: actions/upload-artifact@v3
-        with:
-          name: Jars
-          path: staging
+  call-build:
+    uses: "jpenilla/actions/.github/workflows/shared-ci.yml@master"
+    with:
+      artifacts-path: 'build/libs/AnnouncerPlus*.jar'
