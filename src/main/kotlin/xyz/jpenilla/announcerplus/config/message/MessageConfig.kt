@@ -89,7 +89,7 @@ class MessageConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
     Message {
       messages("{prefix1} Test <gradient:blue:aqua>AnnouncerPlus</gradient> broadcast with sound<green>!")
       sounds(
-        sound(key("minecraft:entity.strider.happy"), Sound.Source.MASTER, 1.0f, 1.0f),
+        sound().type(key("minecraft:entity.strider.happy")).source(Sound.Source.MASTER).volume(1.0f).pitch(1.0f).seed(1234).build(),
         sound(key("minecraft:entity.villager.ambient"), Sound.Source.MASTER, 1.0f, 1.0f),
         sound(key("minecraft:block.note_block.cow_bell"), Sound.Source.MASTER, 1.0f, 1.0f)
       )

@@ -39,6 +39,7 @@ object SoundSerializer : TypeSerializer<Sound> {
   private const val SOURCE = "source"
   private const val PITCH = "pitch"
   private const val VOLUME = "volume"
+  private const val SEED = "seed"
 
   @Throws(SerializationException::class)
   override fun deserialize(type: Type, value: ConfigurationNode): Sound? {
@@ -49,10 +50,17 @@ object SoundSerializer : TypeSerializer<Sound> {
     val source = value.node(SOURCE).get<Sound.Source>()
     val pitch = value.node(PITCH).getFloat(1.0f)
     val volume = value.node(VOLUME).getFloat(1.0f)
+    val seed = value.node(SEED).takeUnless { it.virtual() }?.long
     if (name == null || source == null) {
       throw SerializationException("A name and source are required to deserialize a Sound")
     }
-    return sound(name, source, volume, pitch)
+    return sound { sound ->
+      sound.type(name)
+      sound.source(source)
+      sound.volume(volume)
+      sound.pitch(pitch)
+      seed?.let { sound.seed(it) }
+    }
   }
 
   @Throws(SerializationException::class)
@@ -77,6 +85,14 @@ object SoundSerializer : TypeSerializer<Sound> {
     val volumeNode = value.node(VOLUME)
     volumeNode.set(obj.volume())
     addComment(volumeNode, "A floating-point number in the range [0.0f,∞) representing how loud the sound should be played. Increasing volume does not actually play the sound louder, but increases the radius of where it can be heard.")
+
+    val seedNode = value.node(SEED)
+    if (obj.seed().isPresent) {
+      seedNode.set(obj.seed().asLong)
+      addComment(seedNode, "The seed used for playback of weighted sound effects. When the seed is not provided, a random one will be used instead.")
+    } else {
+      seedNode.set(null)
+    }
   }
 
   private fun <N : ConfigurationNode> addComment(node: N, comment: String) {

@@ -50,7 +50,7 @@ class MessageConfigArgument(
   }
 
   class Parser : ArgumentParser<Commander, MessageConfig>, KoinComponent {
-    val configManager: ConfigManager by inject()
+    private val configManager: ConfigManager by inject()
 
     override fun parse(
       context: CommandContext<Commander>,

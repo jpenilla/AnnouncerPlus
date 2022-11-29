@@ -27,7 +27,6 @@ import cloud.commandframework.arguments.CommandArgument
 import cloud.commandframework.arguments.parser.ArgumentParseResult
 import cloud.commandframework.arguments.parser.ArgumentParser
 import cloud.commandframework.context.CommandContext
-import com.google.common.collect.ImmutableList
 import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
@@ -66,7 +65,7 @@ class WorldPlayersArgument(
         ?: return failure(Component.text("No such world: $input"))
 
       inputQueue.remove()
-      return ArgumentParseResult.success(WorldPlayers(ImmutableList.copyOf(world.players)))
+      return ArgumentParseResult.success(WorldPlayers(world.players.toList()))
     }
 
     override fun suggestions(
