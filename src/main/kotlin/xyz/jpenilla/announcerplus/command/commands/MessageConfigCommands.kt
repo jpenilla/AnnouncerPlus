@@ -64,8 +64,8 @@ class MessageConfigCommands : BaseCommand {
   private val configManager: ConfigManager by inject()
 
   override fun register() {
-    commands.registerSubcommand("message-config") {
-      permission = "announcerplus.command.message-config"
+    commands.registerSubcommand("messageconfig") {
+      permission = "announcerplus.command.messageconfig"
       commandDescription("Shows information about a message config.")
       argument(MessageConfigArgument("config"))
       handler(::executeInfo)
@@ -107,7 +107,7 @@ class MessageConfigCommands : BaseCommand {
           content(config.messages.size.toString())
           decorate(ITALIC)
           hoverEvent(text("Click to list messages", WHITE))
-          clickEvent(runCommand("/announcerplus message-config ${config.name} messages"))
+          clickEvent(runCommand("/announcerplus messageconfig ${config.name} messages"))
         }
       )
     }
@@ -176,13 +176,13 @@ class MessageConfigCommands : BaseCommand {
         append(
           text {
             content("${config.name} config messages")
-            clickEvent(runCommand("/announcerplus message-config ${config.name}"))
+            clickEvent(runCommand("/announcerplus messageconfig ${config.name}"))
             hoverEvent(text("Click for info about this message config", WHITE))
           }
         )
       },
       { value, _ -> messageComponents(value!!, sender, color) },
-      { "/announcerplus message-config ${config.name} messages $it" }
+      { "/announcerplus messageconfig ${config.name} messages $it" }
     )
 
   private fun messageComponents(message: Message, sender: Commander, color: TextColor): List<Component> {
