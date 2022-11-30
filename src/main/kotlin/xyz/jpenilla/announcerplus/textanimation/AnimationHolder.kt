@@ -23,9 +23,11 @@
  */
 package xyz.jpenilla.announcerplus.textanimation
 
-import org.bukkit.entity.Player
+import org.bukkit.command.CommandSender
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
+import xyz.jpenilla.announcerplus.command.BukkitCommander
+import xyz.jpenilla.announcerplus.command.Commander
 import xyz.jpenilla.announcerplus.config.ConfigManager
 
 class AnimationHolder(
@@ -33,9 +35,12 @@ class AnimationHolder(
   private val stringProcessor: (String) -> String
 ) : KoinComponent {
   companion object : KoinComponent {
-    fun create(player: Player?, message: String): AnimationHolder {
+    fun create(sender: Commander?, message: String): AnimationHolder =
+      create((sender as BukkitCommander?)?.commandSender, message)
+
+    fun create(sender: CommandSender?, message: String): AnimationHolder {
       val configManager: ConfigManager = get()
-      return AnimationHolder(message) { configManager.parse(player, it) }
+      return AnimationHolder(message) { configManager.parse(sender, it) }
     }
 
     private val pattern = "\\{animate:/?([a-z][^}]*)/?}?".toPattern()

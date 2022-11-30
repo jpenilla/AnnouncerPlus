@@ -103,7 +103,7 @@ class MessageConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
       )
     },
     Message {
-      messages("<bold><italic>Hello, </bold></italic> {nick} {prefix1} {r}!!!!!!!!!{rc}")
+      messages("<bold><italic>Hello,</italic></bold> {nick} {prefix1} {r}!!!!!!!!!{rc}")
       title = TitleSettings(
         1,
         13,

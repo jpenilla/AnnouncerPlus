@@ -37,7 +37,7 @@ import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.command.commands.AboutCommand
 import xyz.jpenilla.announcerplus.command.commands.BroadcastCommands
 import xyz.jpenilla.announcerplus.command.commands.HelpCommand
-import xyz.jpenilla.announcerplus.command.commands.ListMessagesCommand
+import xyz.jpenilla.announcerplus.command.commands.MessageConfigCommands
 import xyz.jpenilla.announcerplus.command.commands.ParseCommands
 import xyz.jpenilla.announcerplus.command.commands.ReloadCommand
 import xyz.jpenilla.announcerplus.command.commands.SendCommands
@@ -87,7 +87,7 @@ class Commands(plugin: AnnouncerPlus) {
     setOf(
       AboutCommand(),
       HelpCommand(),
-      ListMessagesCommand(),
+      MessageConfigCommands(),
       ReloadCommand(),
       BroadcastCommands(),
       SendCommands(),
