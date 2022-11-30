@@ -1,5 +1,3 @@
-import net.kyori.indra.repository.sonatypeSnapshots
-
 plugins {
   kotlin("jvm") version "1.7.22"
   alias(libs.plugins.indra)
@@ -17,10 +15,8 @@ description = "Announcement plugin with support for permissions. Supports Hex co
 
 repositories {
   mavenCentral()
-  sonatypeSnapshots()
-  maven("https://s01.oss.sonatype.org/content/repositories/snapshots/") {
-    mavenContent { snapshotsOnly() }
-  }
+  sonatype.s01Snapshots()
+  sonatype.ossSnapshots()
   maven("https://papermc.io/repo/repository/maven-public/")
   maven("https://repo.jpenilla.xyz/snapshots/")
   maven("https://maven.fabricmc.net/")
@@ -57,7 +53,7 @@ dependencies {
   implementation("org.spongepowered", "configurate-extra-kotlin")
 
   implementation("io.insert-koin", "koin-core", "3.2.2")
-  implementation("xyz.jpenilla", "legacy-plugin-base", "0.0.1+70-SNAPSHOT")
+  implementation("xyz.jpenilla", "legacy-plugin-base", "0.0.1+71-SNAPSHOT")
   implementation("org.bstats", "bstats-bukkit", "3.0.0")
   implementation("io.papermc", "paperlib", "1.0.8-SNAPSHOT")
 
