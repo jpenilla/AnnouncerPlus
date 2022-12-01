@@ -26,20 +26,14 @@ package xyz.jpenilla.announcerplus.command.commands
 import cloud.commandframework.context.CommandContext
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor
-import org.koin.core.component.inject
-import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.command.BaseCommand
 import xyz.jpenilla.announcerplus.command.Commander
-import xyz.jpenilla.announcerplus.command.Commands
 import xyz.jpenilla.announcerplus.util.center
 import xyz.jpenilla.announcerplus.util.miniMessage
 import xyz.jpenilla.announcerplus.util.randomColor
 import java.util.logging.Level
 
-class ReloadCommand : BaseCommand {
-  private val announcerPlus: AnnouncerPlus by inject()
-  private val commands: Commands by inject()
-
+class ReloadCommand : BaseCommand() {
   override fun register() {
     commands.registerSubcommand("reload") {
       permission = "announcerplus.command.reload"

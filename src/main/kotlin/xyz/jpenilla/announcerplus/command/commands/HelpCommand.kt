@@ -32,14 +32,11 @@ import net.kyori.adventure.text.format.NamedTextColor.DARK_GRAY
 import net.kyori.adventure.text.format.NamedTextColor.GRAY
 import net.kyori.adventure.text.format.NamedTextColor.WHITE
 import net.kyori.adventure.text.format.TextColor.color
-import org.koin.core.component.inject
 import xyz.jpenilla.announcerplus.command.BaseCommand
 import xyz.jpenilla.announcerplus.command.Commander
-import xyz.jpenilla.announcerplus.command.Commands
 import xyz.jpenilla.announcerplus.util.description
 
-class HelpCommand : BaseCommand {
-  private val commands: Commands by inject()
+class HelpCommand : BaseCommand() {
   private val help = createHelp()
 
   override fun register() {
@@ -52,7 +49,7 @@ class HelpCommand : BaseCommand {
   }
 
   private fun execute(ctx: CommandContext<Commander>) {
-    help.queryCommands(ctx.getOrDefault("query", "") as String, ctx.sender)
+    help.queryCommands(ctx.getOrDefault("query", "")!!, ctx.sender)
   }
 
   private fun createHelp(): MinecraftHelp<Commander> {

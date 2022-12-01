@@ -25,11 +25,26 @@ package xyz.jpenilla.announcerplus.command
 
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.audience.ForwardingAudience
+import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.command.CommandSender
 
 open class BukkitCommander(
   val commandSender: CommandSender,
-  val audience: Audience
+  private val audience: Audience
 ) : Commander, ForwardingAudience.Single {
   override fun audience(): Audience = audience
+
+  class Player(
+    val player: org.bukkit.entity.Player,
+    audience: Audience
+  ) : BukkitCommander(player, audience), PlayerCommander
+
+  companion object {
+    fun create(audiences: BukkitAudiences, sender: CommandSender): BukkitCommander {
+      if (sender is org.bukkit.entity.Player) {
+        return Player(sender, audiences.player(sender))
+      }
+      return BukkitCommander(sender, audiences.sender(sender))
+    }
+  }
 }

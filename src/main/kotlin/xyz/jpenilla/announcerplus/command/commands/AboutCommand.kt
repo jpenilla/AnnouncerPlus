@@ -28,11 +28,8 @@ import net.kyori.adventure.extra.kotlin.text
 import net.kyori.adventure.text.Component.space
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.event.ClickEvent.openUrl
-import org.koin.core.component.inject
-import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.command.BaseCommand
 import xyz.jpenilla.announcerplus.command.Commander
-import xyz.jpenilla.announcerplus.command.Commands
 import xyz.jpenilla.announcerplus.util.center
 import xyz.jpenilla.announcerplus.util.measurePlain
 import xyz.jpenilla.announcerplus.util.miniMessage
@@ -40,10 +37,7 @@ import xyz.jpenilla.announcerplus.util.modifyHSV
 import xyz.jpenilla.announcerplus.util.randomColor
 import kotlin.math.roundToInt
 
-class AboutCommand : BaseCommand {
-  private val announcerPlus: AnnouncerPlus by inject()
-  private val commands: Commands by inject()
-
+class AboutCommand : BaseCommand() {
   override fun register() {
     commands.registerSubcommand("about") {
       permission = "announcerplus.command.about"

@@ -23,8 +23,6 @@
  */
 package xyz.jpenilla.announcerplus.config
 
-import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableSet
 import net.kyori.adventure.key.Key.key
 import net.kyori.adventure.sound.Sound
 import net.kyori.adventure.sound.Sound.sound
@@ -146,7 +144,7 @@ class JoinQuitConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
       "<gradient:green:blue><bold><italic>AnnouncerPlus", "<rainbow>Welcome to the server!"
     )
 
-    fun messageElements(): Collection<MessageElement> = ImmutableSet.of(
+    fun messageElements(): Collection<MessageElement> = setOf(
       actionBar,
       bossBar,
       title,
@@ -189,7 +187,7 @@ class JoinQuitConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
     chat.send(player, announcerPlus.configManager.parse(player, join.messages))
     announcerPlus.runSync(3L) {
       if (!isVanished(player)) {
-        val onlinePlayers = ImmutableList.copyOf(Bukkit.getOnlinePlayers())
+        val onlinePlayers = Bukkit.getOnlinePlayers().toList()
         announcerPlus.runAsync {
           onlinePlayers.forEach { onlinePlayer ->
             if (onlinePlayer.name != player.name) {

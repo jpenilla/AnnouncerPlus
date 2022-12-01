@@ -27,17 +27,13 @@ import cloud.commandframework.arguments.standard.StringArgument
 import cloud.commandframework.bukkit.parsers.MaterialArgument
 import cloud.commandframework.context.CommandContext
 import net.kyori.adventure.bossbar.BossBar
-import org.koin.core.component.inject
-import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.command.BaseCommand
-import xyz.jpenilla.announcerplus.command.BukkitPlayerCommander
+import xyz.jpenilla.announcerplus.command.BukkitCommander
 import xyz.jpenilla.announcerplus.command.Commander
-import xyz.jpenilla.announcerplus.command.Commands
 import xyz.jpenilla.announcerplus.command.PlayerCommander
 import xyz.jpenilla.announcerplus.command.argument.enum
 import xyz.jpenilla.announcerplus.command.argument.integer
 import xyz.jpenilla.announcerplus.command.argument.positiveInteger
-import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.config.message.ToastSettings
 import xyz.jpenilla.announcerplus.task.ActionBarUpdateTask
 import xyz.jpenilla.announcerplus.task.BossBarUpdateTask
@@ -45,11 +41,7 @@ import xyz.jpenilla.announcerplus.task.TitleUpdateTask
 import xyz.jpenilla.announcerplus.util.description
 import xyz.jpenilla.announcerplus.util.miniMessage
 
-class ParseCommands : BaseCommand {
-  private val commands: Commands by inject()
-  private val configManager: ConfigManager by inject()
-  private val announcerPlus: AnnouncerPlus by inject()
-
+class ParseCommands : BaseCommand() {
   override fun register() {
     commands.registerSubcommand("parse") {
       permission = "announcerplus.command.parse.chat"
@@ -118,12 +110,12 @@ class ParseCommands : BaseCommand {
   private fun executeParseToast(ctx: CommandContext<Commander>) {
     val customModelData = ctx.flags().getValue<Int>("custom-model-data").orElse(-1)
     val toast = ToastSettings(ctx.get("icon"), ctx.get("frame"), ctx.get("header"), ctx.get("body"), ctx.flags().isPresent("enchant"), customModelData)
-    toast.displayIfEnabled((ctx.sender as BukkitPlayerCommander).player)
+    toast.displayIfEnabled((ctx.sender as BukkitCommander.Player).player)
   }
 
   private fun executeParseTitle(ctx: CommandContext<Commander>) {
     TitleUpdateTask(
-      (ctx.sender as BukkitPlayerCommander).player,
+      (ctx.sender as BukkitCommander.Player).player,
       ctx.get("fade_in"),
       ctx.get("stay"),
       ctx.get("fade_out"),
@@ -133,12 +125,12 @@ class ParseCommands : BaseCommand {
   }
 
   private fun executeParseActionBar(ctx: CommandContext<Commander>) {
-    ActionBarUpdateTask((ctx.sender as BukkitPlayerCommander).player, ctx.get<Int>("seconds") * 20L, true, ctx.get("text")).start()
+    ActionBarUpdateTask((ctx.sender as BukkitCommander.Player).player, ctx.get<Int>("seconds") * 20L, true, ctx.get("text")).start()
   }
 
   private fun executeParseBossBar(ctx: CommandContext<Commander>) {
     BossBarUpdateTask(
-      (ctx.sender as BukkitPlayerCommander).player,
+      (ctx.sender as BukkitCommander.Player).player,
       ctx.get("seconds"),
       ctx.get("overlay"),
       ctx.get("fillmode"),
@@ -148,7 +140,7 @@ class ParseCommands : BaseCommand {
   }
 
   private fun executeParseAnimation(ctx: CommandContext<Commander>) {
-    val player = (ctx.sender as BukkitPlayerCommander).player
+    val player = (ctx.sender as BukkitCommander.Player).player
     val seconds = ctx.get<Int>("seconds")
     val message = ctx.get<String>("message")
     TitleUpdateTask(player, 0, seconds, 0, message, message).start()

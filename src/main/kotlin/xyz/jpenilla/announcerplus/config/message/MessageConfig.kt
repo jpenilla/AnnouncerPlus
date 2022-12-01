@@ -23,7 +23,6 @@
  */
 package xyz.jpenilla.announcerplus.config.message
 
-import com.google.common.collect.ImmutableList
 import net.kyori.adventure.key.Key.key
 import net.kyori.adventure.sound.Sound
 import net.kyori.adventure.sound.Sound.sound
@@ -186,8 +185,7 @@ class MessageConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
     }
   }
 
-  fun populate(name: String): MessageConfig =
-    this.apply { this.name = name }
+  fun populate(name: String): MessageConfig = apply { this.name = name }
 
   @Transient
   lateinit var name: String
@@ -214,8 +212,8 @@ class MessageConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
     }
   }
 
-  private fun broadcast(message: Message) {
-    val onlinePlayers = announcerPlus.getOnMain { ImmutableList.copyOf(Bukkit.getOnlinePlayers()) }
+  fun broadcast(message: Message) {
+    val onlinePlayers = announcerPlus.getOnMain { Bukkit.getOnlinePlayers().toList() }
     for (onlinePlayer in onlinePlayers) {
       if (announcerPlus.essentials != null) {
         if (announcerPlus.essentials!!.isAfk(onlinePlayer) &&

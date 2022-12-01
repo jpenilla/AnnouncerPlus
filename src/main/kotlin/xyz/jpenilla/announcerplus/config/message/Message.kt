@@ -23,7 +23,6 @@
  */
 package xyz.jpenilla.announcerplus.config.message
 
-import com.google.common.collect.ImmutableSet
 import net.kyori.adventure.sound.Sound
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
 import org.spongepowered.configurate.objectmapping.meta.Comment
@@ -66,7 +65,7 @@ class Message {
     op(this)
   }
 
-  fun messageElements(): Collection<MessageElement> = ImmutableSet.of(
+  fun messageElements(): Collection<MessageElement> = setOf(
     actionBar,
     bossBar,
     title,

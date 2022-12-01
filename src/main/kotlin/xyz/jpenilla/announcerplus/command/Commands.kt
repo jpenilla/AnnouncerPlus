@@ -24,13 +24,12 @@
 package xyz.jpenilla.announcerplus.command
 
 import cloud.commandframework.bukkit.CloudBukkitCapabilities
-import cloud.commandframework.execution.AsynchronousCommandExecutionCoordinator
+import cloud.commandframework.execution.CommandExecutionCoordinator
 import cloud.commandframework.kotlin.MutableCommandBuilder
 import cloud.commandframework.kotlin.extension.commandBuilder
 import cloud.commandframework.minecraft.extras.AudienceProvider.nativeAudience
 import cloud.commandframework.minecraft.extras.MinecraftExceptionHandler
 import cloud.commandframework.paper.PaperCommandManager
-import org.bukkit.entity.Player
 import org.koin.core.context.loadKoinModules
 import org.koin.dsl.module
 import xyz.jpenilla.announcerplus.AnnouncerPlus
@@ -45,16 +44,11 @@ import xyz.jpenilla.announcerplus.util.Constants
 import xyz.jpenilla.announcerplus.util.ofChildren
 
 class Commands(plugin: AnnouncerPlus) {
-  val commandManager = PaperCommandManager(
+  val commandManager: PaperCommandManager<Commander> = PaperCommandManager(
     plugin,
-    AsynchronousCommandExecutionCoordinator.newBuilder<Commander>().build(),
-    { commandSender ->
-      when (commandSender) {
-        is Player -> BukkitPlayerCommander(commandSender, plugin.audiences().player(commandSender))
-        else -> BukkitCommander(commandSender, plugin.audiences().sender(commandSender))
-      }
-    },
-    { (it as BukkitCommander).commandSender }
+    CommandExecutionCoordinator.simpleCoordinator(),
+    { commandSender -> BukkitCommander.create(plugin.audiences(), commandSender) },
+    { commander -> (commander as BukkitCommander).commandSender }
   )
 
   init {
@@ -66,12 +60,6 @@ class Commands(plugin: AnnouncerPlus) {
     if (commandManager.hasCapability(CloudBukkitCapabilities.NATIVE_BRIGADIER)) {
       commandManager.registerBrigadier()
       commandManager.brigadierManager()?.setNativeNumberSuggestions(false)
-      plugin.logger.info("Successfully registered Mojang Brigadier support for commands.")
-    }
-
-    if (commandManager.hasCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION)) {
-      commandManager.registerAsynchronousCompletions()
-      plugin.logger.info("Successfully registered asynchronous command completion listener.")
     }
 
     loadKoinModules(
@@ -92,7 +80,7 @@ class Commands(plugin: AnnouncerPlus) {
       BroadcastCommands(),
       SendCommands(),
       ParseCommands()
-    ).forEach(BaseCommand::register)
+    ).forEach(RegistrableCommand::register)
   }
 
   fun rootBuilder(

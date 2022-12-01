@@ -43,13 +43,10 @@ import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.format.TextDecoration.BOLD
 import net.kyori.adventure.text.format.TextDecoration.ITALIC
 import net.kyori.adventure.text.format.TextDecoration.STRIKETHROUGH
-import org.koin.core.component.inject
 import xyz.jpenilla.announcerplus.command.BaseCommand
 import xyz.jpenilla.announcerplus.command.Commander
-import xyz.jpenilla.announcerplus.command.Commands
 import xyz.jpenilla.announcerplus.command.argument.MessageConfigArgument
 import xyz.jpenilla.announcerplus.command.argument.positiveInteger
-import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.config.message.Message
 import xyz.jpenilla.announcerplus.config.message.MessageConfig
 import xyz.jpenilla.announcerplus.textanimation.AnimationHolder
@@ -59,10 +56,7 @@ import xyz.jpenilla.announcerplus.util.miniMessage
 import xyz.jpenilla.announcerplus.util.ofChildren
 import xyz.jpenilla.announcerplus.util.randomColor
 
-class MessageConfigCommands : BaseCommand {
-  private val commands: Commands by inject()
-  private val configManager: ConfigManager by inject()
-
+class MessageConfigCommands : BaseCommand() {
   override fun register() {
     commands.registerSubcommand("messageconfig") {
       permission = "announcerplus.command.messageconfig"

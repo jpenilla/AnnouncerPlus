@@ -24,7 +24,12 @@
 package xyz.jpenilla.announcerplus.command
 
 import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import xyz.jpenilla.announcerplus.AnnouncerPlus
+import xyz.jpenilla.announcerplus.config.ConfigManager
 
-interface BaseCommand : KoinComponent {
-  fun register()
+abstract class BaseCommand : RegistrableCommand, KoinComponent {
+  protected val announcerPlus: AnnouncerPlus by inject()
+  protected val commands: Commands by inject()
+  protected val configManager: ConfigManager by inject()
 }

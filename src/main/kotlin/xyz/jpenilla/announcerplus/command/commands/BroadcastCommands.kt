@@ -29,16 +29,13 @@ import cloud.commandframework.context.CommandContext
 import net.kyori.adventure.bossbar.BossBar
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.koin.core.component.inject
-import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.command.BaseCommand
 import xyz.jpenilla.announcerplus.command.Commander
-import xyz.jpenilla.announcerplus.command.Commands
 import xyz.jpenilla.announcerplus.command.argument.WorldPlayers
 import xyz.jpenilla.announcerplus.command.argument.WorldPlayersArgument
 import xyz.jpenilla.announcerplus.command.argument.enum
 import xyz.jpenilla.announcerplus.command.argument.integer
 import xyz.jpenilla.announcerplus.command.argument.positiveInteger
-import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.config.message.ToastSettings
 import xyz.jpenilla.announcerplus.task.ActionBarUpdateTask
 import xyz.jpenilla.announcerplus.task.BossBarUpdateTask
@@ -46,10 +43,7 @@ import xyz.jpenilla.announcerplus.task.TitleUpdateTask
 import xyz.jpenilla.announcerplus.util.description
 import xyz.jpenilla.announcerplus.util.miniMessage
 
-class BroadcastCommands : BaseCommand {
-  private val commands: Commands by inject()
-  private val configManager: ConfigManager by inject()
-  private val announcerPlus: AnnouncerPlus by inject()
+class BroadcastCommands : BaseCommand() {
   private val audiences: BukkitAudiences by inject()
 
   override fun register() {
