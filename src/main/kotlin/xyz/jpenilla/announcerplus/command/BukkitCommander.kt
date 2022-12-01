@@ -37,7 +37,7 @@ open class BukkitCommander(
   class Player(
     val player: org.bukkit.entity.Player,
     audience: Audience
-  ) : BukkitCommander(player, audience), PlayerCommander
+  ) : BukkitCommander(player, audience), Commander.Player
 
   companion object {
     fun create(audiences: BukkitAudiences, sender: CommandSender): BukkitCommander {

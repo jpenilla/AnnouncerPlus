@@ -33,8 +33,12 @@ import net.kyori.adventure.text.format.NamedTextColor.GRAY
 import net.kyori.adventure.text.format.NamedTextColor.WHITE
 import net.kyori.adventure.text.format.TextColor.color
 import net.kyori.adventure.text.format.TextDecoration.ITALIC
+import org.koin.core.qualifier.Qualifier
+import org.koin.core.qualifier.StringQualifier
 
 object Constants {
+  val DATA_PATH: Qualifier = StringQualifier("data-path")
+
   const val CONFIG_COMMENT_SOUNDS_RANDOM: String =
     "Should a random join sound be chosen(true) or should all of them play(false)"
 

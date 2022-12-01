@@ -212,7 +212,7 @@ class MessageConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
     }
   }
 
-  fun broadcast(message: Message) {
+  private fun broadcast(message: Message) {
     val onlinePlayers = announcerPlus.getOnMain { Bukkit.getOnlinePlayers().toList() }
     for (onlinePlayer in onlinePlayers) {
       if (announcerPlus.essentials != null) {

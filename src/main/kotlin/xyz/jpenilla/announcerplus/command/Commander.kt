@@ -25,4 +25,6 @@ package xyz.jpenilla.announcerplus.command
 
 import net.kyori.adventure.audience.Audience
 
-interface Commander : Audience
+interface Commander : Audience {
+  interface Player : Commander
+}

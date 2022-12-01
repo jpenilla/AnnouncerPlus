@@ -34,12 +34,10 @@ import org.koin.core.context.loadKoinModules
 import org.koin.dsl.module
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.command.commands.AboutCommand
-import xyz.jpenilla.announcerplus.command.commands.BroadcastCommands
 import xyz.jpenilla.announcerplus.command.commands.HelpCommand
+import xyz.jpenilla.announcerplus.command.commands.MessageCommands
 import xyz.jpenilla.announcerplus.command.commands.MessageConfigCommands
-import xyz.jpenilla.announcerplus.command.commands.ParseCommands
 import xyz.jpenilla.announcerplus.command.commands.ReloadCommand
-import xyz.jpenilla.announcerplus.command.commands.SendCommands
 import xyz.jpenilla.announcerplus.util.Constants
 import xyz.jpenilla.announcerplus.util.ofChildren
 
@@ -77,30 +75,21 @@ class Commands(plugin: AnnouncerPlus) {
       HelpCommand(),
       MessageConfigCommands(),
       ReloadCommand(),
-      BroadcastCommands(),
-      SendCommands(),
-      ParseCommands()
+      MessageCommands(),
     ).forEach(RegistrableCommand::register)
   }
 
-  fun rootBuilder(
+  private fun rootBuilder(
     lambda: MutableCommandBuilder<Commander>.() -> Unit = {}
   ) = commandManager.commandBuilder("ap", aliases = arrayOf("announcerplus", "announcer"), lambda = lambda)
 
   fun registerSubcommand(
     literal: String,
-    lambda: MutableCommandBuilder<Commander>.() -> Unit
-  ) {
-    rootBuilder().literal(literal).apply(lambda).register()
-  }
-
-  fun registerSubcommand(
-    literal: String,
-    registrationPredicate: Boolean,
+    registrationPredicate: Boolean = true,
     lambda: MutableCommandBuilder<Commander>.() -> Unit
   ) {
     if (registrationPredicate) {
-      registerSubcommand(literal, lambda)
+      rootBuilder().literal(literal).apply(lambda).register()
     }
   }
 }

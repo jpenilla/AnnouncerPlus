@@ -24,9 +24,9 @@
 package xyz.jpenilla.announcerplus.util
 
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
-import org.bukkit.plugin.Plugin
+import java.util.logging.Logger
 
-class LegacyFormatting(private val plugin: Plugin) {
+class LegacyChecker(private val logger: Logger) {
   private companion object {
     private const val DISABLE_LEGACY_CHECK_PROPERTY_NAME = "AnnouncerPlus.disableLegacyCheck"
     private const val SECTION_SYMBOL_STRING = LegacyComponentSerializer.SECTION_CHAR.toString()
@@ -34,14 +34,16 @@ class LegacyFormatting(private val plugin: Plugin) {
   }
 
   private val legacyCheck = run {
-    val value = !java.lang.Boolean.getBoolean(DISABLE_LEGACY_CHECK_PROPERTY_NAME)
-    if (!value) plugin.logger.warning("System property '$DISABLE_LEGACY_CHECK_PROPERTY_NAME' has been set to 'true'. This disables safeguards against unsupported behavior, and as such, you forfeit any support by having this set.")
-    value
+    val disableCheck = java.lang.Boolean.getBoolean(DISABLE_LEGACY_CHECK_PROPERTY_NAME)
+    if (disableCheck) {
+      logger.warning("System property '$DISABLE_LEGACY_CHECK_PROPERTY_NAME' has been set to 'true'. This disables safeguards against unsupported behavior, and as such, you forfeit any support by having this set.")
+    }
+    !disableCheck
   }
 
   fun check(message: String): String {
     if (legacyCheck && message.contains(LegacyComponentSerializer.SECTION_CHAR)) {
-      plugin.logger.warning("Legacy color codes have been detected in a message. This is not supported behavior. Message: '${message.replace(LegacyComponentSerializer.SECTION_CHAR, LegacyComponentSerializer.AMPERSAND_CHAR)}'") // todo: fix paper logging so we don't need to replace here
+      logger.warning("Legacy color codes have been detected in a message. This is not supported behavior. Message: '${message.replace(LegacyComponentSerializer.SECTION_CHAR, LegacyComponentSerializer.AMPERSAND_CHAR)}'") // todo: fix paper logging so we don't need to replace here
       return message.replace(SECTION_SYMBOL_STRING, EMPTY_STRING)
     }
     return message

@@ -34,13 +34,16 @@ import org.bstats.charts.SimplePie
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import xyz.jpenilla.announcerplus.command.Commands
 import xyz.jpenilla.announcerplus.compatibility.EssentialsHook
 import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.config.message.MessageConfig
 import xyz.jpenilla.announcerplus.task.ToastTask
+import xyz.jpenilla.announcerplus.util.Constants
 import xyz.jpenilla.announcerplus.util.UpdateChecker
+import xyz.jpenilla.announcerplus.util.dataPath
 import xyz.jpenilla.pluginbase.legacy.PluginBase
 import java.util.logging.Level
 
@@ -69,8 +72,10 @@ class AnnouncerPlus : PluginBase(), KoinComponent {
       single { audiences() }
       single { miniMessage() }
       single { chat() }
-      single { ConfigManager(get()) }
+      single { ConfigManager(get(), get(), get(Constants.DATA_PATH)) }
       single { gson }
+      single { this@AnnouncerPlus.logger }
+      single(Constants.DATA_PATH) { dataPath }
     }
 
     startKoin {
@@ -131,6 +136,7 @@ class AnnouncerPlus : PluginBase(), KoinComponent {
 
   override fun onDisable() {
     toastTask?.cancel()
+    stopKoin()
   }
 
   private fun setupPermissions(): Boolean {

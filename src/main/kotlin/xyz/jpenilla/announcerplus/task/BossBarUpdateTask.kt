@@ -32,6 +32,7 @@ import org.koin.core.component.inject
 import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.textanimation.AnimationHolder
 import xyz.jpenilla.announcerplus.util.miniMessage
+import java.util.logging.Logger
 
 class BossBarUpdateTask(
   private val player: Player,
@@ -41,6 +42,7 @@ class BossBarUpdateTask(
   private val color: String,
   private val text: String
 ) : UpdateTask() {
+  private val logger: Logger by inject()
   private val configManager: ConfigManager by inject()
   private val audience = get<BukkitAudiences>().player(player)
   private val textAnimation = AnimationHolder.create(player, text)
@@ -53,7 +55,12 @@ class BossBarUpdateTask(
   }
 
   override fun update() {
-    bar.color(BossBar.Color.NAMES.value(colorAnimation.parseNext(color).lowercase()) ?: BossBar.Color.BLUE)
+    val colorName = colorAnimation.parseNext(color)
+    val color = BossBar.Color.NAMES.value(colorName.lowercase()) ?: run {
+      logger.warning("Failed to parse boss bar color from '$colorName' (full string: '$color'). Falling back to BLUE. Possible colors: [${BossBar.Color.NAMES.keys().joinToString(", ")}]")
+      BossBar.Color.BLUE
+    }
+    bar.color(color)
     bar.name(miniMessage(configManager.parse(player, textAnimation.parseNext(text))))
     when (fillMode) {
       FillMode.FILL -> bar.progress(ticksLived / (lifeTime * 20f))

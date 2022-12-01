@@ -28,6 +28,7 @@ import net.kyori.adventure.sound.Sound
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import org.koin.core.component.KoinComponent
 import org.spongepowered.configurate.CommentedConfigurationNode
 import org.spongepowered.configurate.ConfigurationNode
 import org.spongepowered.configurate.ConfigurationOptions
@@ -40,11 +41,11 @@ import xyz.jpenilla.announcerplus.command.Commander
 import xyz.jpenilla.announcerplus.compatibility.PlaceholderAPIMiniMessagePreprocessor
 import xyz.jpenilla.announcerplus.config.message.MessageConfig
 import xyz.jpenilla.announcerplus.config.serializer.SoundSerializer
-import xyz.jpenilla.announcerplus.util.LegacyFormatting
-import xyz.jpenilla.announcerplus.util.dataPath
+import xyz.jpenilla.announcerplus.util.LegacyChecker
 import xyz.jpenilla.announcerplus.util.miniMessage
 import xyz.jpenilla.pluginbase.legacy.ChatCentering
 import java.nio.file.Path
+import java.util.logging.Logger
 import kotlin.collections.set
 import kotlin.io.path.createDirectories
 import kotlin.io.path.isRegularFile
@@ -53,7 +54,12 @@ import kotlin.io.path.name
 import kotlin.io.path.nameWithoutExtension
 import kotlin.io.path.notExists
 
-class ConfigManager(private val announcerPlus: AnnouncerPlus) {
+class ConfigManager(
+  private val announcerPlus: AnnouncerPlus,
+  private val logger: Logger,
+  private val dataDirectory: Path
+) : KoinComponent {
+  private val legacyChecker: LegacyChecker = LegacyChecker(logger)
   private val mapperFactory = ObjectMapper.factoryBuilder()
     .addNodeResolver { name, _ ->
       /* We don't want to attempt serializing delegated properties, and they can't be @Transient */
@@ -65,7 +71,7 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
     }
     .build()
 
-  private val mainConfigPath = announcerPlus.dataPath.resolve("main.conf")
+  private val mainConfigPath = dataDirectory.resolve("main.conf")
   private val mainConfigLoader: HoconConfigurationLoader = createLoader(mainConfigPath) {
     it.header(
       """ 
@@ -81,7 +87,7 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
   }
   lateinit var mainConfig: MainConfig
 
-  private val firstJoinConfigPath = announcerPlus.dataPath.resolve("first-join.conf")
+  private val firstJoinConfigPath = dataDirectory.resolve("first-join.conf")
   private val firstJoinConfigLoader: HoconConfigurationLoader = createLoader(firstJoinConfigPath) {
     it.header(
       "If enabled in main.conf, this join config will be used when players join the server for the first time.\n" +
@@ -118,7 +124,7 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
   }
 
   private fun load() {
-    announcerPlus.dataPath.createDirectories()
+    dataDirectory.createDirectories()
 
     try {
       val mainConfigRoot = mainConfigLoader.load()
@@ -154,10 +160,10 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
 
   private fun loadJoinQuitConfigs() {
     joinQuitConfigs.clear()
-    val joinQuitConfigsDirectory = announcerPlus.dataPath.resolve("join-quit-configs")
+    val joinQuitConfigsDirectory = dataDirectory.resolve("join-quit-configs")
 
     val createDefaultConfig = {
-      announcerPlus.logger.info("No join/quit configs found, creating default.conf")
+      logger.info("No join/quit configs found, creating default.conf")
 
       val defaultConfig = joinQuitConfigsDirectory.resolve("default.conf")
       val defaultConfigLoader = createLoader(defaultConfig) {
@@ -182,10 +188,10 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
   private fun loadMessageConfigs() {
     messageConfigs.values.forEach(MessageConfig::stop)
     messageConfigs.clear()
-    val messageConfigsDirectory = announcerPlus.dataPath.resolve("message-configs")
+    val messageConfigsDirectory = dataDirectory.resolve("message-configs")
 
     val createDefaultConfig = {
-      announcerPlus.logger.info("No message configs found, creating demo.conf")
+      logger.info("No message configs found, creating demo.conf")
 
       val defaultConfig = messageConfigsDirectory.resolve("demo.conf")
       val defaultConfigLoader = createLoader(defaultConfig) {
@@ -246,7 +252,7 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
     val result = upgrader.upgrade(node)
     val (old, new, _, didUpgrade) = result
     if (didUpgrade) {
-      announcerPlus.logger.info("Upgraded $configType config '$fileName' from ${if (old == -1) "un-versioned" else "v$old"} to v$new")
+      logger.info("Upgraded $configType config '$fileName' from ${if (old == -1) "un-versioned" else "v$old"} to v$new")
     }
     return result
   }
@@ -258,8 +264,6 @@ class ConfigManager(private val announcerPlus: AnnouncerPlus) {
       null
     }
   }
-
-  private val legacyChecker: LegacyFormatting = LegacyFormatting(announcerPlus)
 
   fun parse(commander: Commander, message: String): String {
     if (commander is BukkitCommander) {
