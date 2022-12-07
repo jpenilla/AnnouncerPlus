@@ -80,7 +80,7 @@ class ToastSettings : MessageElement {
     announcerPlus.toastTask?.queueToast(this, player)
   }
 
-  fun getJson(player: Player): JsonObject {
+  fun advancementJson(player: Player): JsonObject {
     val json = JsonObject()
     val display = JsonObject()
     val icon = JsonObject()
@@ -107,11 +107,12 @@ class ToastSettings : MessageElement {
       Component.newline(),
       miniMessage(announcerPlus.configManager.parse(player, footer))
     )
-    val title = if (getMinecraftVersion() >= 16) {
-      GsonComponentSerializer.gson().serializeToTree(titleComponent)
+    val gsonComponentSerializer = if (getMinecraftVersion() >= 16) {
+      GsonComponentSerializer.gson()
     } else {
-      GsonComponentSerializer.colorDownsamplingGson().serializeToTree(titleComponent)
+      GsonComponentSerializer.colorDownsamplingGson()
     }
+    val title = gsonComponentSerializer.serializeToTree(titleComponent)
     display.add("title", title)
     display.addProperty("description", "AnnouncerPlus Toast Description")
     display.addProperty("frame", frame.value)

@@ -27,6 +27,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import io.papermc.lib.PaperLib.getMinecraftVersion
 import org.bukkit.entity.Player
+import org.bukkit.scheduler.BukkitTask
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import xyz.jpenilla.announcerplus.AnnouncerPlus
@@ -38,68 +39,105 @@ import xyz.jpenilla.reflectionremapper.ReflectionRemapper
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
-import java.util.concurrent.ConcurrentLinkedDeque
+import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.Semaphore
+import java.util.logging.Level
 import kotlin.random.Random.Default.nextInt
 
 class ToastTask : KoinComponent {
   private val announcerPlus: AnnouncerPlus by inject()
-  private val queuedToasts = ConcurrentLinkedDeque<QueuedToast>()
+  private val semaphore: Semaphore = Semaphore(1)
+  private val toastQueue: MutableMap<UUID, MutableList<ToastSettings>> = ConcurrentHashMap()
 
   init {
     ensureInitialized() // Load mappings on init (not lazily on first advancement)
   }
 
-  private val toastTask = announcerPlus.asyncTimer(0L, 1L) {
-    queuedToasts.pollFirst()?.let {
-      if (it.player.isOnline) {
-        displayToastImmediately(it)
+  private val toastTask: BukkitTask = announcerPlus.asyncTimer(0L, 1L, ::poll)
+
+  private fun poll() {
+    if (!semaphore.tryAcquire()) {
+      return
+    }
+    try {
+      for (id in toastQueue.keys.toList()) {
+        val toasts = toastQueue.remove(id) ?: continue
+        val player = announcerPlus.server.getPlayer(id) ?: continue
+        displayToasts(player, toasts)
       }
+    } finally {
+      semaphore.release()
     }
   }
 
   fun queueToast(toastSettings: ToastSettings, player: Player) {
-    queuedToasts.add(QueuedToast(player, toastSettings))
+    player.toastQueue().add(toastSettings)
   }
 
   fun cancel() {
     toastTask.cancel()
   }
 
-  data class QueuedToast(val player: Player, val toast: ToastSettings)
+  private fun Player.toastQueue(): MutableList<ToastSettings> = toastQueue.computeIfAbsent(uniqueId) { CopyOnWriteArrayList() }
 
-  private fun displayToastImmediately(queuedToast: QueuedToast) {
-    val (player, toast) = queuedToast
+  private fun displayToasts(player: Player, toasts: List<ToastSettings>) {
+    if (toasts.size > 999) {
+      announcerPlus.logger.log(Level.WARNING, "Over 999 toasts queued at once for $player (${toasts.size})! Some may not display.")
+    }
+    val advancements = toasts.map { it.buildAdvancement(player) }
     announcerPlus.runSync {
-      val resourceLocation =
-        ResourceLocation_ctr.newInstance(announcerPlus.name.lowercase(), nextInt(1000000).toString())
-      val advancementBuilder = if (getMinecraftVersion() >= 16) {
-        AdvancementBuilder_fromJson(
-          null,
-          toast.getJson(player),
-          DeserializationContext_ctr.newInstance(
-            resourceLocation,
-            MinecraftServer_getPredicateManager(MinecraftServer_getServer())
-          )
-        )
-      } else {
-        ChatDeserializer_deserialize(
-          null,
-          AdvancementDataWorld_DESERIALIZER,
-          announcerPlus.gson.toJson(toast.getJson(player)),
-          AdvancementBuilder_class
-        )
+      for (advancement in advancements) {
+        grant(player, advancement)
       }
-      val advancement = AdvancementBuilder_build(advancementBuilder, resourceLocation)
-      val playerAdvancements = ServerPlayer_getAdvancements(player.handle)
-      val advancementProgress = PlayerAdvancements_getProgress(playerAdvancements, advancement)
-      (AdvancementProgress_remainingCriteria(advancementProgress) as Iterable<*>).forEach {
-        PlayerAdvancements_award(playerAdvancements, advancement, it)
-      }
-      announcerPlus.runSync(20L) {
-        (AdvancementProgress_completedCriteria(advancementProgress) as Iterable<*>).forEach {
-          PlayerAdvancements_revoke(playerAdvancements, advancement, it)
+      announcerPlus.runSync(2L) {
+        for (advancement in advancements) {
+          revoke(player, advancement)
         }
       }
+    }
+  }
+
+  private fun ToastSettings.buildAdvancement(player: Player): Any {
+    val resourceLocation = ResourceLocation_ctr.newInstance(
+      announcerPlus.name.lowercase(),
+      nextInt(1000000).toString()
+    )
+    val json = advancementJson(player)
+    val advancementBuilder = if (getMinecraftVersion() >= 16) {
+      AdvancementBuilder_fromJson(
+        null,
+        json,
+        DeserializationContext_ctr.newInstance(
+          resourceLocation,
+          MinecraftServer_getPredicateManager(MinecraftServer_getServer())
+        )
+      )
+    } else {
+      ChatDeserializer_deserialize(
+        null,
+        AdvancementDataWorld_DESERIALIZER,
+        announcerPlus.gson.toJson(json),
+        AdvancementBuilder_class
+      )
+    }
+    return AdvancementBuilder_build(advancementBuilder, resourceLocation)
+  }
+
+  private fun grant(player: Player, advancement: Any) {
+    val playerAdvancements = ServerPlayer_getAdvancements(player.handle)
+    val advancementProgress = PlayerAdvancements_getProgress(playerAdvancements, advancement)
+    (AdvancementProgress_remainingCriteria(advancementProgress) as Iterable<*>).forEach {
+      PlayerAdvancements_award(playerAdvancements, advancement, it)
+    }
+  }
+
+  private fun revoke(player: Player, advancement: Any) {
+    val playerAdvancements = ServerPlayer_getAdvancements(player.handle)
+    val advancementProgress = PlayerAdvancements_getProgress(playerAdvancements, advancement)
+    (AdvancementProgress_completedCriteria(advancementProgress) as Iterable<*>).forEach {
+      PlayerAdvancements_revoke(playerAdvancements, advancement, it)
     }
   }
 
