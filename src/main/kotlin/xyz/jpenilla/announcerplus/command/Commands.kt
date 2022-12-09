@@ -25,6 +25,7 @@ package xyz.jpenilla.announcerplus.command
 
 import cloud.commandframework.bukkit.CloudBukkitCapabilities
 import cloud.commandframework.execution.CommandExecutionCoordinator
+import cloud.commandframework.execution.FilteringCommandSuggestionProcessor
 import cloud.commandframework.kotlin.MutableCommandBuilder
 import cloud.commandframework.kotlin.extension.commandBuilder
 import cloud.commandframework.minecraft.extras.AudienceProvider.nativeAudience
@@ -50,6 +51,12 @@ class Commands(plugin: AnnouncerPlus) {
   )
 
   init {
+    commandManager.commandSuggestionProcessor(
+      FilteringCommandSuggestionProcessor(
+        FilteringCommandSuggestionProcessor.Filter.contains<Commander>(true).andTrimBeforeLastSpace()
+      )
+    )
+
     MinecraftExceptionHandler<Commander>()
       .withDefaultHandlers()
       .withDecorator { ofChildren(Constants.CHAT_PREFIX, it) }
