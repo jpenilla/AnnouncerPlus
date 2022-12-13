@@ -31,7 +31,7 @@ private fun <C> integerArgumentBuilder(
   name: String,
   builder: IntegerArgument.Builder<C>.() -> Unit
 ): IntegerArgument.Builder<C> =
-  IntegerArgument.newBuilder<C>(name).apply(builder)
+  IntegerArgument.builder<C>(name).apply(builder)
 
 fun positiveInteger(name: String) = integer(name, min = 1)
 
@@ -46,4 +46,4 @@ fun integer(
   }
 
 inline fun <reified E : Enum<E>> enum(name: String): EnumArgument.Builder<Commander, E> =
-  EnumArgument.newBuilder(E::class.java, name)
+  EnumArgument.builder(E::class.java, name)

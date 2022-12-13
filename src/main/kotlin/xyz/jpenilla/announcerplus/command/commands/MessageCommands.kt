@@ -192,7 +192,7 @@ class MessageCommands : BaseCommand() {
     argument(enum<BossBar.Overlay>("overlay"))
     argument(enum<BossBarUpdateTask.FillMode>("fillmode"))
     argument(
-      StringArgument.newBuilder<Commander>("color").quoted()
+      StringArgument.builder<Commander>("color").quoted()
         .withSuggestionsProvider { _, _ -> BossBar.Color.NAMES.keys().toList() },
       quotedStringDescription()
     )

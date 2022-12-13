@@ -73,7 +73,7 @@ class HelpCommand : BaseCommand() {
   }
 
   private fun helpQueryArgument(name: String) =
-    StringArgument.newBuilder<Commander>(name)
+    StringArgument.builder<Commander>(name)
       .greedy()
       .asOptional()
       .withSuggestionsProvider(::suggestHelpQueries)

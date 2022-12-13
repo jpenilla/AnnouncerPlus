@@ -17,7 +17,7 @@ repositories {
   mavenCentral()
   sonatype.s01Snapshots()
   sonatype.ossSnapshots()
-  maven("https://papermc.io/repo/repository/maven-public/")
+  maven("https://repo.papermc.io/repository/maven-public/")
   maven("https://repo.jpenilla.xyz/snapshots/")
   maven("https://maven.fabricmc.net/")
   maven("https://repo.essentialsx.net/releases/")
@@ -108,11 +108,11 @@ tasks {
       exclude(dependency("org.jetbrains:annotations"))
     }
   }
-  build {
+  assemble {
     dependsOn(shadowJar)
   }
   runServer {
-    minecraftVersion("1.19.2")
+    minecraftVersion("1.19.3")
     javaLauncher.set(
       project.javaToolchains.launcherFor {
         languageVersion.set(JavaLanguageVersion.of(17))
