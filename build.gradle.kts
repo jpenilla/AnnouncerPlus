@@ -1,5 +1,5 @@
 plugins {
-  kotlin("jvm") version "1.7.22"
+  kotlin("jvm") version "1.8.0"
   alias(libs.plugins.indra)
   alias(libs.plugins.indraGit)
   alias(libs.plugins.indraLicenseHeader)
