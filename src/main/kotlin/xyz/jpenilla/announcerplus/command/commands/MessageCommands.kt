@@ -50,12 +50,14 @@ import xyz.jpenilla.announcerplus.config.message.ToastSettings
 import xyz.jpenilla.announcerplus.task.ActionBarUpdateTask
 import xyz.jpenilla.announcerplus.task.BossBarUpdateTask
 import xyz.jpenilla.announcerplus.task.TitleUpdateTask
+import xyz.jpenilla.announcerplus.util.DisplayTracker
 import xyz.jpenilla.announcerplus.util.description
 import xyz.jpenilla.announcerplus.util.miniMessage
 import xyz.jpenilla.announcerplus.util.runAsync
 import kotlin.reflect.KClass
 
 class MessageCommands : BaseCommand() {
+  private val displayTracker: DisplayTracker by inject()
   private val audiences: BukkitAudiences by inject()
 
   override fun register() {
@@ -106,8 +108,10 @@ class MessageCommands : BaseCommand() {
     val player = (ctx.sender as BukkitCommander.Player).player
     val seconds = ctx.get<Int>("seconds")
     val message = ctx.get<String>("message")
-    TitleUpdateTask(player, 0, seconds, 0, message, message).start()
-    ActionBarUpdateTask(player, seconds * 20L, false, message).start()
+    val titleTask = TitleUpdateTask(player, 0, seconds, 0, message, message)
+    val actionBarTask = ActionBarUpdateTask(player, seconds * 20L, false, message)
+    displayTracker.startAndTrack(player.uniqueId, titleTask)
+    displayTracker.startAndTrack(player.uniqueId, actionBarTask)
   }
 
   private fun Commands.chatCommand(category: Category, description: String): Unit = registerSubcommand(category.prefix) {
@@ -160,14 +164,15 @@ class MessageCommands : BaseCommand() {
 
   private fun executeTitle(targets: TargetExtractor): CommandExecutionHandler<Commander> = CommandExecutionHandler { ctx ->
     for (target in targets.extractPlayers(ctx)) {
-      TitleUpdateTask(
+      val task = TitleUpdateTask(
         target,
         ctx.get("fade_in"),
         ctx.get("stay"),
         ctx.get("fade_out"),
         ctx.get("title"),
         ctx.get("subtitle")
-      ).start()
+      )
+      displayTracker.startAndTrack(target.uniqueId, task)
     }
   }
 
@@ -181,7 +186,8 @@ class MessageCommands : BaseCommand() {
 
   private fun executeActionBar(targets: TargetExtractor): CommandExecutionHandler<Commander> = CommandExecutionHandler { ctx ->
     for (target in targets.extractPlayers(ctx)) {
-      ActionBarUpdateTask(target, ctx.get<Int>("seconds") * 20L, true, ctx.get("text")).start()
+      val task = ActionBarUpdateTask(target, ctx.get<Int>("seconds") * 20L, true, ctx.get("text"))
+      displayTracker.startAndTrack(target.uniqueId, task)
     }
   }
 
@@ -202,14 +208,15 @@ class MessageCommands : BaseCommand() {
 
   private fun executeBossBar(targets: TargetExtractor): CommandExecutionHandler<Commander> = CommandExecutionHandler { ctx ->
     for (target in targets.extractPlayers(ctx)) {
-      BossBarUpdateTask(
+      val task = BossBarUpdateTask(
         target,
         ctx.get("seconds"),
         ctx.get("overlay"),
         ctx.get("fillmode"),
         ctx.get("color"),
         ctx.get("text")
-      ).start()
+      )
+      displayTracker.startAndTrack(target.uniqueId, task)
     }
   }
 

@@ -31,9 +31,11 @@ import xyz.jpenilla.announcerplus.util.asyncTimer
 import xyz.jpenilla.announcerplus.util.syncTimer
 
 abstract class UpdateTask : KoinComponent {
+  var stopCallback: (UpdateTask) -> Unit = {}
   private val announcerPlus: AnnouncerPlus by inject()
   private var updateTask: BukkitTask? = null
-  var ticksLived = 0L
+  protected var ticksLived = 0L
+    private set
 
   open fun start(): UpdateTask {
     if (updateTask != null) error("UpdateTask can only be started once!")
@@ -55,6 +57,7 @@ abstract class UpdateTask : KoinComponent {
   open fun stop() {
     updateTask?.cancel()
     updateTask = null
+    stopCallback(this)
   }
 
   abstract fun update()

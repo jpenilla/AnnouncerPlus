@@ -21,41 +21,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package xyz.jpenilla.announcerplus.config.message
+package xyz.jpenilla.announcerplus.util
 
-import org.bukkit.entity.Player
-import org.koin.core.component.inject
-import org.spongepowered.configurate.objectmapping.ConfigSerializable
-import org.spongepowered.configurate.objectmapping.meta.Comment
 import xyz.jpenilla.announcerplus.task.ActionBarUpdateTask
-import xyz.jpenilla.announcerplus.util.DisplayTracker
+import xyz.jpenilla.announcerplus.task.TitleUpdateTask
+import xyz.jpenilla.announcerplus.task.UpdateTask
+import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 
-@ConfigSerializable
-class ActionBarSettings : MessageElement {
-  private val displayTracker: DisplayTracker by inject()
+class DisplayTracker {
+  private val activeTitles: MutableMap<UUID, TitleUpdateTask> = ConcurrentHashMap()
+  private val activeActionBars: MutableMap<UUID, ActionBarUpdateTask> = ConcurrentHashMap()
 
-  @Comment("Seconds of duration for the Action Bar to stay on screen")
-  var durationSeconds = 6
-
-  @Comment("Should the fade out animation of the Action Bar be enabled?")
-  var enableFadeOut = false
-
-  @Comment("The text for the Action Bar. Set to \"\" (empty string) to disable. Accepts animations")
-  var text = ""
-
-  constructor()
-  constructor(fadeEnabled: Boolean, durationSeconds: Int, text: String) {
-    this.enableFadeOut = fadeEnabled
-    this.durationSeconds = durationSeconds
-    this.text = text
+  @Suppress("unchecked_cast")
+  fun startAndTrack(player: UUID, task: UpdateTask) {
+    val map = map(task)
+    if (map == null) {
+      task.start()
+      return
+    }
+    map[player]?.stop()
+    (map as MutableMap<UUID, Any>)[player] = task
+    task.stopCallback = { map(it)!!.remove(player) }
+    task.start()
   }
 
-  override fun isEnabled(): Boolean {
-    return text != ""
-  }
-
-  override fun display(player: Player) {
-    val task = ActionBarUpdateTask(player, durationSeconds * 20L, enableFadeOut, text)
-    displayTracker.startAndTrack(player.uniqueId, task)
+  private fun map(task: UpdateTask): MutableMap<UUID, out UpdateTask>? = when (task) {
+    is ActionBarUpdateTask -> activeActionBars
+    is TitleUpdateTask -> activeTitles
+    else -> null
   }
 }

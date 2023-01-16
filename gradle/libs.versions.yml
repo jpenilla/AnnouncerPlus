@@ -4,7 +4,7 @@ metadata:
 plugins:
   indra:
     id: net.kyori.indra
-    version: &indra 2.1.1
+    version: &indra 3.0.1
   indraGit:
     id: net.kyori.indra.git
     version: *indra
@@ -19,7 +19,7 @@ plugins:
     version: 0.5.2
   runPaper:
     id: xyz.jpenilla.run-paper
-    version: 2.0.0
+    version: 2.0.1
   ktlint:
     id: org.jlleitschuh.gradle.ktlint
     version: 11.0.0

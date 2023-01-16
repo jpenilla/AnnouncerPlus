@@ -24,12 +24,16 @@
 package xyz.jpenilla.announcerplus.config.message
 
 import org.bukkit.entity.Player
+import org.koin.core.component.inject
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
 import org.spongepowered.configurate.objectmapping.meta.Comment
 import xyz.jpenilla.announcerplus.task.TitleUpdateTask
+import xyz.jpenilla.announcerplus.util.DisplayTracker
 
 @ConfigSerializable
 class TitleSettings : MessageElement {
+  private val displayTracker: DisplayTracker by inject()
+
   constructor()
   constructor(fadeInSeconds: Int, durationSeconds: Int, fadeOutSeconds: Int, title: String, subTitle: String) {
     this.fadeInSeconds = fadeInSeconds
@@ -63,6 +67,7 @@ class TitleSettings : MessageElement {
   }
 
   override fun display(player: Player) {
-    TitleUpdateTask(player, fadeInSeconds, durationSeconds, fadeOutSeconds, title, subtitle).start()
+    val task = TitleUpdateTask(player, fadeInSeconds, durationSeconds, fadeOutSeconds, title, subtitle)
+    displayTracker.startAndTrack(player.uniqueId, task)
   }
 }

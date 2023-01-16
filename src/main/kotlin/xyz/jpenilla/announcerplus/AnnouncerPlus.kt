@@ -40,8 +40,10 @@ import xyz.jpenilla.announcerplus.command.Commands
 import xyz.jpenilla.announcerplus.compatibility.EssentialsHook
 import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.config.message.MessageConfig
+import xyz.jpenilla.announcerplus.listener.JoinQuitListener
 import xyz.jpenilla.announcerplus.task.ToastTask
 import xyz.jpenilla.announcerplus.util.Constants
+import xyz.jpenilla.announcerplus.util.DisplayTracker
 import xyz.jpenilla.announcerplus.util.UpdateChecker
 import xyz.jpenilla.announcerplus.util.dataPath
 import xyz.jpenilla.pluginbase.legacy.PluginBase
@@ -71,6 +73,7 @@ class AnnouncerPlus : PluginBase(), KoinComponent {
       single { this@AnnouncerPlus }
       single { audiences() }
       single { miniMessage() }
+      single { DisplayTracker() }
       single { chat() }
       single { ConfigManager(get(), get(), get(Constants.DATA_PATH)) }
       single { gson }

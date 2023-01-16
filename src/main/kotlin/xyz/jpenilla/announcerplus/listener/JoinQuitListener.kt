@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package xyz.jpenilla.announcerplus
+package xyz.jpenilla.announcerplus.listener
 
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority

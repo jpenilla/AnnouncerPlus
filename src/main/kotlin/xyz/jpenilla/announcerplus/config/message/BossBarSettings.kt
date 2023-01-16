@@ -25,12 +25,15 @@ package xyz.jpenilla.announcerplus.config.message
 
 import net.kyori.adventure.bossbar.BossBar
 import org.bukkit.entity.Player
+import org.koin.core.component.inject
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
 import org.spongepowered.configurate.objectmapping.meta.Comment
 import xyz.jpenilla.announcerplus.task.BossBarUpdateTask
+import xyz.jpenilla.announcerplus.util.DisplayTracker
 
 @ConfigSerializable
 class BossBarSettings : MessageElement {
+  private val displayTracker: DisplayTracker by inject()
 
   @Comment("Seconds of duration for the Boss Bar to stay on screen")
   var durationSeconds = 12
@@ -62,6 +65,7 @@ class BossBarSettings : MessageElement {
   }
 
   override fun display(player: Player) {
-    BossBarUpdateTask(player, durationSeconds, overlay, fillMode, color, text).start()
+    val task = BossBarUpdateTask(player, durationSeconds, overlay, fillMode, color, text)
+    displayTracker.startAndTrack(player.uniqueId, task)
   }
 }
