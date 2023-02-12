@@ -50,7 +50,7 @@ dependencies {
 
   implementation("io.insert-koin", "koin-core", "3.3.3")
   implementation("xyz.jpenilla", "legacy-plugin-base", "0.0.1+73-SNAPSHOT")
-  implementation("org.bstats", "bstats-bukkit", "3.0.0")
+  implementation("org.bstats", "bstats-bukkit", "3.0.1")
   implementation("io.papermc", "paperlib", "1.0.8")
 
   implementation("xyz.jpenilla:reflection-remapper:0.1.0-SNAPSHOT")
