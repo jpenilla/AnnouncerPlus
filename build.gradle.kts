@@ -1,7 +1,7 @@
 import xyz.jpenilla.runpaper.task.RunServer
 
 plugins {
-  kotlin("jvm") version "1.8.10"
+  kotlin("jvm") version "1.8.20"
   alias(libs.plugins.indra)
   alias(libs.plugins.indraGit)
   alias(libs.plugins.indraLicenseHeader)
