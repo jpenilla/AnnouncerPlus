@@ -1,0 +1,15 @@
+name: AnnouncerPlus
+version: $version
+main: xyz.jpenilla.announcerplus.AnnouncerPlus
+description: $description
+authors:
+  - jmp
+website: $website
+depend:
+  - Vault
+api-version: $apiVersion
+softdepend:
+  - PlaceholderAPI
+  - Essentials
+  - ViaVersion
+folia-supported: true

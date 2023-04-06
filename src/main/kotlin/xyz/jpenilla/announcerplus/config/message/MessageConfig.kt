@@ -29,7 +29,6 @@ import net.kyori.adventure.sound.Sound.sound
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.permissions.PermissionDefault
-import org.bukkit.scheduler.BukkitTask
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.spongepowered.configurate.CommentedConfigurationNode
@@ -46,13 +45,14 @@ import xyz.jpenilla.announcerplus.config.NamedConfigurationFactory
 import xyz.jpenilla.announcerplus.config.SelfSavable
 import xyz.jpenilla.announcerplus.config.Transformations
 import xyz.jpenilla.announcerplus.config.visitor.DuplicateCommentRemovingVisitor
+import xyz.jpenilla.announcerplus.util.TaskHandle
 import xyz.jpenilla.announcerplus.util.addDefaultPermission
 import xyz.jpenilla.announcerplus.util.asyncTimer
 import xyz.jpenilla.announcerplus.util.dispatchCommandAsConsole
-import xyz.jpenilla.announcerplus.util.getOnMain
 import xyz.jpenilla.announcerplus.util.miniMessage
 import xyz.jpenilla.announcerplus.util.playSounds
-import xyz.jpenilla.announcerplus.util.runSync
+import xyz.jpenilla.announcerplus.util.schedule
+import xyz.jpenilla.announcerplus.util.scheduleGlobal
 import kotlin.collections.component1
 import kotlin.collections.component2
 
@@ -191,7 +191,7 @@ class MessageConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
   lateinit var name: String
 
   @Transient
-  private var broadcastTask: BukkitTask? = null
+  private var broadcastTask: TaskHandle<*>? = null
 
   private val announcerPlus: AnnouncerPlus by inject()
   private val configManager: ConfigManager by inject()
@@ -213,8 +213,7 @@ class MessageConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
   }
 
   private fun broadcast(message: Message) {
-    val onlinePlayers = announcerPlus.getOnMain { Bukkit.getOnlinePlayers().toList() }
-    for (onlinePlayer in onlinePlayers) {
+    for (onlinePlayer in Bukkit.getOnlinePlayers().toList()) {
       if (announcerPlus.essentials != null) {
         if (announcerPlus.essentials!!.isAfk(onlinePlayer) &&
           announcerPlus.perms!!.playerHas(onlinePlayer, "${announcerPlus.name}.messages.$name.afk")
@@ -233,15 +232,17 @@ class MessageConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
           audience.playSounds(sounds, soundsRandomized)
           messageElements().forEach { it.displayIfEnabled(onlinePlayer) }
         }
-        announcerPlus.runSync {
+        announcerPlus.scheduleGlobal {
           message.perPlayerCommands.forEach { dispatchCommandAsConsole(configManager.parse(onlinePlayer, it)) }
-          message.asPlayerCommands.forEach { onlinePlayer.performCommand(configManager.parse(onlinePlayer, it)) }
           perPlayerCommands.forEach { dispatchCommandAsConsole(configManager.parse(onlinePlayer, it)) }
+        }
+        announcerPlus.schedule(onlinePlayer) {
+          message.asPlayerCommands.forEach { onlinePlayer.performCommand(configManager.parse(onlinePlayer, it)) }
           asPlayerCommands.forEach { onlinePlayer.performCommand(configManager.parse(onlinePlayer, it)) }
         }
       }
     }
-    announcerPlus.runSync {
+    announcerPlus.scheduleGlobal {
       message.commands.forEach { dispatchCommandAsConsole(configManager.parse(null, it)) }
       commands.forEach { dispatchCommandAsConsole(configManager.parse(null, it)) }
     }

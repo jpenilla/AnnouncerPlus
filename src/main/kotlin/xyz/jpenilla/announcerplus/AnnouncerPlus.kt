@@ -128,6 +128,7 @@ class AnnouncerPlus : PluginBase(), KoinComponent {
     }
   }
 
+  @Synchronized
   fun reload() {
     if (toastTask != null) {
       toastTask?.cancel()
@@ -137,7 +138,7 @@ class AnnouncerPlus : PluginBase(), KoinComponent {
     broadcast()
   }
 
-  override fun onDisable() {
+  override fun disable() {
     toastTask?.cancel()
     stopKoin()
   }

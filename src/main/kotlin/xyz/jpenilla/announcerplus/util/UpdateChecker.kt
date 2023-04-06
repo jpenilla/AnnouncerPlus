@@ -37,7 +37,7 @@ class UpdateChecker(private val plugin: JavaPlugin, private val githubRepo: Stri
   private val gson: Gson = GsonBuilder().create()
 
   fun run() {
-    plugin.runAsync {
+    plugin.scheduleAsync {
       updateCheck()
     }
   }

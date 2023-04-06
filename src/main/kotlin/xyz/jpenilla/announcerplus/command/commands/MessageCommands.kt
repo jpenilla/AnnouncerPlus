@@ -53,7 +53,7 @@ import xyz.jpenilla.announcerplus.task.TitleUpdateTask
 import xyz.jpenilla.announcerplus.util.DisplayTracker
 import xyz.jpenilla.announcerplus.util.description
 import xyz.jpenilla.announcerplus.util.miniMessage
-import xyz.jpenilla.announcerplus.util.runAsync
+import xyz.jpenilla.announcerplus.util.scheduleAsync
 import kotlin.reflect.KClass
 
 class MessageCommands : BaseCommand() {
@@ -122,7 +122,7 @@ class MessageCommands : BaseCommand() {
   }
 
   private fun executeChat(targets: TargetExtractor): CommandExecutionHandler<Commander> = CommandExecutionHandler { ctx ->
-    announcerPlus.runAsync {
+    announcerPlus.scheduleAsync {
       for (target in targets.extract(ctx)) {
         audiences.sender(target).sendMessage(miniMessage(configManager.parse(target, ctx.get<String>("message"))))
       }

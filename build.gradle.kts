@@ -1,3 +1,5 @@
+import xyz.jpenilla.runpaper.task.RunServer
+
 plugins {
   kotlin("jvm") version "1.8.10"
   alias(libs.plugins.indra)
@@ -6,7 +8,6 @@ plugins {
   alias(libs.plugins.runPaper)
   alias(libs.plugins.ktlint)
   alias(libs.plugins.shadow)
-  alias(libs.plugins.pluginYmlBukkit)
 }
 
 repositories {
@@ -28,18 +29,18 @@ repositories {
 dependencies {
   implementation(platform(kotlin("bom")))
 
-  compileOnly("com.destroystokyo.paper", "paper-api", "1.13.2-R0.1-SNAPSHOT")
+  compileOnly("dev.folia", "folia-api", "1.19.4-R0.1-SNAPSHOT")
   compileOnly("com.github.MilkBowl", "VaultAPI", "1.7.1")
   compileOnly("net.essentialsx", "EssentialsX", "2.19.7") {
     isTransitive = false
   }
   compileOnly("me.clip", "placeholderapi", "2.11.2")
 
-  implementation(platform("net.kyori:adventure-bom:4.12.0"))
+  implementation(platform("net.kyori:adventure-bom:4.13.0"))
   implementation("net.kyori", "adventure-extra-kotlin")
   implementation("net.kyori", "adventure-serializer-configurate4")
 
-  implementation(platform("cloud.commandframework:cloud-bom:1.8.2"))
+  implementation(platform("cloud.commandframework:cloud-bom:1.8.3"))
   implementation("cloud.commandframework", "cloud-paper")
   implementation("cloud.commandframework", "cloud-kotlin-extensions")
   implementation("cloud.commandframework", "cloud-minecraft-extras")
@@ -49,7 +50,7 @@ dependencies {
   implementation("org.spongepowered", "configurate-extra-kotlin")
 
   implementation("io.insert-koin", "koin-core", "3.3.3")
-  implementation("xyz.jpenilla", "legacy-plugin-base", "0.0.1+73-SNAPSHOT")
+  implementation("xyz.jpenilla", "legacy-plugin-base", "0.0.1+80-SNAPSHOT")
   implementation("org.bstats", "bstats-bukkit", "3.0.1")
   implementation("io.papermc", "paperlib", "1.0.8")
 
@@ -110,7 +111,9 @@ tasks {
     dependsOn(shadowJar)
   }
   runServer {
-    minecraftVersion("1.19.3")
+    minecraftVersion("1.19.4")
+  }
+  withType<RunServer> {
     javaLauncher.set(
       project.javaToolchains.launcherFor {
         languageVersion.set(JavaLanguageVersion.of(17))
@@ -122,16 +125,21 @@ tasks {
     description = "Formats source code according to project style."
     dependsOn(licenseFormat, ktlintFormat)
   }
+  processResources {
+    val props = mapOf(
+      "version" to project.version,
+      "website" to "https://github.com/jpenilla/AnnouncerPlus",
+      "description" to project.description,
+      "apiVersion" to "1.13",
+    )
+    inputs.properties(props)
+    filesMatching("plugin.yml") {
+      expand(props)
+    }
+  }
 }
 
-bukkit {
-  main = "xyz.jpenilla.announcerplus.AnnouncerPlus"
-  apiVersion = "1.13"
-  website = "https://github.com/jpenilla/AnnouncerPlus"
-  authors = listOf("jmp")
-  depend = listOf("Vault")
-  softDepend = listOf("PlaceholderAPI", "Essentials", "ViaVersion")
-}
+runPaper.folia.registerTask()
 
 fun String.decorateVersion(): String =
   if (endsWith("-SNAPSHOT")) "$this+${lastCommitHash()}" else this

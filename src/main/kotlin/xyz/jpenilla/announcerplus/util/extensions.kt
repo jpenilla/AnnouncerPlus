@@ -23,6 +23,7 @@
  */
 package xyz.jpenilla.announcerplus.util
 
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.sound.Sound
 import net.kyori.adventure.text.Component
@@ -30,47 +31,90 @@ import net.kyori.adventure.text.flattener.ComponentFlattener
 import net.kyori.adventure.text.flattener.FlattenerListener
 import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.util.HSVLike
+import org.bukkit.entity.Entity
 import org.bukkit.plugin.Plugin
 import org.bukkit.scheduler.BukkitTask
 import xyz.jpenilla.pluginbase.legacy.ChatCentering
 import java.nio.file.Path
-import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
 import kotlin.math.max
 import kotlin.math.min
+
+val folia = try {
+  Class.forName("io.papermc.paper.threadedregions.RegionizedServer")
+  true
+} catch (ex: Exception) {
+  false
+}
+
+data class TaskHandle<T>(val task: T, val cancel: (T) -> Unit) {
+  fun cancel() {
+    cancel(task)
+  }
+
+  companion object {
+    fun folia(task: ScheduledTask) = TaskHandle(task) { it.cancel() }
+
+    fun bukkit(task: BukkitTask) = TaskHandle(task) { it.cancel() }
+  }
+}
 
 val Plugin.dataPath: Path
   get() = dataFolder.toPath()
 
-fun Plugin.runSync(
+fun Plugin.scheduleGlobal(
   delay: Long = 0L,
   runnable: Runnable
-): BukkitTask =
-  server.scheduler.runTaskLater(this, runnable, delay)
+): TaskHandle<*> = if (folia) {
+  if (delay < 1L) {
+    TaskHandle.folia(server.globalRegionScheduler.run(this) { runnable.run() })
+  } else {
+    TaskHandle.folia(server.globalRegionScheduler.runDelayed(this, { runnable.run() }, delay))
+  }
+} else {
+  TaskHandle.bukkit(server.scheduler.runTaskLater(this, runnable, delay))
+}
 
-fun Plugin.runAsync(
+fun Plugin.schedule(
+  entity: Entity,
   delay: Long = 0L,
   runnable: Runnable
-): BukkitTask =
-  server.scheduler.runTaskLaterAsynchronously(this, runnable, delay)
+): TaskHandle<*> = if (folia) {
+  val trySchedule = if (delay < 1L) {
+    entity.scheduler.run(this, { runnable.run() }, null)
+  } else {
+    entity.scheduler.runDelayed(this, { runnable.run() }, null, delay)
+  }
+  if (trySchedule == null) {
+    TaskHandle(null) {}
+  } else {
+    TaskHandle.folia(trySchedule)
+  }
+} else {
+  TaskHandle.bukkit(server.scheduler.runTaskLater(this, runnable, delay))
+}
+
+fun Plugin.scheduleAsync(
+  delay: Long = 0L,
+  runnable: Runnable
+): TaskHandle<*> = if (folia) {
+  if (delay < 1L) {
+    TaskHandle.folia(server.asyncScheduler.runNow(this) { runnable.run() })
+  } else {
+    TaskHandle.folia(server.asyncScheduler.runDelayed(this, { runnable.run() }, delay * 50, TimeUnit.MILLISECONDS))
+  }
+} else {
+  TaskHandle.bukkit(server.scheduler.runTaskLaterAsynchronously(this, runnable, delay))
+}
 
 fun Plugin.asyncTimer(
   delay: Long,
   interval: Long,
   runnable: Runnable
-): BukkitTask =
-  server.scheduler.runTaskTimerAsynchronously(this, runnable, delay, interval)
-
-fun Plugin.syncTimer(
-  delay: Long,
-  interval: Long,
-  runnable: Runnable
-): BukkitTask =
-  server.scheduler.runTaskTimer(this, runnable, delay, interval)
-
-fun <T> Plugin.getOnMain(supplier: () -> T): T {
-  val future = CompletableFuture<T>()
-  runSync { future.complete(supplier()) }
-  return future.join()
+): TaskHandle<*> = if (folia) {
+  TaskHandle.folia(server.asyncScheduler.runAtFixedRate(this, { runnable.run() }, delay * 50, interval * 50, TimeUnit.MILLISECONDS))
+} else {
+  TaskHandle.bukkit(server.scheduler.runTaskTimerAsynchronously(this, runnable, delay, interval))
 }
 
 fun Audience.playSounds(sounds: List<Sound>, randomize: Boolean) {

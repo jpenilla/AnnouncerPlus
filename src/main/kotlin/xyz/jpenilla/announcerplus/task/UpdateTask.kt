@@ -23,17 +23,16 @@
  */
 package xyz.jpenilla.announcerplus.task
 
-import org.bukkit.scheduler.BukkitTask
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import xyz.jpenilla.announcerplus.AnnouncerPlus
+import xyz.jpenilla.announcerplus.util.TaskHandle
 import xyz.jpenilla.announcerplus.util.asyncTimer
-import xyz.jpenilla.announcerplus.util.syncTimer
 
 abstract class UpdateTask : KoinComponent {
   var stopCallback: (UpdateTask) -> Unit = {}
   private val announcerPlus: AnnouncerPlus by inject()
-  private var updateTask: BukkitTask? = null
+  private var updateTask: TaskHandle<*>? = null
   protected var ticksLived = 0L
     private set
 
@@ -48,7 +47,7 @@ abstract class UpdateTask : KoinComponent {
       ticksLived++
     }
     updateTask = when (synchronizationContext()) {
-      SynchronizationContext.SYNC -> announcerPlus.syncTimer(0L, 1L, runnable)
+      SynchronizationContext.SYNC -> throw UnsupportedOperationException()
       SynchronizationContext.ASYNC -> announcerPlus.asyncTimer(0L, 1L, runnable)
     }
     return this

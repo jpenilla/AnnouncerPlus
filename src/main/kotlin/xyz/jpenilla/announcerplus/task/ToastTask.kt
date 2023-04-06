@@ -27,13 +27,13 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import io.papermc.lib.PaperLib.getMinecraftVersion
 import org.bukkit.entity.Player
-import org.bukkit.scheduler.BukkitTask
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.message.ToastSettings
+import xyz.jpenilla.announcerplus.util.TaskHandle
 import xyz.jpenilla.announcerplus.util.asyncTimer
-import xyz.jpenilla.announcerplus.util.runSync
+import xyz.jpenilla.announcerplus.util.schedule
 import xyz.jpenilla.pluginbase.legacy.Crafty
 import xyz.jpenilla.reflectionremapper.ReflectionRemapper
 import java.lang.reflect.Constructor
@@ -55,7 +55,7 @@ class ToastTask : KoinComponent {
     ensureInitialized() // Load mappings on init (not lazily on first advancement)
   }
 
-  private val toastTask: BukkitTask = announcerPlus.asyncTimer(0L, 1L, ::poll)
+  private val toastTask: TaskHandle<*> = announcerPlus.asyncTimer(0L, 1L, ::poll)
 
   private fun poll() {
     if (!semaphore.tryAcquire()) {
@@ -87,11 +87,11 @@ class ToastTask : KoinComponent {
       announcerPlus.logger.log(Level.WARNING, "Over 999 toasts queued at once for $player (${toasts.size})! Some may not display.")
     }
     val advancements = toasts.map { it.buildAdvancement(player) }
-    announcerPlus.runSync {
+    announcerPlus.schedule(player) {
       for (advancement in advancements) {
         grant(player, advancement)
       }
-      announcerPlus.runSync(2L) {
+      announcerPlus.schedule(player, 2L) {
         for (advancement in advancements) {
           revoke(player, advancement)
         }

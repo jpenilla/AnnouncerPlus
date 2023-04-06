@@ -50,8 +50,9 @@ import xyz.jpenilla.announcerplus.util.Constants
 import xyz.jpenilla.announcerplus.util.addDefaultPermission
 import xyz.jpenilla.announcerplus.util.dispatchCommandAsConsole
 import xyz.jpenilla.announcerplus.util.playSounds
-import xyz.jpenilla.announcerplus.util.runAsync
-import xyz.jpenilla.announcerplus.util.runSync
+import xyz.jpenilla.announcerplus.util.schedule
+import xyz.jpenilla.announcerplus.util.scheduleAsync
+import xyz.jpenilla.announcerplus.util.scheduleGlobal
 import xyz.jpenilla.pluginbase.legacy.Chat
 import xyz.jpenilla.pluginbase.legacy.Environment
 
@@ -185,11 +186,10 @@ class JoinQuitConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
     // name is null for first-join config
     if (name != null && !player.hasPermission("announcerplus.join.$name")) return
     chat.send(player, announcerPlus.configManager.parse(player, join.messages))
-    announcerPlus.runSync(3L) {
+    announcerPlus.schedule(player, 3L) {
       if (!isVanished(player)) {
-        val onlinePlayers = Bukkit.getOnlinePlayers().toList()
-        announcerPlus.runAsync {
-          onlinePlayers.forEach { onlinePlayer ->
+        announcerPlus.scheduleAsync {
+          Bukkit.getOnlinePlayers().toList().forEach { onlinePlayer ->
             if (onlinePlayer.name != player.name) {
               if (announcerPlus.perms!!.playerHas(onlinePlayer, permission) || permission.isEmpty()) {
                 chat.send(onlinePlayer, announcerPlus.configManager.parse(player, join.broadcasts))
@@ -200,11 +200,13 @@ class JoinQuitConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
             }
           }
         }
-        join.commands.forEach { dispatchCommandAsConsole(announcerPlus.configManager.parse(player, it)) }
+        announcerPlus.scheduleGlobal {
+          join.commands.forEach { dispatchCommandAsConsole(announcerPlus.configManager.parse(player, it)) }
+        }
         join.asPlayerCommands.forEach { player.performCommand(announcerPlus.configManager.parse(player, it)) }
       }
     }
-    announcerPlus.runAsync(if (Environment.majorMinecraftVersion() <= 12) 5L else 0L) {
+    announcerPlus.scheduleAsync(if (Environment.majorMinecraftVersion() <= 12) 5L else 0L) {
       join.messageElements().forEach { it.displayIfEnabled(player) }
       if (join.sounds.isNotEmpty()) {
         announcerPlus.audiences().player(player).playSounds(join.sounds, join.randomSound)
@@ -224,7 +226,9 @@ class JoinQuitConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
         }
       }
     }
-    quit.commands.forEach { dispatchCommandAsConsole(announcerPlus.configManager.parse(player, it)) }
+    announcerPlus.scheduleGlobal {
+      quit.commands.forEach { dispatchCommandAsConsole(announcerPlus.configManager.parse(player, it)) }
+    }
   }
 
   private fun isVanished(player: Player): Boolean {
