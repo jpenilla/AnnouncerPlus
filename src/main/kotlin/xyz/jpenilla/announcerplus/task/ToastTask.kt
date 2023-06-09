@@ -262,7 +262,8 @@ class ToastTask : KoinComponent {
       Crafty.needNMSClassOrElse(
         "LootPredicateManager",
         "net.minecraft.world.level.storage.loot.LootPredicateManager",
-        "net.minecraft.world.level.storage.loot.PredicateManager"
+        "net.minecraft.world.level.storage.loot.PredicateManager",
+        "net.minecraft.world.level.storage.loot.LootDataManager"
       )
     }
     val MinecraftServer_getPredicateManager by lazy {

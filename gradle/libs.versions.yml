@@ -16,7 +16,7 @@ plugins:
     version: 7.1.2
   runPaper:
     id: xyz.jpenilla.run-paper
-    version: 2.0.2-SNAPSHOT
+    version: 2.1.0
   ktlint:
     id: org.jlleitschuh.gradle.ktlint
     version: 11.0.0

@@ -1,7 +1,7 @@
 import xyz.jpenilla.runpaper.task.RunServer
 
 plugins {
-  kotlin("jvm") version "1.8.21"
+  kotlin("jvm") version "1.8.22"
   alias(libs.plugins.indra)
   alias(libs.plugins.indraGit)
   alias(libs.plugins.indraLicenseHeader)
@@ -16,7 +16,6 @@ repositories {
   sonatype.ossSnapshots()
   maven("https://repo.papermc.io/repository/maven-public/")
   maven("https://repo.jpenilla.xyz/snapshots/")
-  maven("https://maven.fabricmc.net/")
   maven("https://repo.essentialsx.net/releases/")
   maven("https://repo.extendedclip.com/content/repositories/placeholderapi/") {
     content { includeGroup("me.clip") }
@@ -36,7 +35,7 @@ dependencies {
   }
   compileOnly("me.clip", "placeholderapi", "2.11.3")
 
-  implementation(platform("net.kyori:adventure-bom:4.13.1"))
+  implementation(platform("net.kyori:adventure-bom:4.14.0"))
   implementation("net.kyori", "adventure-extra-kotlin")
   implementation("net.kyori", "adventure-serializer-configurate4")
 
@@ -111,7 +110,7 @@ tasks {
     dependsOn(shadowJar)
   }
   runServer {
-    minecraftVersion("1.19.4")
+    minecraftVersion("1.20")
   }
   withType<RunServer> {
     javaLauncher.set(
