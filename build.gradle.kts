@@ -49,7 +49,7 @@ dependencies {
   implementation("org.spongepowered", "configurate-extra-kotlin")
 
   implementation("io.insert-koin", "koin-core", "3.4.2")
-  implementation("xyz.jpenilla", "legacy-plugin-base", "0.0.1+80-SNAPSHOT")
+  implementation("xyz.jpenilla", "legacy-plugin-base", "0.0.1+83-SNAPSHOT")
   implementation("org.bstats", "bstats-bukkit", "3.0.2")
   implementation("io.papermc", "paperlib", "1.0.8")
 
@@ -110,7 +110,7 @@ tasks {
     dependsOn(shadowJar)
   }
   runServer {
-    minecraftVersion("1.20")
+    minecraftVersion("1.20.1")
   }
   withType<RunServer> {
     javaLauncher.set(
