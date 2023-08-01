@@ -1,7 +1,7 @@
 import xyz.jpenilla.runpaper.task.RunServer
 
 plugins {
-  kotlin("jvm") version "1.8.22"
+  kotlin("jvm") version "1.9.0"
   alias(libs.plugins.indra)
   alias(libs.plugins.indraGit)
   alias(libs.plugins.indraLicenseHeader)
@@ -77,14 +77,14 @@ tasks {
   }
   shadowJar {
     from(rootProject.file("license.txt")) {
-      rename { "license_${rootProject.name.toLowerCase()}.txt" }
+      rename { "license_${rootProject.name.lowercase()}.txt" }
     }
 
     minimize()
     archiveClassifier.set(null as String?)
     archiveBaseName.set(project.name) // Use uppercase name for final jar
 
-    val prefix = "${project.group}.${project.name.toLowerCase()}.lib"
+    val prefix = "${project.group}.${project.name.lowercase()}.lib"
     sequenceOf(
       "com.typesafe.config",
       "io.leangen.geantyref",

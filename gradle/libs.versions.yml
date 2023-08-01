@@ -4,7 +4,7 @@ metadata:
 plugins:
   indra:
     id: net.kyori.indra
-    version: &indra 3.0.1
+    version: &indra 3.1.2
   indraGit:
     id: net.kyori.indra.git
     version: *indra
@@ -13,7 +13,7 @@ plugins:
     version: *indra
   shadow:
     id: com.github.johnrengelman.shadow
-    version: 7.1.2
+    version: 8.1.1
   runPaper:
     id: xyz.jpenilla.run-paper
     version: 2.1.0
