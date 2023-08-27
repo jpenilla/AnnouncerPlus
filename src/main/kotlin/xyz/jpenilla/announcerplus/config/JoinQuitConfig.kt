@@ -30,6 +30,7 @@ import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.permissions.PermissionDefault
+import org.bukkit.scheduler.BukkitRunnable
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.spongepowered.configurate.CommentedConfigurationNode
@@ -55,10 +56,13 @@ import xyz.jpenilla.announcerplus.util.scheduleAsync
 import xyz.jpenilla.announcerplus.util.scheduleGlobal
 import xyz.jpenilla.pluginbase.legacy.Chat
 import xyz.jpenilla.pluginbase.legacy.Environment
+import java.util.logging.Logger
 
 @ConfigSerializable
 class JoinQuitConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
 
+  private val logger: Logger by inject()
+	
   @Setting("visible-permission")
   @Comment("If set to something other than \"\", this setting's value will be the permission required to see these join/quit messages when they are broadcasted for a player")
   var permission = ""
@@ -187,7 +191,7 @@ class JoinQuitConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
     if (name != null && !player.hasPermission("announcerplus.join.$name")) return
     chat.send(player, announcerPlus.configManager.parse(player, join.messages))
     announcerPlus.schedule(player, 3L) {
-      if (!isVanished(player)) {
+      if (!player.hasMetadata("vanished")) {
         announcerPlus.scheduleAsync {
           Bukkit.getOnlinePlayers().toList().forEach { onlinePlayer ->
             if (onlinePlayer.name != player.name) {
@@ -215,9 +219,30 @@ class JoinQuitConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
   }
 
   fun onQuit(player: Player) {
-    if (name == null || !player.hasPermission("announcerplus.quit.$name") || isVanished(player)) return
+    const val loggedOutName = name
+    if (loggedOutName == null || !player.hasPermission("announcerplus.quit.$name")) return
+    object : BukkitRunnable() {
+      override fun run() {
+        if (player.hasMetadata("vanished")) {
+          if (player.isOnline()) {
+            logger.info("Player is online, and vanished, fake quit message will show.")
+            quitMessage(loggedOutName, player)
+          } else {
+            player.removeMetadata("vanish", announcerPlus)
+            player.showPlayer(announcerPlus, player)
+            logger.info("Player is offline, and vanished, real quit message will be hidden. Vanish cache has been cleared.")
+          }
+        } else {
+          logger.info("Player is offline, and not vanished, quit message will show.")
+          quitMessage(loggedOutName, player)
+        }
+      }
+    }.runTaskLater(announcerPlus, 2L)
+  }
+
+  private fun quitMessage(loggedOutName: String, player: Player): Boolean {
     for (onlinePlayer in Bukkit.getOnlinePlayers()) {
-      if (onlinePlayer.name != player.name) {
+      if (onlinePlayer.name != loggedOutName) {
         if (announcerPlus.perms!!.playerHas(onlinePlayer, permission) || permission.isEmpty()) {
           chat.send(onlinePlayer, announcerPlus.configManager.parse(player, quit.broadcasts))
           if (quit.sounds.isNotEmpty()) {
@@ -227,18 +252,9 @@ class JoinQuitConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
       }
     }
     announcerPlus.scheduleGlobal {
-      quit.commands.forEach { dispatchCommandAsConsole(announcerPlus.configManager.parse(player, it)) }
+      quit.commands.forEach { dispatchCommandAsConsole(announcerPlus.configManager.parse(loggedOutName, it)) }
     }
-  }
-
-  private fun isVanished(player: Player): Boolean {
-    for (meta in player.getMetadata("vanished")) {
-      if (meta.asBoolean()) return true
-    }
-    if (announcerPlus.essentials != null) {
-      return announcerPlus.essentials!!.isVanished(player)
-    }
-    return false
+    return true
   }
 
   override fun saveTo(node: CommentedConfigurationNode) {

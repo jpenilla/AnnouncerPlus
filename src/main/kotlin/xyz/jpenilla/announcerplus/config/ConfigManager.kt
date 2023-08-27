@@ -293,6 +293,21 @@ class ConfigManager(
     return msg
   }
 
+  fun parse(commandSender: String, message: String): String {
+    var msg = message
+    mainConfig.customPlaceholders.forEach { (token, replacement) ->
+      msg = msg.replace("{$token}", replacement)
+    }
+    msg = legacyChecker.check(msg)
+
+    if (msg.startsWith("<center>")) {
+      msg = msg.replaceFirst("<center>", "")
+      val spaces = ChatCentering.spacePrefix(miniMessage(msg))
+      return spaces + msg
+    }
+    return msg
+  }
+
   fun parse(player: CommandSender?, messages: List<String>): List<String> =
     messages.map { parse(player, it) }
 }

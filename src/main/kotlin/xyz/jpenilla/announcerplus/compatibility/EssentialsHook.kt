@@ -35,10 +35,6 @@ class EssentialsHook {
     return user(player).isAfk
   }
 
-  fun isVanished(player: Player): Boolean {
-    return user(player).isVanished
-  }
-
   fun user(player: Player): IUser {
     return essentials.getUser(player)
   }
