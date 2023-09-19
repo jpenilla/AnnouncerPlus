@@ -122,7 +122,9 @@ class JoinQuitConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
     @Setting("title-settings")
     @Comment("Settings relating to showing a title to the joining Player")
     var title = TitleSettings(
-      1, 7, 1,
+      1,
+      7,
+      1,
       "<bold><italic><gradient:green:blue:green:{animate:scroll:0.1}>Welcome</gradient><yellow>{animate:flash:!:!!:!!!:10}",
       "<{animate:pulse:red:blue:yellow:green:10}>{user}"
     )
@@ -130,7 +132,8 @@ class JoinQuitConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
     @Setting("action-bar-settings")
     @Comment("Settings relating to showing an Action Bar to the joining Player")
     var actionBar = ActionBarSettings(
-      false, 8,
+      false,
+      8,
       "<gradient:green:blue:green:{animate:scroll:0.1}>|||||||||||||||||||||||||||||||||||||||</gradient>"
     )
 
@@ -141,8 +144,10 @@ class JoinQuitConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
     @Setting("toast-settings")
     @Comment("Configure the Toast that will be showed to the joining player")
     var toast = ToastSettings(
-      Material.DIAMOND, ToastSettings.FrameType.CHALLENGE,
-      "<gradient:green:blue><bold><italic>AnnouncerPlus", "<rainbow>Welcome to the server!"
+      Material.DIAMOND,
+      ToastSettings.FrameType.CHALLENGE,
+      "<gradient:green:blue><bold><italic>AnnouncerPlus",
+      "<rainbow>Welcome to the server!"
     )
 
     fun messageElements(): Collection<MessageElement> = setOf(

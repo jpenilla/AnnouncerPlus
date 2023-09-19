@@ -4,10 +4,9 @@ plugins {
   kotlin("jvm") version "1.9.10"
   alias(libs.plugins.indra)
   alias(libs.plugins.indraGit)
-  alias(libs.plugins.indraLicenseHeader)
   alias(libs.plugins.runPaper)
-  alias(libs.plugins.ktlint)
   alias(libs.plugins.shadow)
+  alias(libs.plugins.indraSpotless)
 }
 
 repositories {
@@ -122,7 +121,7 @@ tasks {
   register("format") {
     group = "formatting"
     description = "Formats source code according to project style."
-    dependsOn(licenseFormat, ktlintFormat)
+    dependsOn(spotlessApply)
   }
   processResources {
     val props = mapOf(
@@ -135,6 +134,20 @@ tasks {
     filesMatching("plugin.yml") {
       expand(props)
     }
+  }
+}
+
+spotless {
+  val overrides = mapOf(
+    "ktlint_standard_filename" to "disabled",
+    "ktlint_standard_trailing-comma-on-call-site" to "disabled",
+    "ktlint_standard_trailing-comma-on-declaration-site" to "disabled",
+  )
+  kotlin {
+    ktlint(libs.versions.ktlint.get()).editorConfigOverride(overrides)
+  }
+  kotlinGradle {
+    ktlint(libs.versions.ktlint.get()).editorConfigOverride(overrides)
   }
 }
 

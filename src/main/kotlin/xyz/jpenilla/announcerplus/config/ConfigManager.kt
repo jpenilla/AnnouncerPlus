@@ -62,7 +62,7 @@ class ConfigManager(
   private val legacyChecker: LegacyChecker = LegacyChecker(logger)
   private val mapperFactory = ObjectMapper.factoryBuilder()
     .addNodeResolver { name, _ ->
-      /* We don't want to attempt serializing delegated properties, and they can't be @Transient */
+      // We don't want to attempt serializing delegated properties, and they can't be @Transient
       if (name.endsWith("\$delegate")) {
         NodeResolver.SKIP_FIELD
       } else {
@@ -82,7 +82,7 @@ class ConfigManager(
           | /_/  |_/_/ /_/_/ /_/\____/\__,_/_/ /_/\___/\___/_/  /_/   /_/\__,_/____/  
           | 
           |     v${announcerPlus.description.version}
-          """.trimMargin()
+      """.trimMargin()
     )
   }
   lateinit var mainConfig: MainConfig
@@ -198,7 +198,8 @@ class ConfigManager(
         it.header(
           """For a player to get these messages give them the announcerplus.messages.demo permission
                       |  If EssentialsX is installed, then giving a player the announcerplus.messages.demo.afk permission
-                      |  will stop them from receiving these messages while afk""".trimMargin()
+                      |  will stop them from receiving these messages while afk
+          """.trimMargin()
         )
       }
       val defaultConfigRoot = defaultConfigLoader.createNode()
