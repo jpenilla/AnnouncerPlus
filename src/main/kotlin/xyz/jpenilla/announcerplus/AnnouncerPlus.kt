@@ -112,7 +112,11 @@ class AnnouncerPlus : PluginBase(), KoinComponent {
 
     if (getMinecraftVersion() > 16) {
       if (isPaper()) {
-        toastTask = ToastTask()
+        try {
+          toastTask = ToastTask()
+        } catch (e: ExceptionInInitializerError) {
+          slF4JLogger.info("Failed to initialize toast/advancement message support", e)
+        }
       } else {
         logger.info("Toast/Advancement style messages require Paper in order to function on this version, consider using Paper if you want to take advantage of this feature!")
       }
