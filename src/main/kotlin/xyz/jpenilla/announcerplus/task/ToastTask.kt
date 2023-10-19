@@ -25,6 +25,7 @@ package xyz.jpenilla.announcerplus.task
 
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import io.papermc.lib.PaperLib.getMinecraftPatchVersion
 import io.papermc.lib.PaperLib.getMinecraftVersion
 import org.bukkit.entity.Player
 import org.koin.core.component.KoinComponent
@@ -88,23 +89,42 @@ class ToastTask : KoinComponent {
     }
     val advancements = toasts.map { it.buildAdvancement(player) }
     announcerPlus.schedule(player) {
-      for (advancement in advancements) {
+      for ((advancement, _) in advancements) {
+        if (USE_ADVANCEMENT_HOLDER) {
+          AdvancementTree_addAll!!(ServerAdvancementManager_tree(MinecraftServer_getAdvancements(MinecraftServer_getServer())), mutableSetOf(advancement))
+        }
         grant(player, advancement)
       }
       announcerPlus.schedule(player, 2L) {
-        for (advancement in advancements) {
+        for ((advancement, id) in advancements) {
           revoke(player, advancement)
+          if (USE_ADVANCEMENT_HOLDER) {
+            AdvancementTree_remove!!(ServerAdvancementManager_tree(MinecraftServer_getAdvancements(MinecraftServer_getServer())), mutableSetOf(id))
+          }
         }
       }
     }
   }
 
-  private fun ToastSettings.buildAdvancement(player: Player): Any {
+  private fun ToastSettings.buildAdvancement(player: Player): Pair<Any, Any> {
     val resourceLocation = ResourceLocation_ctr.newInstance(
       announcerPlus.name.lowercase(),
       nextInt(1000000).toString()
     )
     val json = advancementJson(player)
+    if (USE_ADVANCEMENT_HOLDER) {
+      return AdvancementHolder_ctr!!(
+        resourceLocation,
+        Advancement_fromJson(
+          null,
+          json,
+          DeserializationContext_ctr.newInstance(
+            resourceLocation,
+            MinecraftServer_getPredicateManager(MinecraftServer_getServer())
+          )
+        )
+      ) to resourceLocation
+    }
     val advancementBuilder = if (getMinecraftVersion() >= 16) {
       AdvancementBuilder_fromJson(
         null,
@@ -122,7 +142,7 @@ class ToastTask : KoinComponent {
         AdvancementBuilder_class
       )
     }
-    return AdvancementBuilder_build(advancementBuilder, resourceLocation)
+    return AdvancementBuilder_build(advancementBuilder, resourceLocation) to resourceLocation
   }
 
   private fun grant(player: Player, advancement: Any) {
@@ -160,18 +180,24 @@ class ToastTask : KoinComponent {
       ?: error("Cannot find ResourceLocation constructor")
 
     val Advancement_class = Crafty.needNMSClassOrElse("Advancement", "net.minecraft.advancements.Advancement")
+    val AdvancementHolder_class = Crafty.findClass("net.minecraft.advancements.AdvancementHolder")
+    val AdvancementHolder_ctr = AdvancementHolder_class?.let { Crafty.findConstructor(it, ResourceLocation_class, Advancement_class) }
+    fun advancementOrHolderCls() = AdvancementHolder_class ?: Advancement_class
     val AdvancementBuilder_class = Crafty.needNMSClassOrElse(
       "Advancement\$SerializedAdvancement",
       "net.minecraft.advancements.Advancement\$SerializedAdvancement",
       "net.minecraft.advancements.Advancement\$Builder"
     )
 
-    val AdvancementBuilder_build = AdvancementBuilder_class.declaredMethods.find { method ->
-      method.returnType == Advancement_class &&
-        method.parameterCount == 1 &&
-        method.parameterTypes[0] == ResourceLocation_class &&
-        !Modifier.isStatic(method.modifiers)
-    } ?: error("Cannot find Advancement\$Builder#build")
+    // lazy: not used >= 1.20.2
+    val AdvancementBuilder_build by lazy {
+      AdvancementBuilder_class.declaredMethods.find { method ->
+        method.returnType == Advancement_class &&
+          method.parameterCount == 1 &&
+          method.parameterTypes[0] == ResourceLocation_class &&
+          !Modifier.isStatic(method.modifiers)
+      } ?: error("Cannot find Advancement\$Builder#build")
+    }
 
     val ServerPlayer_class = Crafty.needNMSClassOrElse(
       "EntityPlayer",
@@ -198,8 +224,47 @@ class ToastTask : KoinComponent {
     val PlayerAdvancements_getProgress = PlayerAdvancements_class.methods.find { method ->
       method.returnType == AdvancementProgress_class &&
         method.parameterCount == 1 &&
-        method.parameterTypes[0] == Advancement_class
+        method.parameterTypes[0] == advancementOrHolderCls()
     } ?: error("Cannot find PlayerAdvancements#getProgress")
+
+    // start 1.20.2+
+    val USE_ADVANCEMENT_HOLDER: Boolean = (getMinecraftVersion() == 20 && getMinecraftPatchVersion() >= 2) || getMinecraftVersion() > 20
+
+    val Advancement_fromJson by lazy {
+      Advancement_class.declaredMethods.find { method ->
+        method.returnType == Advancement_class &&
+          method.parameterCount == 2 &&
+          method.parameterTypes.contains(JsonObject::class.java) &&
+          method.parameterTypes.contains(DeserializationContext_class)
+      } ?: error("Cannot find Advancement#fromJson")
+    }
+
+    val ServerAdvancementManager_class by lazy {
+      Crafty.findClass("net.minecraft.server.ServerAdvancementManager")
+        ?: Crafty.findClass("net.minecraft.server.AdvancementDataWorld")
+        ?: error("Could not find ServerAdvancementManager class")
+    }
+
+    val MinecraftServer_getAdvancements by lazy {
+      MinecraftServer_class.declaredMethods.find {
+        it.parameterCount == 0 && it.returnType == ServerAdvancementManager_class
+      } ?: error("Could not find MinecraftServer#getAdvancements()")
+    }
+
+    val AdvancementTree_class by lazy {
+      Crafty.findClass("net.minecraft.advancements.AdvancementTree")
+        ?: error("Could not find AdvancementTree class")
+    }
+
+    val ServerAdvancementManager_tree by lazy {
+      ServerAdvancementManager_class.declaredMethods.find {
+        it.parameterCount == 0 && it.returnType == AdvancementTree_class
+      } ?: error("Could not find ServerAdvancementManager#tree()")
+    }
+
+    val AdvancementTree_addAll: Method?
+    val AdvancementTree_remove: Method?
+    // end 1.20.2+
 
     val PlayerAdvancements_award: Method
     val PlayerAdvancements_revoke: Method
@@ -216,17 +281,19 @@ class ToastTask : KoinComponent {
         }
         AdvancementProgress_remainingCriteria = AdvancementProgress_class.getDeclaredMethod("getRemainingCriteria")
         AdvancementProgress_completedCriteria = AdvancementProgress_class.getDeclaredMethod("getAwardedCriteria")
+        AdvancementTree_addAll = null
+        AdvancementTree_remove = null
       } else {
         val reflectionRemapper = ReflectionRemapper.forReobfMappingsInPaperJar()
 
         PlayerAdvancements_award = PlayerAdvancements_class.getDeclaredMethod(
-          reflectionRemapper.remapMethodName(PlayerAdvancements_class, "award", Advancement_class, String::class.java),
-          Advancement_class,
+          reflectionRemapper.remapMethodName(PlayerAdvancements_class, "award", advancementOrHolderCls(), String::class.java),
+          advancementOrHolderCls(),
           String::class.java
         )
         PlayerAdvancements_revoke = PlayerAdvancements_class.getDeclaredMethod(
-          reflectionRemapper.remapMethodName(PlayerAdvancements_class, "revoke", Advancement_class, String::class.java),
-          Advancement_class,
+          reflectionRemapper.remapMethodName(PlayerAdvancements_class, "revoke", advancementOrHolderCls(), String::class.java),
+          advancementOrHolderCls(),
           String::class.java
         )
         AdvancementProgress_remainingCriteria = AdvancementProgress_class.getDeclaredMethod(
@@ -235,6 +302,20 @@ class ToastTask : KoinComponent {
         AdvancementProgress_completedCriteria = AdvancementProgress_class.getDeclaredMethod(
           reflectionRemapper.remapMethodName(AdvancementProgress_class, "getCompletedCriteria")
         )
+
+        if (USE_ADVANCEMENT_HOLDER) {
+          AdvancementTree_addAll = AdvancementTree_class.getDeclaredMethod(
+            reflectionRemapper.remapMethodName(AdvancementTree_class, "addAll", Collection::class.java),
+            Collection::class.java
+          )
+          AdvancementTree_remove = AdvancementTree_class.getDeclaredMethod(
+            reflectionRemapper.remapMethodName(AdvancementTree_class, "remove", Set::class.java),
+            Set::class.java
+          )
+        } else {
+          AdvancementTree_addAll = null
+          AdvancementTree_remove = null
+        }
       }
     }
 
