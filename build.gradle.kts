@@ -7,6 +7,7 @@ plugins {
   alias(libs.plugins.runPaper)
   alias(libs.plugins.shadow)
   alias(libs.plugins.indraSpotless)
+  alias(libs.plugins.spotless)
 }
 
 repositories {
