@@ -289,12 +289,15 @@ class MessageConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
 
     private fun zeroToOne(): ConfigurationTransformation = ConfigurationTransformation.chain(
       ConfigurationTransformation.builder().addAction(path("interval-time-amount"), TransformAction.rename("interval-time")).build(),
-      ConfigurationTransformation.builder().addAction(path("interval-time"), TransformAction { path, value ->
-        val oldUnit = value.parent()?.node("interval-time-unit")?.get<TimeUnit>() ?: TimeUnit.MINUTES
-        val oldNum = value.string ?: "3"
-        value.set("$oldNum ${oldUnit.name.lowercase()}")
-        return@TransformAction null
-      }).build(),
+      ConfigurationTransformation.builder().addAction(
+        path("interval-time"),
+        TransformAction { path, value ->
+          val oldUnit = value.parent()?.node("interval-time-unit")?.get<TimeUnit>() ?: TimeUnit.MINUTES
+          val oldNum = value.string ?: "3"
+          value.set("$oldNum ${oldUnit.name.lowercase()}")
+          return@TransformAction null
+        }
+      ).build(),
       ConfigurationTransformation.builder().addAction(path("interval-time-unit"), TransformAction.remove()).build()
     )
 
