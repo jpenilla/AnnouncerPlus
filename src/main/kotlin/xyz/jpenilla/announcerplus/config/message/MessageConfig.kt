@@ -356,15 +356,15 @@ class MessageConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
       }
 
       override fun serialize(type: Type, obj: SimpleDuration?, node: ConfigurationNode) {
-        if (obj == null) {
-          node.set(ZERO)
-          return
+        var obj1: SimpleDuration? = obj
+        if (obj1 == null) {
+          obj1 = ZERO
         }
-        obj.input?.let {
+        obj1.input?.let {
           node.set(it)
           return
         }
-        node.set("${obj.value} ${obj.timeUnit.name.lowercase()}")
+        node.set("${obj1.value} ${obj1.timeUnit.name.lowercase()}")
       }
     }
   }
