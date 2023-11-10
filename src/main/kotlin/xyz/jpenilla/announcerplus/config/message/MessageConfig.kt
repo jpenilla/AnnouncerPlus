@@ -143,7 +143,7 @@ class MessageConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
   var interval = SimpleDuration(3, TimeUnit.MINUTES, "3 minutes")
 
   @Setting("startup-delay")
-  @Comment("Delay before this broadcast starts it's interval at server startup. Useful to offset configs from each other.")
+  @Comment("Delay before this broadcast starts it's interval at server startup/config reload. Useful to offset configs from each other.")
   var initialDelay = SimpleDuration.ZERO
 
   @Setting("random-message-order")
