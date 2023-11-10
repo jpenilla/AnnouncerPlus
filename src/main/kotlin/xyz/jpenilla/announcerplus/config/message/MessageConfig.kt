@@ -139,11 +139,11 @@ class MessageConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
   val asPlayerCommands = ArrayList<String>()
 
   @Setting("interval-time")
-  @Comment("The amount of time used for the interval")
+  @Comment("The amount of time used for the interval. Parsing is quite flexible for durations of minutes, hours, or seconds. '3 minutes', '10m', '30 sec', and '2hrs' are some examples of valid values.")
   var interval = SimpleDuration(3, TimeUnit.MINUTES, "3 minutes")
 
   @Setting("startup-delay")
-  @Comment("Delay before this broadcast starts it's interval at server startup/config reload. Useful to offset configs from each other.")
+  @Comment("Delay before this broadcast starts it's interval at server startup/config reload. Useful to offset configs from each other. Same format as interval-time.")
   var initialDelay = SimpleDuration.ZERO
 
   @Setting("random-message-order")
