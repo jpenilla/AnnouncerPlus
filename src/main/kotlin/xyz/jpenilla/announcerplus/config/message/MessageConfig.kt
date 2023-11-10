@@ -338,7 +338,7 @@ class MessageConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
       private val regex = Regex("^([0-9]+)( |)([a-zA-Z]+)$")
       private val map = mapOf(
         setOf("s", "second", "seconds", "sec", "secs") to TimeUnit.SECONDS,
-        setOf("m", "minute", "minutes", "min", "min") to TimeUnit.MINUTES,
+        setOf("m", "minute", "minutes", "min", "mins") to TimeUnit.MINUTES,
         setOf("h", "hour", "hours", "hr", "hrs") to TimeUnit.HOURS,
       )
 
