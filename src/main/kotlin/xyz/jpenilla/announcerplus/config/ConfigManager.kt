@@ -108,6 +108,7 @@ class ConfigManager(
       .defaultOptions { options ->
         options.serializers {
           it.register(Sound::class.java, SoundSerializer)
+            .register(MessageConfig.SimpleDuration::class.java, MessageConfig.SimpleDuration.Serializer)
             .registerAll(ConfigurateComponentSerializer.configurate().serializers())
             .registerAnnotatedObjects(mapperFactory)
         }.run(modifier)
@@ -233,10 +234,13 @@ class ConfigManager(
       val configName = configFile.nameWithoutExtension
       try {
         val node = loader.load()
-        upgradeNode(upgrader, node, configTypeName, configName)
+        val upgradeResult = upgradeNode(upgrader, node, configTypeName, configName)
         val loadedConfiguration = factory.loadFrom(node, configName)
         loadedConfiguration.saveTo(node)
         result[configName] = loadedConfiguration
+        if (upgradeResult.didUpgrade) {
+          loader.save(node)
+        }
       } catch (ex: Exception) {
         throw IllegalArgumentException("Failed to load $configTypeName config: ${configFile.name}. This is likely due to an invalid config file.", ex)
       }

@@ -32,12 +32,16 @@ import org.bukkit.permissions.PermissionDefault
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.spongepowered.configurate.CommentedConfigurationNode
+import org.spongepowered.configurate.ConfigurationNode
 import org.spongepowered.configurate.NodePath.path
 import org.spongepowered.configurate.kotlin.extensions.get
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
 import org.spongepowered.configurate.objectmapping.meta.Comment
 import org.spongepowered.configurate.objectmapping.meta.Setting
+import org.spongepowered.configurate.serialize.SerializationException
+import org.spongepowered.configurate.serialize.TypeSerializer
 import org.spongepowered.configurate.transformation.ConfigurationTransformation
+import org.spongepowered.configurate.transformation.TransformAction
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.config.ConfigurationUpgrader
@@ -53,6 +57,7 @@ import xyz.jpenilla.announcerplus.util.miniMessage
 import xyz.jpenilla.announcerplus.util.playSounds
 import xyz.jpenilla.announcerplus.util.schedule
 import xyz.jpenilla.announcerplus.util.scheduleGlobal
+import java.lang.reflect.Type
 import kotlin.collections.component1
 import kotlin.collections.component2
 
@@ -133,13 +138,13 @@ class MessageConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
   @Comment("These commands will run once per player each interval, as the player\n  Example: \"ap about\"")
   val asPlayerCommands = ArrayList<String>()
 
-  @Setting("interval-time-unit")
-  @Comment("The unit of time used for the interval\n  Can be SECONDS, MINUTES, or HOURS")
-  var timeUnit = TimeUnit.MINUTES
-
-  @Setting("interval-time-amount")
+  @Setting("interval-time")
   @Comment("The amount of time used for the interval")
-  var interval = 3
+  var interval = SimpleDuration(3, TimeUnit.MINUTES, "3 minutes")
+
+  @Setting("startup-delay")
+  @Comment("Delay before this broadcast starts it's interval at server startup. Useful to offset configs from each other.")
+  var initialDelay = SimpleDuration.ZERO
 
   @Setting("random-message-order")
   @Comment("Should the messages be sent in order of the config or in random order")
@@ -199,15 +204,15 @@ class MessageConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
   @Transient
   private val broadcastQueue = ArrayDeque<Message>()
 
-  fun broadcast() {
+  fun broadcast(skipInitialDelay: Boolean = false) {
     stop()
     broadcastQueue.clear()
     broadcastQueue.addAll(shuffledMessages())
-    broadcastTask = announcerPlus.asyncTimer(0L, timeUnit.getTicks(interval)) {
+    broadcastTask = announcerPlus.asyncTimer(if (skipInitialDelay) 0L else initialDelay.ticks, interval.ticks) {
       if (broadcastQueue.isNotEmpty()) {
         broadcast(broadcastQueue.removeFirst())
       } else {
-        broadcast()
+        broadcast(true)
       }
     }
   }
@@ -275,11 +280,23 @@ class MessageConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
   }
 
   companion object : ConfigurationUpgrader, NamedConfigurationFactory<MessageConfig, CommentedConfigurationNode> {
-    const val LATEST_VERSION = 0
+    const val LATEST_VERSION = 1
 
     override val upgrader = ConfigurationTransformation.versionedBuilder()
-      .addVersion(LATEST_VERSION, initial())
+      .addVersion(0, initial())
+      .addVersion(LATEST_VERSION, zeroToOne())
       .build()
+
+    private fun zeroToOne(): ConfigurationTransformation = ConfigurationTransformation.chain(
+      ConfigurationTransformation.builder().addAction(path("interval-time-amount"), TransformAction.rename("interval-time")).build(),
+      ConfigurationTransformation.builder().addAction(path("interval-time"), TransformAction { path, value ->
+        val oldUnit = value.parent()?.node("interval-time-unit")?.get<TimeUnit>() ?: TimeUnit.MINUTES
+        val oldNum = value.string ?: "3"
+        value.set("$oldNum ${oldUnit.name.lowercase()}")
+        return@TransformAction null
+      }).build(),
+      ConfigurationTransformation.builder().addAction(path("interval-time-unit"), TransformAction.remove()).build()
+    )
 
     private fun initial() = ConfigurationTransformation.builder()
       .addAction(path("messages")) { path, value ->
@@ -307,5 +324,48 @@ class MessageConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
     HOURS(72000L);
 
     fun getTicks(units: Int): Long = ticks * units
+  }
+
+  data class SimpleDuration(val value: Int, val timeUnit: TimeUnit, val input: String?) {
+    companion object {
+      val ZERO = SimpleDuration(0, TimeUnit.SECONDS, null)
+    }
+
+    val ticks: Long
+      get() = timeUnit.getTicks(value)
+
+    object Serializer : TypeSerializer<SimpleDuration> {
+      private val regex = Regex("^([0-9]+)( |)([a-zA-Z]+)$")
+      private val map = mapOf(
+        setOf("s", "second", "seconds", "sec", "secs") to TimeUnit.SECONDS,
+        setOf("m", "minute", "minutes", "min", "min") to TimeUnit.MINUTES,
+        setOf("h", "hour", "hours", "hr", "hrs") to TimeUnit.HOURS,
+      )
+
+      override fun deserialize(type: Type, node: ConfigurationNode): SimpleDuration {
+        val s = node.string ?: "0s"
+        val result = regex.matchEntire(s) ?: throw SerializationException("Invalid duration '$s', does not match pattern " + regex.pattern)
+        val num = result.groupValues[1].toInt()
+        val textPart = result.groupValues[3]
+        map.forEach { (set, unit) ->
+          if (set.any { it.equals(textPart, ignoreCase = true) }) {
+            return SimpleDuration(num, unit, s)
+          }
+        }
+        throw SerializationException("Invalid time unit '$textPart', expected one of ${map.keys}")
+      }
+
+      override fun serialize(type: Type, obj: SimpleDuration?, node: ConfigurationNode) {
+        if (obj == null) {
+          node.set(ZERO)
+          return
+        }
+        obj.input?.let {
+          node.set(it)
+          return
+        }
+        node.set("${obj.value} ${obj.timeUnit.name.lowercase()}")
+      }
+    }
   }
 }
