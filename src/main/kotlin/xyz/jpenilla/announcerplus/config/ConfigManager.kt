@@ -234,13 +234,11 @@ class ConfigManager(
       val configName = configFile.nameWithoutExtension
       try {
         val node = loader.load()
-        val upgradeResult = upgradeNode(upgrader, node, configTypeName, configName)
+        upgradeNode(upgrader, node, configTypeName, configName)
         val loadedConfiguration = factory.loadFrom(node, configName)
         loadedConfiguration.saveTo(node)
         result[configName] = loadedConfiguration
-        if (upgradeResult.didUpgrade) {
-          loader.save(node)
-        }
+        loader.save(node)
       } catch (ex: Exception) {
         throw IllegalArgumentException("Failed to load $configTypeName config: ${configFile.name}. This is likely due to an invalid config file.", ex)
       }
