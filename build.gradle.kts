@@ -53,7 +53,9 @@ dependencies {
   implementation("org.bstats", "bstats-bukkit", "3.0.2")
   implementation("io.papermc", "paperlib", "1.0.8")
 
-  implementation("xyz.jpenilla:reflection-remapper:0.1.0-SNAPSHOT")
+  implementation(variantOf(libs.reflection.remapper) { classifier("all") }) {
+    isTransitive = false
+  }
 }
 
 version = (version as String).decorateVersion()
@@ -97,7 +99,6 @@ tasks {
       "org.bstats",
       "kotlin",
       "xyz.jpenilla.reflectionremapper",
-      "net.fabricmc.mappingio"
     ).forEach { pkg ->
       relocate(pkg, "$prefix.$pkg")
     }
