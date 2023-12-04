@@ -2,7 +2,7 @@
 indra = { id = "net.kyori.indra", version.ref = "indra" }
 indraGit = { id = "net.kyori.indra.git", version.ref = "indra" }
 indraSpotless = { id = "net.kyori.indra.licenser.spotless", version.ref = "indra" }
-spotless = { id = "com.diffplug.spotless", version = "6.22.0" }
+spotless = { id = "com.diffplug.spotless", version = "6.23.3" }
 shadow = { id = "com.github.johnrengelman.shadow", version = "8.1.1" }
 runPaper = { id = "xyz.jpenilla.run-paper", version = "2.2.2" }
 
