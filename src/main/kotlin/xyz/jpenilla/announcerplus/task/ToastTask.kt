@@ -25,6 +25,8 @@ package xyz.jpenilla.announcerplus.task
 
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import com.mojang.serialization.Codec
+import com.mojang.serialization.JsonOps
 import io.papermc.lib.PaperLib.getMinecraftPatchVersion
 import io.papermc.lib.PaperLib.getMinecraftVersion
 import org.bukkit.entity.Player
@@ -38,6 +40,7 @@ import xyz.jpenilla.announcerplus.util.schedule
 import xyz.jpenilla.pluginbase.legacy.Crafty
 import xyz.jpenilla.reflectionremapper.ReflectionRemapper
 import java.lang.reflect.Constructor
+import java.lang.reflect.Field
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.util.UUID
@@ -113,8 +116,7 @@ class ToastTask : KoinComponent {
     )
     val json = advancementJson(player)
     if (USE_ADVANCEMENT_HOLDER) {
-      return AdvancementHolder_ctr!!(
-        resourceLocation,
+      val advancement = if (Advancement_CODEC == null) {
         Advancement_fromJson(
           null,
           json,
@@ -123,6 +125,15 @@ class ToastTask : KoinComponent {
             MinecraftServer_getPredicateManager(MinecraftServer_getServer())
           )
         )
+      } else {
+        (Advancement_CODEC.get(null) as Codec<*>)
+          .parse(JsonOps.INSTANCE, json)
+          .result()
+          .orElseThrow { IllegalStateException() }
+      }
+      return AdvancementHolder_ctr!!(
+        resourceLocation,
+        advancement
       ) to resourceLocation
     }
     val advancementBuilder = if (getMinecraftVersion() >= 16) {
@@ -230,6 +241,7 @@ class ToastTask : KoinComponent {
     // start 1.20.2+
     val USE_ADVANCEMENT_HOLDER: Boolean = (getMinecraftVersion() == 20 && getMinecraftPatchVersion() >= 2) || getMinecraftVersion() > 20
 
+    // 1.20.2 only
     val Advancement_fromJson by lazy {
       Advancement_class.declaredMethods.find { method ->
         method.returnType == Advancement_class &&
@@ -266,6 +278,10 @@ class ToastTask : KoinComponent {
     val AdvancementTree_remove: Method?
     // end 1.20.2+
 
+    // start 1.20.4+
+    val Advancement_CODEC: Field?
+    // end 1.20.4+
+
     val PlayerAdvancements_award: Method
     val PlayerAdvancements_revoke: Method
     val AdvancementProgress_remainingCriteria: Method
@@ -283,8 +299,16 @@ class ToastTask : KoinComponent {
         AdvancementProgress_completedCriteria = AdvancementProgress_class.getDeclaredMethod("getAwardedCriteria")
         AdvancementTree_addAll = null
         AdvancementTree_remove = null
+        Advancement_CODEC = null
       } else {
         val reflectionRemapper = ReflectionRemapper.forReobfMappingsInPaperJar()
+        if (getMinecraftVersion() == 20 && getMinecraftPatchVersion() >= 4 || getMinecraftVersion() > 20) {
+          Advancement_CODEC = Advancement_class.getDeclaredField(
+            reflectionRemapper.remapFieldName(Advancement_class, "CODEC")
+          )
+        } else {
+          Advancement_CODEC = null
+        }
 
         PlayerAdvancements_award = PlayerAdvancements_class.getDeclaredMethod(
           reflectionRemapper.remapMethodName(PlayerAdvancements_class, "award", advancementOrHolderCls(), String::class.java),

@@ -34,6 +34,7 @@ dependencies {
     isTransitive = false
   }
   compileOnly("me.clip", "placeholderapi", "2.11.5")
+  compileOnly("com.mojang:datafixerupper:6.0.8")
 
   implementation(platform("net.kyori:adventure-bom:4.15.0"))
   implementation("net.kyori", "adventure-extra-kotlin")
@@ -66,7 +67,7 @@ java {
 
 kotlin {
   jvmToolchain {
-    languageVersion.set(JavaLanguageVersion.of(8))
+    languageVersion = JavaLanguageVersion.of(8)
   }
 }
 
@@ -75,7 +76,7 @@ tasks {
     kotlinOptions.jvmTarget = "1.8"
   }
   jar {
-    archiveClassifier.set("not-shadowed")
+    archiveClassifier = "not-shadowed"
   }
   shadowJar {
     from(rootProject.file("license.txt")) {
@@ -111,14 +112,12 @@ tasks {
     dependsOn(shadowJar)
   }
   runServer {
-    minecraftVersion("1.20.2")
+    minecraftVersion("1.20.4")
   }
   withType<RunServer> {
-    javaLauncher.set(
-      project.javaToolchains.launcherFor {
-        languageVersion.set(JavaLanguageVersion.of(17))
-      }
-    )
+    javaLauncher = project.javaToolchains.launcherFor {
+      languageVersion.set(JavaLanguageVersion.of(17))
+    }
   }
   register("format") {
     group = "formatting"
