@@ -23,54 +23,41 @@
  */
 package xyz.jpenilla.announcerplus.command.argument
 
-import cloud.commandframework.arguments.CommandArgument
-import cloud.commandframework.arguments.parser.ArgumentParseResult
-import cloud.commandframework.arguments.parser.ArgumentParser
-import cloud.commandframework.context.CommandContext
 import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
+import org.incendo.cloud.context.CommandContext
+import org.incendo.cloud.context.CommandInput
+import org.incendo.cloud.kotlin.extension.parserDescriptor
+import org.incendo.cloud.parser.ArgumentParseResult
+import org.incendo.cloud.parser.ArgumentParser
+import org.incendo.cloud.suggestion.BlockingSuggestionProvider
 import xyz.jpenilla.announcerplus.command.Commander
 import xyz.jpenilla.announcerplus.util.failure
-import java.util.Queue
 
 data class WorldPlayers(val players: Collection<Player>)
 
-class WorldPlayersArgument(
-  name: String,
-  required: Boolean = true
-) : CommandArgument<Commander, WorldPlayers>(
-  required,
-  name,
-  Parser(),
-  WorldPlayers::class.java
-) {
-  companion object {
-    fun optional(name: String) = WorldPlayersArgument(name, false)
-  }
+fun worldPlayersParser() = parserDescriptor(WorldPlayersParser())
 
-  class Parser : ArgumentParser<Commander, WorldPlayers> {
-    override fun parse(
-      context: CommandContext<Commander>,
-      inputQueue: Queue<String>
-    ): ArgumentParseResult<WorldPlayers> {
-      val input = inputQueue.peek()
+class WorldPlayersParser : ArgumentParser<Commander, WorldPlayers>, BlockingSuggestionProvider.Strings<Commander> {
+  override fun parse(
+    context: CommandContext<Commander>,
+    inputQueue: CommandInput
+  ): ArgumentParseResult<WorldPlayers> {
+    val input = inputQueue.readString()
 
-      if (input == "all") {
-        inputQueue.remove()
-        return ArgumentParseResult.success(WorldPlayers(Bukkit.getWorlds().flatMap { it.players }))
-      }
-
-      val world = Bukkit.getWorld(input)
-        ?: return failure(Component.text("No such world: $input"))
-
-      inputQueue.remove()
-      return ArgumentParseResult.success(WorldPlayers(world.players.toList()))
+    if (input == "all") {
+      return ArgumentParseResult.success(WorldPlayers(Bukkit.getWorlds().flatMap { it.players }))
     }
 
-    override fun suggestions(
-      context: CommandContext<Commander>,
-      input: String
-    ): List<String> = Bukkit.getWorlds().map { it.name } + "all"
+    val world = Bukkit.getWorld(input)
+      ?: return failure(Component.text("No such world: $input"))
+
+    return ArgumentParseResult.success(WorldPlayers(world.players.toList()))
   }
+
+  override fun stringSuggestions(
+    context: CommandContext<Commander>,
+    input: CommandInput
+  ): List<String> = Bukkit.getWorlds().map { it.name } + "all"
 }

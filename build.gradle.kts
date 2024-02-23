@@ -40,10 +40,14 @@ dependencies {
   implementation("net.kyori", "adventure-extra-kotlin")
   implementation("net.kyori", "adventure-serializer-configurate4")
 
-  implementation(platform("cloud.commandframework:cloud-bom:1.8.4"))
-  implementation("cloud.commandframework", "cloud-paper")
-  implementation("cloud.commandframework", "cloud-kotlin-extensions")
-  implementation("cloud.commandframework", "cloud-minecraft-extras")
+  implementation(platform("org.incendo:cloud-bom:2.0.0-beta.3"))
+  implementation("org.incendo:cloud-kotlin-extensions")
+  implementation(platform("org.incendo:cloud-minecraft-bom:2.0.0-beta.4"))
+  implementation("org.incendo:cloud-paper")
+  implementation("org.incendo:cloud-minecraft-extras")
+  implementation(platform("org.incendo:cloud-translations-bom:1.0.0-SNAPSHOT"))
+  implementation("org.incendo:cloud-translations-minecraft-extras")
+  implementation("org.incendo:cloud-translations-bukkit")
 
   implementation(platform("org.spongepowered:configurate-bom:4.1.2"))
   implementation("org.spongepowered", "configurate-hocon")
@@ -61,19 +65,17 @@ dependencies {
 
 version = (version as String).decorateVersion()
 
-java {
-  disableAutoTargetJvm()
-}
+indra.javaVersions().target(17)
 
 kotlin {
   jvmToolchain {
-    languageVersion = JavaLanguageVersion.of(8)
+    languageVersion = JavaLanguageVersion.of(17)
   }
 }
 
 tasks {
   compileKotlin {
-    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.jvmTarget = "17"
   }
   jar {
     archiveClassifier = "not-shadowed"
@@ -94,7 +96,7 @@ tasks {
       "io.papermc.lib",
       "net.kyori",
       "xyz.jpenilla.pluginbase",
-      "cloud.commandframework",
+      "org.incendo",
       "org.koin",
       "org.spongepowered.configurate",
       "org.bstats",

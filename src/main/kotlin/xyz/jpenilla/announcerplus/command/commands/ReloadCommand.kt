@@ -23,9 +23,10 @@
  */
 package xyz.jpenilla.announcerplus.command.commands
 
-import cloud.commandframework.context.CommandContext
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor
+import org.incendo.cloud.context.CommandContext
+import org.incendo.cloud.description.CommandDescription.commandDescription
 import xyz.jpenilla.announcerplus.command.BaseCommand
 import xyz.jpenilla.announcerplus.command.Commander
 import xyz.jpenilla.announcerplus.util.center
@@ -37,13 +38,13 @@ class ReloadCommand : BaseCommand() {
   override fun register() {
     commands.registerSubcommand("reload") {
       permission = "announcerplus.command.reload"
-      commandDescription("Reloads AnnouncerPlus configs.")
+      commandDescription(commandDescription("Reloads AnnouncerPlus configs."))
       handler(::execute)
     }
   }
 
   private fun execute(ctx: CommandContext<Commander>) {
-    val audience = ctx.sender
+    val audience = ctx.sender()
     audience.sendMessage(miniMessage("<italic><gradient:${randomColor()}:${randomColor()}>Reloading ${announcerPlus.name} config...").center())
     try {
       announcerPlus.reload()

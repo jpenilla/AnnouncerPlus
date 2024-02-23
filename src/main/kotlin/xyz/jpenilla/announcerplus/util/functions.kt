@@ -23,9 +23,6 @@
  */
 package xyz.jpenilla.announcerplus.util
 
-import cloud.commandframework.ArgumentDescription
-import cloud.commandframework.arguments.parser.ArgumentParseResult
-import cloud.commandframework.kotlin.extension.argumentDescription
 import net.kyori.adventure.nbt.BinaryTag
 import net.kyori.adventure.nbt.CompoundBinaryTag
 import net.kyori.adventure.nbt.ListBinaryTag
@@ -41,6 +38,8 @@ import net.kyori.adventure.util.HSVLike
 import org.bukkit.Bukkit
 import org.bukkit.permissions.Permission
 import org.bukkit.permissions.PermissionDefault
+import org.incendo.cloud.description.Description
+import org.incendo.cloud.parser.ArgumentParseResult
 import kotlin.random.Random.Default.nextDouble
 import kotlin.random.Random.Default.nextFloat
 
@@ -54,7 +53,7 @@ fun addDefaultPermission(permission: String, default: PermissionDefault) {
   Bukkit.getPluginManager().addPermission(Permission(permission, default))
 }
 
-fun description(description: String = ""): ArgumentDescription = argumentDescription(description)
+fun description(description: String = ""): Description = Description.description(description)
 
 fun <R> failure(message: ComponentLike): ArgumentParseResult<R> = ArgumentParseResult.failure(ComponentException(message))
 
