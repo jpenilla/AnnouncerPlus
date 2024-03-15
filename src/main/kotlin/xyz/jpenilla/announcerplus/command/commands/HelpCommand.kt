@@ -34,9 +34,7 @@ import org.incendo.cloud.context.CommandInput
 import org.incendo.cloud.description.CommandDescription.commandDescription
 import org.incendo.cloud.minecraft.extras.AudienceProvider
 import org.incendo.cloud.minecraft.extras.MinecraftHelp
-import org.incendo.cloud.minecraft.extras.MinecraftHelp.captionMessageProvider
 import org.incendo.cloud.minecraft.extras.MinecraftHelp.helpColors
-import org.incendo.cloud.minecraft.extras.caption.ComponentCaptionFormatter
 import org.incendo.cloud.parser.standard.StringParser.greedyStringParser
 import org.incendo.cloud.suggestion.SuggestionProvider
 import xyz.jpenilla.announcerplus.command.BaseCommand
@@ -63,12 +61,7 @@ class HelpCommand : BaseCommand() {
     .commandManager(commands.commandManager)
     .audienceProvider(AudienceProvider.nativeAudience())
     .commandPrefix("/announcerplus help")
-    .messageProvider(
-      captionMessageProvider(
-        commands.commandManager.captionRegistry(),
-        ComponentCaptionFormatter.miniMessage()
-      )
-    )
+    .messages(MinecraftHelp.MESSAGE_HELP_TITLE, "AnnouncerPlus Help")
     .colors(
       helpColors(
         color(0x00a3ff),

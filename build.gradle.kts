@@ -2,7 +2,7 @@ import xyz.jpenilla.runpaper.task.RunServer
 
 plugins {
   kotlin("jvm") version "1.9.22"
-  alias(libs.plugins.indra)
+  alias(libs.plugins.indra) apply false
   alias(libs.plugins.indraGit)
   alias(libs.plugins.runPaper)
   alias(libs.plugins.shadow)
@@ -12,8 +12,8 @@ plugins {
 
 repositories {
   mavenCentral()
-  sonatype.s01Snapshots()
-  sonatype.ossSnapshots()
+  maven("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+  maven("https://oss.sonatype.org/content/repositories/snapshots/")
   maven("https://repo.papermc.io/repository/maven-public/")
   maven("https://repo.jpenilla.xyz/snapshots/")
   maven("https://repo.essentialsx.net/releases/")
@@ -45,9 +45,6 @@ dependencies {
   implementation(platform("org.incendo:cloud-minecraft-bom:2.0.0-beta.5"))
   implementation("org.incendo:cloud-paper")
   implementation("org.incendo:cloud-minecraft-extras")
-  implementation(platform("org.incendo:cloud-translations-bom:1.0.0-SNAPSHOT"))
-  implementation("org.incendo:cloud-translations-minecraft-extras")
-  implementation("org.incendo:cloud-translations-bukkit")
 
   implementation(platform("org.spongepowered:configurate-bom:4.1.2"))
   implementation("org.spongepowered", "configurate-hocon")
@@ -65,17 +62,23 @@ dependencies {
 
 version = (version as String).decorateVersion()
 
-indra.javaVersions().target(17)
-
 kotlin {
   jvmToolchain {
     languageVersion = JavaLanguageVersion.of(17)
   }
 }
 
+java.disableAutoTargetJvm()
+
 tasks {
   compileKotlin {
-    kotlinOptions.jvmTarget = "17"
+    kotlinOptions {
+      jvmTarget = "1.8"
+      freeCompilerArgs = listOf("-Xjdk-release=1.8")
+    }
+  }
+  compileJava {
+    options.release = 8
   }
   jar {
     archiveClassifier = "not-shadowed"

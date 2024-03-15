@@ -30,10 +30,6 @@ import org.incendo.cloud.kotlin.MutableCommandBuilder
 import org.incendo.cloud.kotlin.extension.commandBuilder
 import org.incendo.cloud.minecraft.extras.MinecraftExceptionHandler
 import org.incendo.cloud.paper.PaperCommandManager
-import org.incendo.cloud.translations.TranslationBundle.core
-import org.incendo.cloud.translations.bukkit.BukkitTranslationBundle.bukkit
-import org.incendo.cloud.translations.minecraft.extras.AudienceLocaleExtractor.audienceLocaleExtractor
-import org.incendo.cloud.translations.minecraft.extras.MinecraftExtrasTranslationBundle.minecraftExtras
 import org.koin.core.context.loadKoinModules
 import org.koin.dsl.module
 import xyz.jpenilla.announcerplus.AnnouncerPlus
@@ -72,12 +68,6 @@ class Commands(plugin: AnnouncerPlus) {
         single { this@Commands }
       }
     )
-
-    val extractor = audienceLocaleExtractor<Commander>()
-    commandManager.captionRegistry()
-      .registerProvider(core(extractor))
-      .registerProvider(bukkit(extractor))
-      .registerProvider(minecraftExtras(extractor))
 
     registerCommands()
   }
