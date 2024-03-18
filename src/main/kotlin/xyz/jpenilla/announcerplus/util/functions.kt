@@ -38,7 +38,6 @@ import net.kyori.adventure.util.HSVLike
 import org.bukkit.Bukkit
 import org.bukkit.permissions.Permission
 import org.bukkit.permissions.PermissionDefault
-import org.incendo.cloud.description.Description
 import org.incendo.cloud.parser.ArgumentParseResult
 import kotlin.random.Random.Default.nextDouble
 import kotlin.random.Random.Default.nextFloat
@@ -52,8 +51,6 @@ fun addDefaultPermission(permission: String, default: PermissionDefault) {
   }
   Bukkit.getPluginManager().addPermission(Permission(permission, default))
 }
-
-fun description(description: String = ""): Description = Description.description(description)
 
 fun <R> failure(message: ComponentLike): ArgumentParseResult<R> = ArgumentParseResult.failure(ComponentException(message))
 

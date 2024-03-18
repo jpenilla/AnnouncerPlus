@@ -34,6 +34,7 @@ import org.incendo.cloud.component.CommandComponent
 import org.incendo.cloud.context.CommandContext
 import org.incendo.cloud.description.CommandDescription.commandDescription
 import org.incendo.cloud.description.Description
+import org.incendo.cloud.description.Description.description
 import org.incendo.cloud.execution.CommandExecutionHandler
 import org.incendo.cloud.kotlin.MutableCommandBuilder
 import org.incendo.cloud.parser.standard.IntegerParser.integerParser
@@ -54,7 +55,6 @@ import xyz.jpenilla.announcerplus.task.ActionBarUpdateTask
 import xyz.jpenilla.announcerplus.task.BossBarUpdateTask
 import xyz.jpenilla.announcerplus.task.TitleUpdateTask
 import xyz.jpenilla.announcerplus.util.DisplayTracker
-import xyz.jpenilla.announcerplus.util.description
 import xyz.jpenilla.announcerplus.util.miniMessage
 import xyz.jpenilla.announcerplus.util.scheduleAsync
 import kotlin.reflect.KClass

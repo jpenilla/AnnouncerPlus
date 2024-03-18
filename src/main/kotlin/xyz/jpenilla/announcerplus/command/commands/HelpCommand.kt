@@ -32,6 +32,7 @@ import org.incendo.cloud.component.TypedCommandComponent
 import org.incendo.cloud.context.CommandContext
 import org.incendo.cloud.context.CommandInput
 import org.incendo.cloud.description.CommandDescription.commandDescription
+import org.incendo.cloud.description.Description.description
 import org.incendo.cloud.minecraft.extras.AudienceProvider
 import org.incendo.cloud.minecraft.extras.MinecraftHelp
 import org.incendo.cloud.minecraft.extras.MinecraftHelp.helpColors
@@ -39,7 +40,6 @@ import org.incendo.cloud.parser.standard.StringParser.greedyStringParser
 import org.incendo.cloud.suggestion.SuggestionProvider
 import xyz.jpenilla.announcerplus.command.BaseCommand
 import xyz.jpenilla.announcerplus.command.Commander
-import xyz.jpenilla.announcerplus.util.description
 
 class HelpCommand : BaseCommand() {
   private val help = createHelp()

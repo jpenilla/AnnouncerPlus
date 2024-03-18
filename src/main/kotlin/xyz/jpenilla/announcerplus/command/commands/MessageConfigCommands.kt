@@ -44,6 +44,7 @@ import net.kyori.adventure.text.format.TextDecoration.ITALIC
 import net.kyori.adventure.text.format.TextDecoration.STRIKETHROUGH
 import org.incendo.cloud.context.CommandContext
 import org.incendo.cloud.description.CommandDescription.commandDescription
+import org.incendo.cloud.description.Description.description
 import xyz.jpenilla.announcerplus.command.BaseCommand
 import xyz.jpenilla.announcerplus.command.Commander
 import xyz.jpenilla.announcerplus.command.argument.messageConfigParser
@@ -52,7 +53,6 @@ import xyz.jpenilla.announcerplus.config.message.Message
 import xyz.jpenilla.announcerplus.config.message.MessageConfig
 import xyz.jpenilla.announcerplus.textanimation.AnimationHolder
 import xyz.jpenilla.announcerplus.util.Constants
-import xyz.jpenilla.announcerplus.util.description
 import xyz.jpenilla.announcerplus.util.miniMessage
 import xyz.jpenilla.announcerplus.util.ofChildren
 import xyz.jpenilla.announcerplus.util.randomColor
