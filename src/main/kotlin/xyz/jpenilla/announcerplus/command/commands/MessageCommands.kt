@@ -36,7 +36,6 @@ import org.incendo.cloud.description.CommandDescription.commandDescription
 import org.incendo.cloud.description.Description
 import org.incendo.cloud.execution.CommandExecutionHandler
 import org.incendo.cloud.kotlin.MutableCommandBuilder
-import org.incendo.cloud.parser.ParserDescriptor
 import org.incendo.cloud.parser.standard.IntegerParser.integerParser
 import org.incendo.cloud.parser.standard.StringParser.greedyStringParser
 import org.incendo.cloud.parser.standard.StringParser.quotedStringParser
@@ -87,8 +86,7 @@ class MessageCommands : BaseCommand() {
 
     val send = Category(
       prefix = "send",
-      targetArgument = { multiplePlayerSelectorParser() },
-      targetArgumentName = "players",
+      targetArgument = { CommandComponent.builder("players", multiplePlayerSelectorParser()) },
       targetExtractor = { it.get<MultiplePlayerSelector>("players").values() }
     )
     commands.chatCommand(send, "Broadcasts a chat message to the specified players.")
@@ -99,8 +97,7 @@ class MessageCommands : BaseCommand() {
 
     val broadcast = Category(
       prefix = "broadcast",
-      targetArgument = { worldPlayersParser() },
-      targetArgumentName = "world",
+      targetArgument = { CommandComponent.builder("world", worldPlayersParser()) },
       targetExtractor = { it.get<WorldPlayers>("world").players }
     )
     commands.chatCommand(broadcast, "Broadcasts a chat message to players in the specified world or all worlds.")
@@ -148,10 +145,7 @@ class MessageCommands : BaseCommand() {
     }
     flag("enchant", arrayOf("e"))
     flag("custom-model-data", arrayOf("m")) {
-      // todo
-      CommandComponent.ofType<Commander, Int>(Int::class.java, "")
-        .parser(integerParser())
-        .build()
+      withComponent(CommandComponent.builder("value", integerParser()))
     }
     handler(executeToast(category.targetExtractor))
   }
@@ -246,14 +240,13 @@ class MessageCommands : BaseCommand() {
   data class Category(
     val prefix: String,
     val targetExtractor: TargetExtractor,
-    val targetArgument: (() -> ParserDescriptor<Commander, *>)? = null,
-    val targetArgumentName: String? = null,
+    val targetArgument: (() -> CommandComponent.Builder<Commander, *>)? = null,
     val senderType: KClass<out Commander>? = null
   ) {
     fun applyFirst(builder: MutableCommandBuilder<Commander>, type: String) {
       builder.permission = "announcerplus.command.$prefix.$type"
-      targetArgument?.let { builder.required(targetArgumentName!!, it()) }
-      senderType?.let { builder.senderType(senderType) }
+      targetArgument?.let { builder.argument(it().build()) }
+      senderType?.let { builder.senderType(it) }
     }
   }
 
