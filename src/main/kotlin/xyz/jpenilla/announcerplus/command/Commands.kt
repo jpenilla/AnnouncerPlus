@@ -23,14 +23,13 @@
  */
 package xyz.jpenilla.announcerplus.command
 
-import cloud.commandframework.bukkit.CloudBukkitCapabilities
-import cloud.commandframework.execution.CommandExecutionCoordinator
-import cloud.commandframework.execution.FilteringCommandSuggestionProcessor
-import cloud.commandframework.kotlin.MutableCommandBuilder
-import cloud.commandframework.kotlin.extension.commandBuilder
-import cloud.commandframework.minecraft.extras.AudienceProvider.nativeAudience
-import cloud.commandframework.minecraft.extras.MinecraftExceptionHandler
-import cloud.commandframework.paper.PaperCommandManager
+import org.incendo.cloud.SenderMapper
+import org.incendo.cloud.bukkit.CloudBukkitCapabilities
+import org.incendo.cloud.execution.ExecutionCoordinator
+import org.incendo.cloud.kotlin.MutableCommandBuilder
+import org.incendo.cloud.kotlin.extension.commandBuilder
+import org.incendo.cloud.minecraft.extras.MinecraftExceptionHandler
+import org.incendo.cloud.paper.PaperCommandManager
 import org.koin.core.context.loadKoinModules
 import org.koin.dsl.module
 import xyz.jpenilla.announcerplus.AnnouncerPlus
@@ -45,26 +44,23 @@ import xyz.jpenilla.announcerplus.util.ofChildren
 class Commands(plugin: AnnouncerPlus) {
   val commandManager: PaperCommandManager<Commander> = PaperCommandManager(
     plugin,
-    CommandExecutionCoordinator.simpleCoordinator(),
-    { commandSender -> BukkitCommander.create(plugin.audiences(), commandSender) },
-    { commander -> (commander as BukkitCommander).commandSender }
+    ExecutionCoordinator.simpleCoordinator(),
+    SenderMapper.create(
+      { commandSender -> BukkitCommander.create(plugin.audiences(), commandSender) },
+      { commander -> (commander as BukkitCommander).commandSender }
+    )
   )
 
   init {
-    commandManager.commandSuggestionProcessor(
-      FilteringCommandSuggestionProcessor(
-        FilteringCommandSuggestionProcessor.Filter.contains<Commander>(true).andTrimBeforeLastSpace()
-      )
-    )
-
-    MinecraftExceptionHandler<Commander>()
-      .withDefaultHandlers()
-      .withDecorator { ofChildren(Constants.CHAT_PREFIX, it) }
-      .apply(commandManager, nativeAudience())
+    MinecraftExceptionHandler.createNative<Commander>()
+      .defaultHandlers()
+      .decorator { _, _, msg -> ofChildren(Constants.CHAT_PREFIX, msg) }
+      .registerTo(commandManager)
 
     if (commandManager.hasCapability(CloudBukkitCapabilities.NATIVE_BRIGADIER)) {
       commandManager.registerBrigadier()
-      commandManager.brigadierManager()?.setNativeNumberSuggestions(false)
+    } else if (commandManager.hasCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION)) {
+      commandManager.registerAsynchronousCompletions()
     }
 
     loadKoinModules(

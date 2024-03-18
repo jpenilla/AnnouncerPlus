@@ -23,35 +23,38 @@
  */
 package xyz.jpenilla.announcerplus.command.commands
 
-import cloud.commandframework.ArgumentDescription
-import cloud.commandframework.arguments.CommandArgument
-import cloud.commandframework.arguments.standard.StringArgument
-import cloud.commandframework.bukkit.arguments.selector.MultiplePlayerSelector
-import cloud.commandframework.bukkit.parsers.MaterialArgument
-import cloud.commandframework.bukkit.parsers.selector.MultiplePlayerSelectorArgument
-import cloud.commandframework.context.CommandContext
-import cloud.commandframework.execution.CommandExecutionHandler
-import cloud.commandframework.kotlin.MutableCommandBuilder
 import net.kyori.adventure.bossbar.BossBar
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import org.incendo.cloud.bukkit.data.MultiplePlayerSelector
+import org.incendo.cloud.bukkit.parser.MaterialParser.materialParser
+import org.incendo.cloud.bukkit.parser.selector.MultiplePlayerSelectorParser.multiplePlayerSelectorParser
+import org.incendo.cloud.component.CommandComponent
+import org.incendo.cloud.context.CommandContext
+import org.incendo.cloud.description.CommandDescription.commandDescription
+import org.incendo.cloud.description.Description
+import org.incendo.cloud.description.Description.description
+import org.incendo.cloud.execution.CommandExecutionHandler
+import org.incendo.cloud.kotlin.MutableCommandBuilder
+import org.incendo.cloud.parser.standard.IntegerParser.integerParser
+import org.incendo.cloud.parser.standard.StringParser.greedyStringParser
+import org.incendo.cloud.parser.standard.StringParser.quotedStringParser
+import org.incendo.cloud.suggestion.SuggestionProvider
 import org.koin.core.component.inject
 import xyz.jpenilla.announcerplus.command.BaseCommand
 import xyz.jpenilla.announcerplus.command.BukkitCommander
 import xyz.jpenilla.announcerplus.command.Commander
 import xyz.jpenilla.announcerplus.command.Commands
 import xyz.jpenilla.announcerplus.command.argument.WorldPlayers
-import xyz.jpenilla.announcerplus.command.argument.WorldPlayersArgument
 import xyz.jpenilla.announcerplus.command.argument.enum
-import xyz.jpenilla.announcerplus.command.argument.integer
 import xyz.jpenilla.announcerplus.command.argument.positiveInteger
+import xyz.jpenilla.announcerplus.command.argument.worldPlayersParser
 import xyz.jpenilla.announcerplus.config.message.ToastSettings
 import xyz.jpenilla.announcerplus.task.ActionBarUpdateTask
 import xyz.jpenilla.announcerplus.task.BossBarUpdateTask
 import xyz.jpenilla.announcerplus.task.TitleUpdateTask
 import xyz.jpenilla.announcerplus.util.DisplayTracker
-import xyz.jpenilla.announcerplus.util.description
 import xyz.jpenilla.announcerplus.util.miniMessage
 import xyz.jpenilla.announcerplus.util.scheduleAsync
 import kotlin.reflect.KClass
@@ -63,7 +66,7 @@ class MessageCommands : BaseCommand() {
   override fun register() {
     val parse = Category(
       prefix = "parse",
-      targetExtractor = TargetExtractor.Single { (it.sender as BukkitCommander).commandSender },
+      targetExtractor = TargetExtractor.Single { (it.sender() as BukkitCommander).commandSender },
       senderType = Commander.Player::class
     )
     commands.chatCommand(parse.copy(senderType = null), "Parses a chat message and echoes it back.")
@@ -75,16 +78,16 @@ class MessageCommands : BaseCommand() {
     commands.registerSubcommand("parseanimation") {
       permission = "announcerplus.command.parse.animation"
       senderType<Commander.Player>()
-      commandDescription("Helps to test a message with animations.")
-      argument(positiveInteger("seconds"))
-      argument(StringArgument.greedy("message"))
+      commandDescription(commandDescription("Helps to test a message with animations."))
+      required("seconds", positiveInteger())
+      required("message", greedyStringParser())
       handler(::executeParseAnimation)
     }
 
     val send = Category(
       prefix = "send",
-      targetArgument = { MultiplePlayerSelectorArgument.of("players") },
-      targetExtractor = { it.get<MultiplePlayerSelector>("players").players }
+      targetArgument = { CommandComponent.builder("players", multiplePlayerSelectorParser()) },
+      targetExtractor = { it.get<MultiplePlayerSelector>("players").values() }
     )
     commands.chatCommand(send, "Broadcasts a chat message to the specified players.")
     commands.toastCommand(send, "Broadcasts a toast to the specified players.")
@@ -94,7 +97,7 @@ class MessageCommands : BaseCommand() {
 
     val broadcast = Category(
       prefix = "broadcast",
-      targetArgument = { WorldPlayersArgument("world") },
+      targetArgument = { CommandComponent.builder("world", worldPlayersParser()) },
       targetExtractor = { it.get<WorldPlayers>("world").players }
     )
     commands.chatCommand(broadcast, "Broadcasts a chat message to players in the specified world or all worlds.")
@@ -105,7 +108,7 @@ class MessageCommands : BaseCommand() {
   }
 
   private fun executeParseAnimation(ctx: CommandContext<Commander>) {
-    val player = (ctx.sender as BukkitCommander.Player).player
+    val player = (ctx.sender() as BukkitCommander.Player).player
     val seconds = ctx.get<Int>("seconds")
     val message = ctx.get<String>("message")
     val titleTask = TitleUpdateTask(player, 0, seconds, 0, message, message)
@@ -117,7 +120,7 @@ class MessageCommands : BaseCommand() {
   private fun Commands.chatCommand(category: Category, description: String): Unit = registerSubcommand(category.prefix) {
     category.applyFirst(this, "chat")
     commandDescription(description)
-    argument(StringArgument.greedy("message"))
+    required("message", greedyStringParser())
     handler(executeChat(category.targetExtractor))
   }
 
@@ -132,13 +135,17 @@ class MessageCommands : BaseCommand() {
   private fun Commands.toastCommand(category: Category, description: String): Unit = registerSubcommand("${category.prefix}toast", announcerPlus.toastTask != null) {
     category.applyFirst(this, "toast")
     commandDescription(description)
-    argument(MaterialArgument.of("icon"))
-    argument(enum<ToastSettings.FrameType>("frame"))
-    argument(StringArgument.quoted("header"), quotedStringDescription())
-    argument(StringArgument.quoted("body"), quotedStringDescription())
+    required("icon", materialParser())
+    required("frame", enum<ToastSettings.FrameType>())
+    required("header", quotedStringParser()) {
+      description(quotedStringDescription())
+    }
+    required("body", quotedStringParser()) {
+      description(quotedStringDescription())
+    }
     flag("enchant", arrayOf("e"))
     flag("custom-model-data", arrayOf("m")) {
-      integer("value").build()
+      withComponent(CommandComponent.builder("value", integerParser()))
     }
     handler(executeToast(category.targetExtractor))
   }
@@ -154,11 +161,15 @@ class MessageCommands : BaseCommand() {
   private fun Commands.titleCommand(category: Category, description: String): Unit = registerSubcommand("${category.prefix}title") {
     category.applyFirst(this, "title")
     commandDescription(description)
-    argument(integer("fade_in", min = 0))
-    argument(integer("stay", min = 0))
-    argument(integer("fade_out", min = 0))
-    argument(StringArgument.quoted("title"), quotedStringDescription())
-    argument(StringArgument.quoted("subtitle"), quotedStringDescription())
+    required("fade_in", integerParser(0))
+    required("stay", integerParser(0))
+    required("fade_out", integerParser(0))
+    required("title", quotedStringParser()) {
+      description(quotedStringDescription())
+    }
+    required("subtitle", quotedStringParser()) {
+      description(quotedStringDescription())
+    }
     handler(executeTitle(category.targetExtractor))
   }
 
@@ -179,8 +190,8 @@ class MessageCommands : BaseCommand() {
   private fun Commands.actionBarCommand(category: Category, description: String): Unit = registerSubcommand("${category.prefix}actionbar") {
     category.applyFirst(this, "actionbar")
     commandDescription(description)
-    argument(positiveInteger("seconds"))
-    argument(StringArgument.greedy("text"))
+    required("seconds", positiveInteger())
+    required("text", greedyStringParser())
     handler(executeActionBar(category.targetExtractor))
   }
 
@@ -194,15 +205,18 @@ class MessageCommands : BaseCommand() {
   private fun Commands.bossBarCommand(category: Category, description: String): Unit = registerSubcommand("${category.prefix}bossbar") {
     category.applyFirst(this, "bossbar")
     commandDescription(description)
-    argument(positiveInteger("seconds"))
-    argument(enum<BossBar.Overlay>("overlay"))
-    argument(enum<BossBarUpdateTask.FillMode>("fillmode"))
+    required("seconds", positiveInteger())
+    required("overlay", enum<BossBar.Overlay>())
+    required("fillmode", enum<BossBarUpdateTask.FillMode>())
     argument(
-      StringArgument.builder<Commander>("color").quoted()
-        .withSuggestionsProvider { _, _ -> BossBar.Color.NAMES.keys().toList() },
-      quotedStringDescription()
+      CommandComponent.ofType<Commander, String>(String::class.java, "color")
+        .suggestionProvider(
+          SuggestionProvider.blockingStrings { _, _ -> BossBar.Color.NAMES.keys().toList() }
+        )
+        .description(quotedStringDescription())
+        .build()
     )
-    argument(StringArgument.greedy("text"))
+    required("text", greedyStringParser())
     handler(executeBossBar(category.targetExtractor))
   }
 
@@ -220,19 +234,19 @@ class MessageCommands : BaseCommand() {
     }
   }
 
-  private fun quotedStringDescription(): ArgumentDescription =
+  private fun quotedStringDescription(): Description =
     description("Can be quoted to allow for spaces")
 
   data class Category(
     val prefix: String,
     val targetExtractor: TargetExtractor,
-    val targetArgument: (() -> CommandArgument<Commander, *>)? = null,
+    val targetArgument: (() -> CommandComponent.Builder<Commander, *>)? = null,
     val senderType: KClass<out Commander>? = null
   ) {
     fun applyFirst(builder: MutableCommandBuilder<Commander>, type: String) {
       builder.permission = "announcerplus.command.$prefix.$type"
-      targetArgument?.let { builder.argument(it()) }
-      senderType?.let { builder.senderType(senderType) }
+      targetArgument?.let { builder.argument(it().build()) }
+      senderType?.let { builder.senderType(it) }
     }
   }
 

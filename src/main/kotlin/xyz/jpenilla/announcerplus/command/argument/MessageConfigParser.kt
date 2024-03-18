@@ -23,51 +23,46 @@
  */
 package xyz.jpenilla.announcerplus.command.argument
 
-import cloud.commandframework.arguments.CommandArgument
-import cloud.commandframework.arguments.parser.ArgumentParseResult
-import cloud.commandframework.arguments.parser.ArgumentParser
-import cloud.commandframework.context.CommandContext
 import net.kyori.adventure.text.Component
+import org.incendo.cloud.context.CommandContext
+import org.incendo.cloud.context.CommandInput
+import org.incendo.cloud.kotlin.extension.parserDescriptor
+import org.incendo.cloud.parser.ArgumentParseResult
+import org.incendo.cloud.parser.ArgumentParser
+import org.incendo.cloud.parser.ParserDescriptor
+import org.incendo.cloud.suggestion.BlockingSuggestionProvider
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import xyz.jpenilla.announcerplus.command.Commander
 import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.config.message.MessageConfig
 import xyz.jpenilla.announcerplus.util.failure
-import java.util.Queue
 
-class MessageConfigArgument(
-  name: String,
-  required: Boolean = true
-) : CommandArgument<Commander, MessageConfig>(
-  required,
-  name,
-  Parser(),
-  MessageConfig::class.java
-) {
-  companion object {
-    fun optional(name: String) = MessageConfigArgument(name, false)
+fun messageConfigParser(): ParserDescriptor<Commander, MessageConfig> {
+  return parserDescriptor(MessageConfigParser())
+}
+
+class MessageConfigParser :
+  ArgumentParser<Commander, MessageConfig>,
+  BlockingSuggestionProvider.Strings<Commander>,
+  KoinComponent {
+
+  private val configManager: ConfigManager by inject()
+
+  override fun parse(
+    context: CommandContext<Commander>,
+    inputQueue: CommandInput
+  ): ArgumentParseResult<MessageConfig> {
+    val input = inputQueue.readString()
+
+    val config = configManager.messageConfigs[input]
+      ?: return failure(Component.text("No message config with name '$input'. Known message configs: ${configManager.messageConfigs.keys.joinToString(", ")}"))
+
+    return ArgumentParseResult.success(config)
   }
 
-  class Parser : ArgumentParser<Commander, MessageConfig>, KoinComponent {
-    private val configManager: ConfigManager by inject()
-
-    override fun parse(
-      context: CommandContext<Commander>,
-      inputQueue: Queue<String>
-    ): ArgumentParseResult<MessageConfig> {
-      val input = inputQueue.peek()
-
-      val config = configManager.messageConfigs[input]
-        ?: return failure(Component.text("No message config with name '$input'. Known message configs: ${configManager.messageConfigs.keys.joinToString(", ")}"))
-
-      inputQueue.remove()
-      return ArgumentParseResult.success(config)
-    }
-
-    override fun suggestions(
-      context: CommandContext<Commander>,
-      input: String
-    ): List<String> = configManager.messageConfigs.keys.toList()
-  }
+  override fun stringSuggestions(
+    context: CommandContext<Commander>,
+    input: CommandInput
+  ): List<String> = configManager.messageConfigs.keys.toList()
 }

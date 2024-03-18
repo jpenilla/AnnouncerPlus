@@ -2,7 +2,7 @@ import xyz.jpenilla.runpaper.task.RunServer
 
 plugins {
   kotlin("jvm") version "1.9.22"
-  alias(libs.plugins.indra)
+  alias(libs.plugins.indra) apply false
   alias(libs.plugins.indraGit)
   alias(libs.plugins.runPaper)
   alias(libs.plugins.shadow)
@@ -12,8 +12,8 @@ plugins {
 
 repositories {
   mavenCentral()
-  sonatype.s01Snapshots()
-  sonatype.ossSnapshots()
+  maven("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+  maven("https://oss.sonatype.org/content/repositories/snapshots/")
   maven("https://repo.papermc.io/repository/maven-public/")
   maven("https://repo.jpenilla.xyz/snapshots/")
   maven("https://repo.essentialsx.net/releases/")
@@ -40,10 +40,11 @@ dependencies {
   implementation("net.kyori", "adventure-extra-kotlin")
   implementation("net.kyori", "adventure-serializer-configurate4")
 
-  implementation(platform("cloud.commandframework:cloud-bom:1.8.4"))
-  implementation("cloud.commandframework", "cloud-paper")
-  implementation("cloud.commandframework", "cloud-kotlin-extensions")
-  implementation("cloud.commandframework", "cloud-minecraft-extras")
+  implementation(platform("org.incendo:cloud-bom:2.0.0-SNAPSHOT"))
+  implementation("org.incendo:cloud-kotlin-extensions")
+  implementation(platform("org.incendo:cloud-minecraft-bom:2.0.0-beta.5"))
+  implementation("org.incendo:cloud-paper")
+  implementation("org.incendo:cloud-minecraft-extras")
 
   implementation(platform("org.spongepowered:configurate-bom:4.1.2"))
   implementation("org.spongepowered", "configurate-hocon")
@@ -61,19 +62,23 @@ dependencies {
 
 version = (version as String).decorateVersion()
 
-java {
-  disableAutoTargetJvm()
-}
-
 kotlin {
   jvmToolchain {
-    languageVersion = JavaLanguageVersion.of(8)
+    languageVersion = JavaLanguageVersion.of(17)
   }
 }
 
+java.disableAutoTargetJvm()
+
 tasks {
   compileKotlin {
-    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions {
+      jvmTarget = "1.8"
+      freeCompilerArgs = listOf("-Xjdk-release=1.8")
+    }
+  }
+  compileJava {
+    options.release = 8
   }
   jar {
     archiveClassifier = "not-shadowed"
@@ -84,6 +89,7 @@ tasks {
     }
 
     minimize()
+    mergeServiceFiles()
     archiveClassifier.set(null as String?)
     archiveBaseName.set(project.name) // Use uppercase name for final jar
 
@@ -94,7 +100,7 @@ tasks {
       "io.papermc.lib",
       "net.kyori",
       "xyz.jpenilla.pluginbase",
-      "cloud.commandframework",
+      "org.incendo",
       "org.koin",
       "org.spongepowered.configurate",
       "org.bstats",

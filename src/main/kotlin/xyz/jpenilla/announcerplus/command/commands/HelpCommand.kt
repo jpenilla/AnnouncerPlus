@@ -23,18 +23,23 @@
  */
 package xyz.jpenilla.announcerplus.command.commands
 
-import cloud.commandframework.CommandHelpHandler
-import cloud.commandframework.arguments.standard.StringArgument
-import cloud.commandframework.context.CommandContext
-import cloud.commandframework.minecraft.extras.AudienceProvider
-import cloud.commandframework.minecraft.extras.MinecraftHelp
 import net.kyori.adventure.text.format.NamedTextColor.DARK_GRAY
 import net.kyori.adventure.text.format.NamedTextColor.GRAY
 import net.kyori.adventure.text.format.NamedTextColor.WHITE
 import net.kyori.adventure.text.format.TextColor.color
+import org.incendo.cloud.component.DefaultValue
+import org.incendo.cloud.component.TypedCommandComponent
+import org.incendo.cloud.context.CommandContext
+import org.incendo.cloud.context.CommandInput
+import org.incendo.cloud.description.CommandDescription.commandDescription
+import org.incendo.cloud.description.Description.description
+import org.incendo.cloud.minecraft.extras.AudienceProvider
+import org.incendo.cloud.minecraft.extras.MinecraftHelp
+import org.incendo.cloud.minecraft.extras.MinecraftHelp.helpColors
+import org.incendo.cloud.parser.standard.StringParser.greedyStringParser
+import org.incendo.cloud.suggestion.SuggestionProvider
 import xyz.jpenilla.announcerplus.command.BaseCommand
 import xyz.jpenilla.announcerplus.command.Commander
-import xyz.jpenilla.announcerplus.util.description
 
 class HelpCommand : BaseCommand() {
   private val help = createHelp()
@@ -42,47 +47,43 @@ class HelpCommand : BaseCommand() {
   override fun register() {
     commands.registerSubcommand("help") {
       permission = "announcerplus.command.help"
-      commandDescription("Shows help for AnnouncerPlus commands.")
-      argument(helpQueryArgument("query"), description("Help Query"))
+      commandDescription(commandDescription("Shows help for AnnouncerPlus commands."))
+      argument(helpQueryArgument("query"))
       handler(::execute)
     }
   }
 
   private fun execute(ctx: CommandContext<Commander>) {
-    help.queryCommands(ctx.getOrDefault("query", "")!!, ctx.sender)
+    help.queryCommands(ctx.get("query"), ctx.sender())
   }
 
-  private fun createHelp(): MinecraftHelp<Commander> {
-    val minecraftHelp = MinecraftHelp(
-      "/announcerplus help",
-      AudienceProvider.nativeAudience(),
-      commands.commandManager
+  private fun createHelp(): MinecraftHelp<Commander> = MinecraftHelp.builder<Commander>()
+    .commandManager(commands.commandManager)
+    .audienceProvider(AudienceProvider.nativeAudience())
+    .commandPrefix("/announcerplus help")
+    .messages(MinecraftHelp.MESSAGE_HELP_TITLE, "AnnouncerPlus Help")
+    .colors(
+      helpColors(
+        color(0x00a3ff),
+        WHITE,
+        color(0x284fff),
+        GRAY,
+        DARK_GRAY
+      )
     )
-
-    minecraftHelp.helpColors = MinecraftHelp.HelpColors.of(
-      color(0x00a3ff),
-      WHITE,
-      color(0x284fff),
-      GRAY,
-      DARK_GRAY
-    )
-
-    minecraftHelp.setMessage(MinecraftHelp.MESSAGE_HELP_TITLE, "AnnouncerPlus Help")
-
-    return minecraftHelp
-  }
+    .build()
 
   private fun helpQueryArgument(name: String) =
-    StringArgument.builder<Commander>(name)
-      .greedy()
-      .asOptional()
-      .withSuggestionsProvider(::suggestHelpQueries)
+    TypedCommandComponent.ofType<Commander, String>(String::class.java, name)
+      .parser(greedyStringParser())
+      .optional()
+      .defaultValue(DefaultValue.constant(""))
+      .suggestionProvider(SuggestionProvider.blockingStrings(::suggestHelpQueries))
+      .description(description("Help Query"))
       .build()
 
-  private fun suggestHelpQueries(context: CommandContext<Commander>, input: String): List<String> {
-    val helpTopic = commands.commandManager.createCommandHelpHandler()
-      .queryHelp(context.sender, "") as CommandHelpHandler.IndexHelpTopic<Commander>
-
-    return helpTopic.entries.map { it.syntaxString }
+  private fun suggestHelpQueries(context: CommandContext<Commander>, input: CommandInput): List<String> {
+    val helpTopic = commands.commandManager.createHelpHandler().queryRootIndex(context.sender())
+    return helpTopic.entries().map { it.syntax() }
   }
 }

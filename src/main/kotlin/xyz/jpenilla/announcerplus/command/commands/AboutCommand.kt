@@ -23,11 +23,12 @@
  */
 package xyz.jpenilla.announcerplus.command.commands
 
-import cloud.commandframework.context.CommandContext
 import net.kyori.adventure.extra.kotlin.text
 import net.kyori.adventure.text.Component.space
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.event.ClickEvent.openUrl
+import org.incendo.cloud.context.CommandContext
+import org.incendo.cloud.description.CommandDescription.commandDescription
 import xyz.jpenilla.announcerplus.command.BaseCommand
 import xyz.jpenilla.announcerplus.command.Commander
 import xyz.jpenilla.announcerplus.util.center
@@ -41,13 +42,13 @@ class AboutCommand : BaseCommand() {
   override fun register() {
     commands.registerSubcommand("about") {
       permission = "announcerplus.command.about"
-      commandDescription("Prints some information about AnnouncerPlus.")
+      commandDescription(commandDescription("Prints some information about AnnouncerPlus."))
       handler(::execute)
     }
   }
 
   private fun execute(ctx: CommandContext<Commander>) {
-    val audience = ctx.sender
+    val audience = ctx.sender()
     val color = randomColor()
     val nameAndVersion = text {
       hoverEvent(miniMessage("<rainbow>click me!"))

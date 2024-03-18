@@ -23,7 +23,6 @@
  */
 package xyz.jpenilla.announcerplus.command.commands
 
-import cloud.commandframework.context.CommandContext
 import net.kyori.adventure.extra.kotlin.style
 import net.kyori.adventure.extra.kotlin.text
 import net.kyori.adventure.text.Component
@@ -43,15 +42,17 @@ import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.format.TextDecoration.BOLD
 import net.kyori.adventure.text.format.TextDecoration.ITALIC
 import net.kyori.adventure.text.format.TextDecoration.STRIKETHROUGH
+import org.incendo.cloud.context.CommandContext
+import org.incendo.cloud.description.CommandDescription.commandDescription
+import org.incendo.cloud.description.Description.description
 import xyz.jpenilla.announcerplus.command.BaseCommand
 import xyz.jpenilla.announcerplus.command.Commander
-import xyz.jpenilla.announcerplus.command.argument.MessageConfigArgument
+import xyz.jpenilla.announcerplus.command.argument.messageConfigParser
 import xyz.jpenilla.announcerplus.command.argument.positiveInteger
 import xyz.jpenilla.announcerplus.config.message.Message
 import xyz.jpenilla.announcerplus.config.message.MessageConfig
 import xyz.jpenilla.announcerplus.textanimation.AnimationHolder
 import xyz.jpenilla.announcerplus.util.Constants
-import xyz.jpenilla.announcerplus.util.description
 import xyz.jpenilla.announcerplus.util.miniMessage
 import xyz.jpenilla.announcerplus.util.ofChildren
 import xyz.jpenilla.announcerplus.util.randomColor
@@ -60,13 +61,15 @@ class MessageConfigCommands : BaseCommand() {
   override fun register() {
     commands.registerSubcommand("messageconfig") {
       permission = "announcerplus.command.messageconfig"
-      commandDescription("Shows information about a message config.")
-      argument(MessageConfigArgument("config"))
+      commandDescription(commandDescription("Shows information about a message config."))
+      required("config", messageConfigParser())
       handler(::executeInfo)
       registerCopy {
         commandDescription("Shows the messages in a message config.")
         literal("messages")
-        argument(positiveInteger("message_number").asOptional(), description("Index of the message to show (1-indexed)"))
+        optional("message_number", positiveInteger()) {
+          description(description("Index of the message to show (1-indexed)"))
+        }
         handler(::executeMessages)
       }
     }
@@ -106,14 +109,14 @@ class MessageConfigCommands : BaseCommand() {
       )
     }
 
-    out.forEach(ctx.sender::sendMessage)
+    out.forEach(ctx.sender()::sendMessage)
   }
 
   private fun executeMessages(ctx: CommandContext<Commander>) {
     val config = ctx.get<MessageConfig>("config")
-    messagesPagination(ctx.sender, randomColor(), config)
+    messagesPagination(ctx.sender(), randomColor(), config)
       .render(config.messages, ctx.getOrDefault("message_number", 1)!!)
-      .forEach(ctx.sender::sendMessage)
+      .forEach(ctx.sender()::sendMessage)
   }
 
   private fun messagesPagination(sender: Commander, color: TextColor, config: MessageConfig): Pagination<Message> = Pagination.builder()

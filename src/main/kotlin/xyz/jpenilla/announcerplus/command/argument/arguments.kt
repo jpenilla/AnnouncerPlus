@@ -23,27 +23,12 @@
  */
 package xyz.jpenilla.announcerplus.command.argument
 
-import cloud.commandframework.arguments.standard.EnumArgument
-import cloud.commandframework.arguments.standard.IntegerArgument
+import org.incendo.cloud.parser.ParserDescriptor
+import org.incendo.cloud.parser.standard.EnumParser.enumParser
+import org.incendo.cloud.parser.standard.IntegerParser.integerParser
 import xyz.jpenilla.announcerplus.command.Commander
 
-private fun <C> integerArgumentBuilder(
-  name: String,
-  builder: IntegerArgument.Builder<C>.() -> Unit
-): IntegerArgument.Builder<C> =
-  IntegerArgument.builder<C>(name).apply(builder)
+fun positiveInteger() = integerParser<Commander>(1)
 
-fun positiveInteger(name: String) = integer(name, min = 1)
-
-fun integer(
-  name: String,
-  min: Int = Int.MIN_VALUE,
-  max: Int = Int.MAX_VALUE
-): IntegerArgument.Builder<Commander> =
-  integerArgumentBuilder(name) {
-    if (min != Int.MIN_VALUE) withMin(min)
-    if (max != Int.MAX_VALUE) withMax(max)
-  }
-
-inline fun <reified E : Enum<E>> enum(name: String): EnumArgument.Builder<Commander, E> =
-  EnumArgument.builder(E::class.java, name)
+inline fun <reified E : Enum<E>> enum(): ParserDescriptor<Commander, E> =
+  enumParser(E::class.java)
