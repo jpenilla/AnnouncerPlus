@@ -94,7 +94,7 @@ class ToastTask : KoinComponent {
     announcerPlus.schedule(player) {
       for ((advancement, _) in advancements) {
         if (USE_ADVANCEMENT_HOLDER) {
-          AdvancementTree_addAll!!(ServerAdvancementManager_tree(MinecraftServer_getAdvancements(MinecraftServer_getServer())), mutableSetOf(advancement))
+          AdvancementTree_addAll!!(ServerAdvancementManager_tree(MinecraftServer_getAdvancements(MinecraftServer_getServer(null))), mutableSetOf(advancement))
         }
         grant(player, advancement)
       }
@@ -102,7 +102,7 @@ class ToastTask : KoinComponent {
         for ((advancement, id) in advancements) {
           revoke(player, advancement)
           if (USE_ADVANCEMENT_HOLDER) {
-            AdvancementTree_remove!!(ServerAdvancementManager_tree(MinecraftServer_getAdvancements(MinecraftServer_getServer())), mutableSetOf(id))
+            AdvancementTree_remove!!(ServerAdvancementManager_tree(MinecraftServer_getAdvancements(MinecraftServer_getServer(null))), mutableSetOf(id))
           }
         }
       }
@@ -122,7 +122,7 @@ class ToastTask : KoinComponent {
           json,
           DeserializationContext_ctr.newInstance(
             resourceLocation,
-            MinecraftServer_getPredicateManager(MinecraftServer_getServer())
+            MinecraftServer_getPredicateManager(MinecraftServer_getServer(null))
           )
         )
       } else {
@@ -131,7 +131,7 @@ class ToastTask : KoinComponent {
           .result()
           .orElseThrow { IllegalStateException() }
       }
-      return AdvancementHolder_ctr!!(
+      return AdvancementHolder_ctr!!.newInstance(
         resourceLocation,
         advancement
       ) to resourceLocation
@@ -142,7 +142,7 @@ class ToastTask : KoinComponent {
         json,
         DeserializationContext_ctr.newInstance(
           resourceLocation,
-          MinecraftServer_getPredicateManager(MinecraftServer_getServer())
+          MinecraftServer_getPredicateManager(MinecraftServer_getServer(null))
         )
       )
     } else {
@@ -178,9 +178,8 @@ class ToastTask : KoinComponent {
     }
 
     val MinecraftServer_class = Crafty.needNMSClassOrElse("MinecraftServer", "net.minecraft.server.MinecraftServer")
-    val MinecraftServer_getServer =
-      Crafty.findStaticMethod(MinecraftServer_class, "getServer", MinecraftServer_class)
-        ?: error("Cannot find getServer")
+    val MinecraftServer_getServer = MinecraftServer_class.getDeclaredMethod("getServer")
+      ?: error("Cannot find getServer")
 
     val ResourceLocation_class = Crafty.needNMSClassOrElse(
       "MinecraftKey",
@@ -192,7 +191,9 @@ class ToastTask : KoinComponent {
 
     val Advancement_class = Crafty.needNMSClassOrElse("Advancement", "net.minecraft.advancements.Advancement")
     val AdvancementHolder_class = Crafty.findClass("net.minecraft.advancements.AdvancementHolder")
-    val AdvancementHolder_ctr = AdvancementHolder_class?.let { Crafty.findConstructor(it, ResourceLocation_class, Advancement_class) }
+    val AdvancementHolder_ctr = AdvancementHolder_class?.let {
+      runCatching { it.getDeclaredConstructor(ResourceLocation_class, Advancement_class) }.getOrNull()
+    }
     fun advancementOrHolderCls() = AdvancementHolder_class ?: Advancement_class
     val AdvancementBuilder_class = Crafty.needNMSClassOrElse(
       "Advancement\$SerializedAdvancement",
