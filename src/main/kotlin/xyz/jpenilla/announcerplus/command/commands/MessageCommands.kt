@@ -208,14 +208,10 @@ class MessageCommands : BaseCommand() {
     required("seconds", positiveInteger())
     required("overlay", enum<BossBar.Overlay>())
     required("fillmode", enum<BossBarUpdateTask.FillMode>())
-    argument(
-      CommandComponent.ofType<Commander, String>(String::class.java, "color")
-        .suggestionProvider(
-          SuggestionProvider.blockingStrings { _, _ -> BossBar.Color.NAMES.keys().toList() }
-        )
-        .description(quotedStringDescription())
-        .build()
-    )
+    required("color", quotedStringParser()) {
+      suggestionProvider(SuggestionProvider.suggestingStrings(BossBar.Color.NAMES.keys().toList()))
+      description(quotedStringDescription())
+    }
     required("text", greedyStringParser())
     handler(executeBossBar(category.targetExtractor))
   }

@@ -27,8 +27,8 @@ import net.kyori.adventure.text.format.NamedTextColor.DARK_GRAY
 import net.kyori.adventure.text.format.NamedTextColor.GRAY
 import net.kyori.adventure.text.format.NamedTextColor.WHITE
 import net.kyori.adventure.text.format.TextColor.color
+import org.incendo.cloud.component.CommandComponent
 import org.incendo.cloud.component.DefaultValue
-import org.incendo.cloud.component.TypedCommandComponent
 import org.incendo.cloud.context.CommandContext
 import org.incendo.cloud.context.CommandInput
 import org.incendo.cloud.description.CommandDescription.commandDescription
@@ -74,8 +74,7 @@ class HelpCommand : BaseCommand() {
     .build()
 
   private fun helpQueryArgument(name: String) =
-    TypedCommandComponent.ofType<Commander, String>(String::class.java, name)
-      .parser(greedyStringParser())
+    CommandComponent.builder<Commander, String>(name, greedyStringParser())
       .optional()
       .defaultValue(DefaultValue.constant(""))
       .suggestionProvider(SuggestionProvider.blockingStrings(::suggestHelpQueries))
