@@ -36,7 +36,7 @@ dependencies {
   compileOnly("me.clip", "placeholderapi", "2.11.5")
   compileOnly("com.mojang:datafixerupper:6.0.8")
 
-  implementation(platform("net.kyori:adventure-bom:4.16.0"))
+  implementation(platform("net.kyori:adventure-bom:4.17.0"))
   implementation("net.kyori", "adventure-extra-kotlin")
   implementation("net.kyori", "adventure-serializer-configurate4")
 
