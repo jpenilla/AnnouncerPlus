@@ -26,6 +26,7 @@ package xyz.jpenilla.announcerplus.task
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.mojang.serialization.Codec
+import com.mojang.serialization.DynamicOps
 import com.mojang.serialization.JsonOps
 import io.papermc.lib.PaperLib.getMinecraftPatchVersion
 import io.papermc.lib.PaperLib.getMinecraftVersion
@@ -126,10 +127,10 @@ class ToastTask : KoinComponent {
           )
         )
       } else {
-        (Advancement_CODEC.get(null) as Codec<*>)
-          .parse(JsonOps.INSTANCE, json)
-          .result()
-          .orElseThrow { IllegalStateException() }
+        val result = (Advancement_CODEC.get(null) as Codec<*>)
+          .parse(registryOps(), json)
+        result.error().ifPresent { announcerPlus.logger.log(Level.WARNING, "Failed to deserialize advancement: $it") }
+        result.result().orElseThrow { IllegalStateException() }
       }
       return AdvancementHolder_ctr!!.newInstance(
         resourceLocation,
@@ -155,6 +156,18 @@ class ToastTask : KoinComponent {
     }
     return AdvancementBuilder_build(advancementBuilder, resourceLocation) to resourceLocation
   }
+
+  private val registryOps: DynamicOps<*> by lazy {
+    val server = MinecraftServer_getServer(null)
+    val regAccessMth = server::class.java.getMethod("registryAccess")
+    val regAccess = regAccessMth.invoke(server)
+    val jsonOps = JsonOps.INSTANCE
+    val createContextMth = regAccess::class.java.getMethod("createSerializationContext", DynamicOps::class.java)
+    createContextMth.invoke(regAccess, jsonOps) as DynamicOps<*>
+  }
+
+  @Suppress("UNCHECKED_CAST")
+  private fun <T> registryOps(): DynamicOps<T> = registryOps as DynamicOps<T>
 
   private fun grant(player: Player, advancement: Any) {
     val playerAdvancements = ServerPlayer_getAdvancements(player.handle)
@@ -194,6 +207,7 @@ class ToastTask : KoinComponent {
     val AdvancementHolder_ctr = AdvancementHolder_class?.let {
       runCatching { it.getDeclaredConstructor(ResourceLocation_class, Advancement_class) }.getOrNull()
     }
+
     fun advancementOrHolderCls() = AdvancementHolder_class ?: Advancement_class
     val AdvancementBuilder_class = Crafty.needNMSClassOrElse(
       "Advancement\$SerializedAdvancement",

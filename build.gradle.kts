@@ -34,7 +34,7 @@ dependencies {
     isTransitive = false
   }
   compileOnly("me.clip", "placeholderapi", "2.11.5")
-  compileOnly("com.mojang:datafixerupper:6.0.8")
+  compileOnly("com.mojang:datafixerupper:7.0.14")
 
   implementation(platform("net.kyori:adventure-bom:4.17.0"))
   implementation("net.kyori", "adventure-extra-kotlin")
@@ -64,7 +64,7 @@ version = (version as String).decorateVersion()
 
 kotlin {
   jvmToolchain {
-    languageVersion = JavaLanguageVersion.of(17)
+    languageVersion = JavaLanguageVersion.of(21)
   }
 }
 
@@ -121,11 +121,11 @@ tasks {
     dependsOn(shadowJar)
   }
   runServer {
-    minecraftVersion("1.20.4")
+    minecraftVersion("1.20.6")
   }
   withType<RunServer> {
     javaLauncher = project.javaToolchains.launcherFor {
-      languageVersion.set(JavaLanguageVersion.of(17))
+      languageVersion.set(JavaLanguageVersion.of(21))
     }
   }
   register("format") {

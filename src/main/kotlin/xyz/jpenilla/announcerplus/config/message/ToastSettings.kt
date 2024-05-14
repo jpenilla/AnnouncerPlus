@@ -24,6 +24,7 @@
 package xyz.jpenilla.announcerplus.config.message
 
 import com.google.gson.JsonObject
+import io.papermc.lib.PaperLib.getMinecraftPatchVersion
 import io.papermc.lib.PaperLib.getMinecraftVersion
 import net.kyori.adventure.nbt.TagStringIO
 import net.kyori.adventure.text.Component
@@ -85,21 +86,30 @@ class ToastSettings : MessageElement {
     val display = JsonObject()
     val icon = JsonObject()
     val iconString = if (getMinecraftVersion() <= 12) this.icon.name else this.icon.key.toString()
-    icon.addProperty("item", iconString)
-    val nbt = compoundBinaryTag {
-      putInt("CustomModelData", iconCustomModelData)
-      if (iconEnchanted) {
-        put(
-          "Enchantments",
-          listBinaryTag(
-            compoundBinaryTag {
-              putString("id", "aqua_affinity")
-              putInt("lvl", 1)
-            }
+    val nbt = if (getMinecraftVersion() > 20 || (getMinecraftVersion() == 20 && getMinecraftPatchVersion() >= 5)) {
+      icon.addProperty("id", iconString)
+      compoundBinaryTag {
+        putBoolean("minecraft:enchantment_glint_override", true)
+        putInt("minecraft:custom_model_data", iconCustomModelData)
+      }
+    } else {
+      icon.addProperty("item", iconString)
+      compoundBinaryTag {
+        putInt("CustomModelData", iconCustomModelData)
+        if (iconEnchanted) {
+          put(
+            "Enchantments",
+            listBinaryTag(
+              compoundBinaryTag {
+                putString("id", "aqua_affinity")
+                putInt("lvl", 1)
+              }
+            )
           )
-        )
+        }
       }
     }
+
     icon.addProperty("nbt", TagStringIO.get().asString(nbt))
     display.add("icon", icon)
     val titleComponent = ofChildren(
