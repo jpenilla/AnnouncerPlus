@@ -82,13 +82,15 @@ tasks {
   }
   jar {
     archiveClassifier = "not-shadowed"
+    manifest {
+      attributes("paperweight-mappings-namespace" to "mojang")
+    }
   }
   shadowJar {
     from(rootProject.file("license.txt")) {
       rename { "license_${rootProject.name.lowercase()}.txt" }
     }
 
-    minimize()
     mergeServiceFiles()
     archiveClassifier.set(null as String?)
     archiveBaseName.set(project.name) // Use uppercase name for final jar
