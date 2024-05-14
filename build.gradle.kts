@@ -40,9 +40,9 @@ dependencies {
   implementation("net.kyori", "adventure-extra-kotlin")
   implementation("net.kyori", "adventure-serializer-configurate4")
 
-  implementation(platform("org.incendo:cloud-bom:2.0.0-SNAPSHOT"))
+  implementation(platform("org.incendo:cloud-bom:2.0.0-rc.1"))
   implementation("org.incendo:cloud-kotlin-extensions")
-  implementation(platform("org.incendo:cloud-minecraft-bom:2.0.0-beta.5"))
+  implementation(platform("org.incendo:cloud-minecraft-bom:2.0.0-beta.7"))
   implementation("org.incendo:cloud-paper")
   implementation("org.incendo:cloud-minecraft-extras")
 
@@ -51,7 +51,7 @@ dependencies {
   implementation("org.spongepowered", "configurate-extra-kotlin")
 
   implementation("io.insert-koin", "koin-core", "3.5.6")
-  implementation("xyz.jpenilla", "legacy-plugin-base", "0.0.1+108-SNAPSHOT")
+  implementation("xyz.jpenilla", "legacy-plugin-base", "0.0.1+117-SNAPSHOT")
   implementation("org.bstats", "bstats-bukkit", "3.0.2")
   implementation("io.papermc", "paperlib", "1.0.8")
 
