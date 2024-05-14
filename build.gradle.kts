@@ -104,6 +104,7 @@ tasks {
       "xyz.jpenilla.pluginbase",
       "org.incendo",
       "org.koin",
+      "co.touchlab.stately",
       "org.spongepowered.configurate",
       "org.bstats",
       "kotlin",
