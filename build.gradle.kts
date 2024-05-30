@@ -1,7 +1,8 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import xyz.jpenilla.runpaper.task.RunServer
 
 plugins {
-  kotlin("jvm") version "1.9.24"
+  kotlin("jvm") version "2.0.0"
   alias(libs.plugins.indra) apply false
   alias(libs.plugins.indraGit)
   alias(libs.plugins.runPaper)
@@ -51,7 +52,7 @@ dependencies {
   implementation("org.spongepowered", "configurate-extra-kotlin")
 
   implementation("io.insert-koin", "koin-core", "3.5.6")
-  implementation("xyz.jpenilla", "legacy-plugin-base", "0.0.1+117-SNAPSHOT")
+  implementation("xyz.jpenilla", "legacy-plugin-base", "0.0.1+119-SNAPSHOT")
   implementation("org.bstats", "bstats-bukkit", "3.0.2")
   implementation("io.papermc", "paperlib", "1.0.8")
 
@@ -66,17 +67,15 @@ kotlin {
   jvmToolchain {
     languageVersion = JavaLanguageVersion.of(21)
   }
+  compilerOptions {
+    jvmTarget = JvmTarget.JVM_1_8
+    freeCompilerArgs = listOf("-Xjdk-release=1.8")
+  }
 }
 
 java.disableAutoTargetJvm()
 
 tasks {
-  compileKotlin {
-    kotlinOptions {
-      jvmTarget = "1.8"
-      freeCompilerArgs = listOf("-Xjdk-release=1.8")
-    }
-  }
   compileJava {
     options.release = 8
   }
