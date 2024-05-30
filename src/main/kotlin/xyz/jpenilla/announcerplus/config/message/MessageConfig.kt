@@ -208,11 +208,14 @@ class MessageConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
     stop()
     broadcastQueue.clear()
     broadcastQueue.addAll(shuffledMessages())
-    broadcastTask = announcerPlus.asyncTimer(if (skipInitialDelay) 0L else initialDelay.ticks, interval.ticks) {
-      if (broadcastQueue.isNotEmpty()) {
-        broadcast(broadcastQueue.removeFirst())
-      } else {
-        broadcast(true)
+    broadcastTask?.cancel()
+    if (broadcastQueue.isNotEmpty()) {
+      broadcastTask = announcerPlus.asyncTimer(if (skipInitialDelay) 0L else initialDelay.ticks, interval.ticks) {
+        if (broadcastQueue.isNotEmpty()) {
+          broadcast(broadcastQueue.removeFirst())
+        } else {
+          broadcast(true)
+        }
       }
     }
   }
