@@ -86,15 +86,16 @@ class ToastSettings : MessageElement {
     val display = JsonObject()
     val icon = JsonObject()
     val iconString = if (getMinecraftVersion() <= 12) this.icon.name else this.icon.key.toString()
-    val nbt = if (getMinecraftVersion() > 20 || (getMinecraftVersion() == 20 && getMinecraftPatchVersion() >= 5)) {
+    if (getMinecraftVersion() > 20 || (getMinecraftVersion() == 20 && getMinecraftPatchVersion() >= 5)) {
       icon.addProperty("id", iconString)
-      compoundBinaryTag {
-        putBoolean("minecraft:enchantment_glint_override", true)
-        putInt("minecraft:custom_model_data", iconCustomModelData)
+      val components = JsonObject().apply {
+        if (iconEnchanted) addProperty("minecraft:enchantment_glint_override", true)
+        addProperty("minecraft:custom_model_data", iconCustomModelData)
       }
+      icon.add("components", components)
     } else {
       icon.addProperty("item", iconString)
-      compoundBinaryTag {
+      val nbt = compoundBinaryTag {
         putInt("CustomModelData", iconCustomModelData)
         if (iconEnchanted) {
           put(
@@ -108,9 +109,9 @@ class ToastSettings : MessageElement {
           )
         }
       }
+      icon.addProperty("nbt", TagStringIO.get().asString(nbt))
     }
 
-    icon.addProperty("nbt", TagStringIO.get().asString(nbt))
     display.add("icon", icon)
     val titleComponent = ofChildren(
       miniMessage(announcerPlus.configManager.parse(player, header)),
