@@ -42,11 +42,15 @@ import xyz.jpenilla.announcerplus.config.ConfigManager
 import xyz.jpenilla.announcerplus.config.message.MessageConfig
 import xyz.jpenilla.announcerplus.listener.JoinQuitListener
 import xyz.jpenilla.announcerplus.task.ToastTask
+import xyz.jpenilla.announcerplus.util.AsyncTasksThreadFactory
 import xyz.jpenilla.announcerplus.util.Constants
 import xyz.jpenilla.announcerplus.util.DisplayTracker
 import xyz.jpenilla.announcerplus.util.UpdateChecker
 import xyz.jpenilla.announcerplus.util.dataPath
 import xyz.jpenilla.pluginbase.legacy.PluginBase
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 
 class AnnouncerPlus : PluginBase(), KoinComponent {
@@ -56,6 +60,7 @@ class AnnouncerPlus : PluginBase(), KoinComponent {
   var perms: Permission? = null
   var essentials: EssentialsHook? = null
   var toastTask: ToastTask? = null
+  private var asyncExecutor: ScheduledExecutorService? = null
   private lateinit var commands: Commands
 
   override fun enable() {
@@ -68,6 +73,8 @@ class AnnouncerPlus : PluginBase(), KoinComponent {
     if (server.pluginManager.isPluginEnabled("Essentials")) {
       essentials = EssentialsHook()
     }
+
+    asyncExecutor = Executors.newScheduledThreadPool(4, AsyncTasksThreadFactory())
 
     val module = module {
       single { this@AnnouncerPlus }
@@ -145,6 +152,18 @@ class AnnouncerPlus : PluginBase(), KoinComponent {
   override fun disable() {
     toastTask?.cancel()
     stopKoin()
+
+    asyncExecutor?.let {
+      it.shutdown()
+      if (!it.awaitTermination(1L, TimeUnit.SECONDS)) {
+        it.shutdownNow()
+      }
+    }
+    asyncExecutor = null
+  }
+
+  fun asyncExecutor(): ScheduledExecutorService {
+    return requireNotNull(asyncExecutor) { "Async Executor not initialized" }
   }
 
   private fun setupPermissions(): Boolean {

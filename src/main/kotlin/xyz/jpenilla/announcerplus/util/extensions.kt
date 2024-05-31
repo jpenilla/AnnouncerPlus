@@ -34,8 +34,10 @@ import net.kyori.adventure.util.HSVLike
 import org.bukkit.entity.Entity
 import org.bukkit.plugin.Plugin
 import org.bukkit.scheduler.BukkitTask
+import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.pluginbase.legacy.ChatCentering
 import java.nio.file.Path
+import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 import kotlin.math.max
 import kotlin.math.min
@@ -54,6 +56,10 @@ data class TaskHandle<T>(val task: T, val cancel: (T) -> Unit) {
 
   companion object {
     fun folia(task: ScheduledTask) = TaskHandle(task) { it.cancel() }
+
+    fun java(task: ScheduledFuture<*>) = TaskHandle(task) { it.cancel(false) }
+
+    fun singleShot() = TaskHandle(null) {}
 
     fun bukkit(task: BukkitTask) = TaskHandle(task) { it.cancel() }
   }
@@ -94,28 +100,22 @@ fun Plugin.schedule(
   TaskHandle.bukkit(server.scheduler.runTaskLater(this, runnable, delay))
 }
 
-fun Plugin.scheduleAsync(
+fun AnnouncerPlus.scheduleAsync(
   delay: Long = 0L,
   runnable: Runnable
-): TaskHandle<*> = if (folia) {
-  if (delay < 1L) {
-    TaskHandle.folia(server.asyncScheduler.runNow(this) { runnable.run() })
-  } else {
-    TaskHandle.folia(server.asyncScheduler.runDelayed(this, { runnable.run() }, delay * 50, TimeUnit.MILLISECONDS))
-  }
+): TaskHandle<*> = if (delay < 1L) {
+  asyncExecutor().execute(runnable)
+  TaskHandle.singleShot()
 } else {
-  TaskHandle.bukkit(server.scheduler.runTaskLaterAsynchronously(this, runnable, delay))
+  TaskHandle.java(asyncExecutor().schedule(runnable, delay * 50, TimeUnit.MILLISECONDS))
 }
 
-fun Plugin.asyncTimer(
+fun AnnouncerPlus.asyncTimer(
   delay: Long,
   interval: Long,
   runnable: Runnable
-): TaskHandle<*> = if (folia) {
-  TaskHandle.folia(server.asyncScheduler.runAtFixedRate(this, { runnable.run() }, delay * 50, interval * 50, TimeUnit.MILLISECONDS))
-} else {
-  TaskHandle.bukkit(server.scheduler.runTaskTimerAsynchronously(this, runnable, delay, interval))
-}
+): TaskHandle<*> =
+  TaskHandle.java(asyncExecutor().scheduleAtFixedRate(runnable, delay * 50, interval * 50, TimeUnit.MILLISECONDS))
 
 fun Audience.playSounds(sounds: List<Sound>, randomize: Boolean) {
   if (sounds.isEmpty()) {

@@ -26,14 +26,14 @@ package xyz.jpenilla.announcerplus.util
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
-import org.bukkit.plugin.java.JavaPlugin
+import xyz.jpenilla.announcerplus.AnnouncerPlus
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
 import java.net.URL
 import java.util.LinkedList
 
-class UpdateChecker(private val plugin: JavaPlugin, private val githubRepo: String) {
+class UpdateChecker(private val plugin: AnnouncerPlus, private val githubRepo: String) {
   private val gson: Gson = GsonBuilder().create()
 
   fun run() {
