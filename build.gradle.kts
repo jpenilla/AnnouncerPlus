@@ -7,7 +7,7 @@ plugins {
   alias(libs.plugins.indraGit)
   alias(libs.plugins.runPaper)
   alias(libs.plugins.shadow)
-  alias(libs.plugins.indraSpotless)
+  alias(libs.plugins.indraSpotless) apply false
   alias(libs.plugins.spotless)
 }
 
@@ -159,6 +159,10 @@ spotless {
     ktlint(libs.versions.ktlint.get()).editorConfigOverride(overrides)
   }
 }
+
+// The following is to work around https://github.com/diffplug/spotless/issues/1599
+// Ensure the ktlint step is before the license header step
+plugins.apply(libs.plugins.indraSpotless.get().pluginId)
 
 runPaper.folia.registerTask()
 
