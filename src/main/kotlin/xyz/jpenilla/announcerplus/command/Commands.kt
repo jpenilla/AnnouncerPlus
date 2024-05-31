@@ -29,7 +29,7 @@ import org.incendo.cloud.execution.ExecutionCoordinator
 import org.incendo.cloud.kotlin.MutableCommandBuilder
 import org.incendo.cloud.kotlin.extension.commandBuilder
 import org.incendo.cloud.minecraft.extras.MinecraftExceptionHandler
-import org.incendo.cloud.paper.PaperCommandManager
+import org.incendo.cloud.paper.LegacyPaperCommandManager
 import org.koin.core.context.loadKoinModules
 import org.koin.dsl.module
 import xyz.jpenilla.announcerplus.AnnouncerPlus
@@ -42,7 +42,7 @@ import xyz.jpenilla.announcerplus.util.Constants
 import xyz.jpenilla.announcerplus.util.ofChildren
 
 class Commands(plugin: AnnouncerPlus) {
-  val commandManager: PaperCommandManager<Commander> = PaperCommandManager(
+  val commandManager: LegacyPaperCommandManager<Commander> = LegacyPaperCommandManager(
     plugin,
     ExecutionCoordinator.simpleCoordinator(),
     SenderMapper.create(

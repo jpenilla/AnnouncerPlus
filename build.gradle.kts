@@ -41,9 +41,9 @@ dependencies {
   implementation("net.kyori", "adventure-extra-kotlin")
   implementation("net.kyori", "adventure-serializer-configurate4")
 
-  implementation(platform("org.incendo:cloud-bom:2.0.0-rc.1"))
+  implementation(platform("org.incendo:cloud-bom:2.0.0-rc.2"))
   implementation("org.incendo:cloud-kotlin-extensions")
-  implementation(platform("org.incendo:cloud-minecraft-bom:2.0.0-beta.7"))
+  implementation(platform("org.incendo:cloud-minecraft-bom:2.0.0-beta.8"))
   implementation("org.incendo:cloud-paper")
   implementation("org.incendo:cloud-minecraft-extras")
 
