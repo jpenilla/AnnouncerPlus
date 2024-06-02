@@ -11,3 +11,4 @@ jobs:
     uses: "jpenilla/actions/.github/workflows/shared-ci.yml@master"
     with:
       artifacts-path: 'build/libs/AnnouncerPlus*.jar'
+      jdk-version: 21

@@ -30,6 +30,11 @@ import org.incendo.cloud.kotlin.MutableCommandBuilder
 import org.incendo.cloud.kotlin.extension.commandBuilder
 import org.incendo.cloud.minecraft.extras.MinecraftExceptionHandler
 import org.incendo.cloud.paper.LegacyPaperCommandManager
+import org.incendo.cloud.translations.LocaleExtractor
+import org.incendo.cloud.translations.TranslationBundle.core
+import org.incendo.cloud.translations.bukkit.BukkitTranslationBundle.bukkit
+import org.incendo.cloud.translations.minecraft.extras.AudienceLocaleExtractor.audienceLocaleExtractor
+import org.incendo.cloud.translations.minecraft.extras.MinecraftExtrasTranslationBundle.minecraftExtras
 import org.koin.core.context.loadKoinModules
 import org.koin.dsl.module
 import xyz.jpenilla.announcerplus.AnnouncerPlus
@@ -68,6 +73,15 @@ class Commands(plugin: AnnouncerPlus) {
         single { this@Commands }
       }
     )
+
+    val localeExtractor = LocaleExtractor.builder<Commander>()
+      .senderType(Commander.Player::class.java, audienceLocaleExtractor())
+      .build()
+
+    commandManager.captionRegistry()
+      .registerProvider(core(localeExtractor))
+      .registerProvider(bukkit(localeExtractor))
+      .registerProvider(minecraftExtras(localeExtractor))
 
     registerCommands()
   }

@@ -46,6 +46,10 @@ dependencies {
   implementation(platform("org.incendo:cloud-minecraft-bom:2.0.0-beta.8"))
   implementation("org.incendo:cloud-paper")
   implementation("org.incendo:cloud-minecraft-extras")
+  implementation(platform("org.incendo:cloud-translations-bom:1.0.0-SNAPSHOT"))
+  implementation("org.incendo:cloud-translations-core")
+  implementation("org.incendo:cloud-translations-bukkit")
+  implementation("org.incendo:cloud-translations-minecraft-extras")
 
   implementation(platform("org.spongepowered:configurate-bom:4.1.2"))
   implementation("org.spongepowered", "configurate-hocon")
@@ -68,8 +72,8 @@ kotlin {
     languageVersion = JavaLanguageVersion.of(21)
   }
   compilerOptions {
-    jvmTarget = JvmTarget.JVM_1_8
-    freeCompilerArgs = listOf("-Xjdk-release=1.8")
+    jvmTarget = JvmTarget.JVM_17
+    freeCompilerArgs = listOf("-Xjdk-release=17")
   }
 }
 
@@ -77,7 +81,7 @@ java.disableAutoTargetJvm()
 
 tasks {
   compileJava {
-    options.release = 8
+    options.release = 17
   }
   jar {
     archiveClassifier = "not-shadowed"
