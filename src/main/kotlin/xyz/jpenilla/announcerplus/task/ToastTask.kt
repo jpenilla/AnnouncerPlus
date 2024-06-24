@@ -200,6 +200,7 @@ class ToastTask : KoinComponent {
       "net.minecraft.resources.ResourceLocation"
     )
     val ResourceLocation_ctr = ResourceLocation_class.getDeclaredConstructor(String::class.java, String::class.java)
+      ?.also { it.isAccessible = true }
       ?: error("Cannot find ResourceLocation constructor")
 
     val Advancement_class = Crafty.needNMSClassOrElse("Advancement", "net.minecraft.advancements.Advancement")
