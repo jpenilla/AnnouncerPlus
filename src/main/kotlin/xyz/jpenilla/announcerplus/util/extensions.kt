@@ -39,6 +39,7 @@ import xyz.jpenilla.pluginbase.legacy.ChatCentering
 import java.nio.file.Path
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
+import java.util.logging.Level
 import kotlin.math.max
 import kotlin.math.min
 
@@ -104,10 +105,10 @@ fun AnnouncerPlus.scheduleAsync(
   delay: Long = 0L,
   runnable: Runnable
 ): TaskHandle<*> = if (delay < 1L) {
-  asyncExecutor().execute(runnable)
+  asyncExecutor().execute(wrapRunnable(runnable))
   TaskHandle.singleShot()
 } else {
-  TaskHandle.java(asyncExecutor().schedule(runnable, delay * 50, TimeUnit.MILLISECONDS))
+  TaskHandle.java(asyncExecutor().schedule(wrapRunnable(runnable), delay * 50, TimeUnit.MILLISECONDS))
 }
 
 fun AnnouncerPlus.asyncTimer(
@@ -115,7 +116,22 @@ fun AnnouncerPlus.asyncTimer(
   interval: Long,
   runnable: Runnable
 ): TaskHandle<*> =
-  TaskHandle.java(asyncExecutor().scheduleAtFixedRate(runnable, delay * 50, interval * 50, TimeUnit.MILLISECONDS))
+  TaskHandle.java(asyncExecutor().scheduleAtFixedRate(wrapRunnable(runnable), delay * 50, interval * 50, TimeUnit.MILLISECONDS))
+
+private fun AnnouncerPlus.wrapRunnable(runnable: Runnable): Runnable = Runnable {
+  try {
+    runnable.run()
+  } catch (e: Throwable) {
+    logger.log(
+      Level.SEVERE,
+      "Exception executing task",
+      e
+    )
+    if (e is Error) {
+      throw e
+    }
+  }
+}
 
 fun Audience.playSounds(sounds: List<Sound>, randomize: Boolean) {
   if (sounds.isEmpty()) {
