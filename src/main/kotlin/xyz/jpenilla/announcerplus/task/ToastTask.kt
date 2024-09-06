@@ -128,7 +128,7 @@ class ToastTask : KoinComponent {
         )
       } else {
         val result = (Advancement_CODEC.get(null) as Codec<*>)
-          .parse(registryOps(), json)
+          .parse(DFU.registryOps(), json)
         result.error().ifPresent { announcerPlus.logger.log(Level.WARNING, "Failed to deserialize advancement: $it") }
         result.result().orElseThrow { IllegalStateException() }
       }
@@ -157,17 +157,19 @@ class ToastTask : KoinComponent {
     return AdvancementBuilder_build(advancementBuilder, resourceLocation) to resourceLocation
   }
 
-  private val registryOps: DynamicOps<*> by lazy {
-    val server = MinecraftServer_getServer(null)
-    val regAccessMth = server::class.java.getMethod("registryAccess")
-    val regAccess = regAccessMth.invoke(server)
-    val jsonOps = JsonOps.INSTANCE
-    val createContextMth = regAccess::class.java.getMethod("createSerializationContext", DynamicOps::class.java)
-    createContextMth.invoke(regAccess, jsonOps) as DynamicOps<*>
-  }
+  private object DFU {
+    private val registryOps: DynamicOps<*> by lazy {
+      val server = MinecraftServer_getServer(null)
+      val regAccessMth = server::class.java.getMethod("registryAccess")
+      val regAccess = regAccessMth.invoke(server)
+      val jsonOps = JsonOps.INSTANCE
+      val createContextMth = regAccess::class.java.getMethod("createSerializationContext", DynamicOps::class.java)
+      createContextMth.invoke(regAccess, jsonOps) as DynamicOps<*>
+    }
 
-  @Suppress("UNCHECKED_CAST")
-  private fun <T> registryOps(): DynamicOps<T> = registryOps as DynamicOps<T>
+    @Suppress("UNCHECKED_CAST")
+    fun <T> registryOps(): DynamicOps<T> = registryOps as DynamicOps<T>
+  }
 
   private fun grant(player: Player, advancement: Any) {
     val playerAdvancements = ServerPlayer_getAdvancements(player.handle)
