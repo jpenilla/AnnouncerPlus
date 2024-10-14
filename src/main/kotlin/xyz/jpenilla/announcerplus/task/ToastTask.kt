@@ -24,8 +24,10 @@
 package xyz.jpenilla.announcerplus.task
 
 import com.google.gson.Gson
+import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.mojang.serialization.Codec
+import com.mojang.serialization.DataResult
 import com.mojang.serialization.DynamicOps
 import com.mojang.serialization.JsonOps
 import io.papermc.lib.PaperLib.getMinecraftPatchVersion
@@ -35,6 +37,8 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import xyz.jpenilla.announcerplus.AnnouncerPlus
 import xyz.jpenilla.announcerplus.config.message.ToastSettings
+import xyz.jpenilla.announcerplus.task.ToastTask.DFU.getError
+import xyz.jpenilla.announcerplus.task.ToastTask.DFU.getResult
 import xyz.jpenilla.announcerplus.util.TaskHandle
 import xyz.jpenilla.announcerplus.util.asyncTimer
 import xyz.jpenilla.announcerplus.util.schedule
@@ -44,6 +48,7 @@ import java.lang.reflect.Constructor
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
+import java.util.Optional
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
@@ -127,10 +132,9 @@ class ToastTask : KoinComponent {
           )
         )
       } else {
-        val result = (Advancement_CODEC.get(null) as Codec<*>)
-          .parse(DFU.registryOps(), json)
-        result.error().ifPresent { announcerPlus.logger.log(Level.WARNING, "Failed to deserialize advancement: $it") }
-        result.result().orElseThrow { IllegalStateException() }
+        val result = (Advancement_CODEC.get(null) as Codec<*>).parse(dynamicOps(), json)
+        result.getError().ifPresent { announcerPlus.logger.log(Level.WARNING, "Failed to deserialize advancement: $it") }
+        result.getResult().orElseThrow { IllegalStateException() }
       }
       return AdvancementHolder_ctr!!.newInstance(
         resourceLocation,
@@ -157,7 +161,28 @@ class ToastTask : KoinComponent {
     return AdvancementBuilder_build(advancementBuilder, resourceLocation) to resourceLocation
   }
 
+  @Suppress("UNCHECKED_CAST")
+  private fun <T : JsonElement> dynamicOps(): DynamicOps<T> {
+    if (getMinecraftVersion() == 20 && getMinecraftPatchVersion() < 5) {
+      return JsonOps.INSTANCE as DynamicOps<T>
+    }
+    return DFU.registryOps()
+  }
+
   private object DFU {
+    private val getError = DataResult::class.java.getMethod("error")
+    private val getResult = DataResult::class.java.getMethod("result")
+
+    @Suppress("UNCHECKED_CAST")
+    fun <T> DataResult<T>.getError(): Optional<Any> {
+      return getError(this) as Optional<Any>
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun <T> DataResult<T>.getResult(): Optional<T> {
+      return getResult(this) as Optional<T>
+    }
+
     private val registryOps: DynamicOps<*> by lazy {
       val server = MinecraftServer_getServer(null)
       val regAccessMth = server::class.java.getMethod("registryAccess")

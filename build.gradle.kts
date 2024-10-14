@@ -124,7 +124,7 @@ tasks {
     dependsOn(shadowJar)
   }
   runServer {
-    minecraftVersion("1.21")
+    minecraftVersion("1.21.1")
   }
   withType<RunServer> {
     javaLauncher = project.javaToolchains.launcherFor {
