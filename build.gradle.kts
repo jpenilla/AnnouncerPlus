@@ -13,10 +13,16 @@ plugins {
 
 repositories {
   mavenCentral()
-  maven("https://s01.oss.sonatype.org/content/repositories/snapshots/")
-  maven("https://oss.sonatype.org/content/repositories/snapshots/")
+  maven("https://s01.oss.sonatype.org/content/repositories/snapshots/") {
+    mavenContent { snapshotsOnly() }
+  }
+  maven("https://oss.sonatype.org/content/repositories/snapshots/") {
+    mavenContent { snapshotsOnly() }
+  }
   maven("https://repo.papermc.io/repository/maven-public/")
-  maven("https://repo.jpenilla.xyz/snapshots/")
+  maven("https://repo.jpenilla.xyz/snapshots/") {
+    mavenContent { snapshotsOnly() }
+  }
   maven("https://repo.essentialsx.net/releases/")
   maven("https://repo.extendedclip.com/content/repositories/placeholderapi/") {
     content { includeGroup("me.clip") }
