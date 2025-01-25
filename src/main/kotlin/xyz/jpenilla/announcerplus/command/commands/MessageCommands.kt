@@ -24,6 +24,8 @@
 package xyz.jpenilla.announcerplus.command.commands
 
 import net.kyori.adventure.bossbar.BossBar
+import net.kyori.adventure.key.InvalidKeyException
+import net.kyori.adventure.key.Key
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -37,7 +39,10 @@ import org.incendo.cloud.description.Description
 import org.incendo.cloud.description.Description.description
 import org.incendo.cloud.execution.CommandExecutionHandler
 import org.incendo.cloud.kotlin.MutableCommandBuilder
+import org.incendo.cloud.kotlin.extension.parserDescriptor
+import org.incendo.cloud.parser.ArgumentParseResult
 import org.incendo.cloud.parser.standard.IntegerParser.integerParser
+import org.incendo.cloud.parser.standard.StringParser
 import org.incendo.cloud.parser.standard.StringParser.greedyStringParser
 import org.incendo.cloud.parser.standard.StringParser.quotedStringParser
 import org.incendo.cloud.suggestion.SuggestionProvider
@@ -147,12 +152,26 @@ class MessageCommands : BaseCommand() {
     flag("custom-model-data", arrayOf("m")) {
       withComponent(CommandComponent.builder("value", integerParser()))
     }
+    flag("item-model") {
+      withComponent(
+        parserDescriptor(
+          StringParser<Commander>(StringParser.StringMode.SINGLE).flatMapSuccess { _, string ->
+            try {
+              ArgumentParseResult.successFuture(Key.key(string))
+            } catch (e: InvalidKeyException) {
+              ArgumentParseResult.failureFuture(e)
+            }
+          }
+        )
+      )
+    }
     handler(executeToast(category.targetExtractor))
   }
 
   private fun executeToast(targets: TargetExtractor): CommandExecutionHandler<Commander> = CommandExecutionHandler { ctx ->
     val customModelData = ctx.flags().getValue<Int>("custom-model-data").orElse(-1)
-    val toast = ToastSettings(ctx.get("icon"), ctx.get("frame"), ctx.get("header"), ctx.get("body"), ctx.flags().isPresent("enchant"), customModelData)
+    val itemModel = ctx.flags().getValue<Key>("item-model").orElse(ToastSettings.DISABLED_ITEM_MODEL)
+    val toast = ToastSettings(ctx.get("icon"), ctx.get("frame"), ctx.get("header"), ctx.get("body"), ctx.flags().isPresent("enchant"), customModelData, itemModel)
     for (target in targets.extractPlayers(ctx)) {
       toast.displayIfEnabled(target)
     }

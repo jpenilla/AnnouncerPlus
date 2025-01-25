@@ -130,11 +130,11 @@ tasks {
     dependsOn(shadowJar)
   }
   runServer {
-    minecraftVersion("1.21.1")
+    minecraftVersion("1.21.4")
   }
   withType<RunServer> {
     javaLauncher = project.javaToolchains.launcherFor {
-      languageVersion.set(JavaLanguageVersion.of(21))
+      languageVersion = JavaLanguageVersion.of(21)
     }
   }
   register("format") {

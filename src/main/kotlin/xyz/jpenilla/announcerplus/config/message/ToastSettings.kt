@@ -26,6 +26,7 @@ package xyz.jpenilla.announcerplus.config.message
 import com.google.gson.JsonObject
 import io.papermc.lib.PaperLib.getMinecraftPatchVersion
 import io.papermc.lib.PaperLib.getMinecraftVersion
+import net.kyori.adventure.key.Key
 import net.kyori.adventure.nbt.TagStringIO
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer
@@ -43,6 +44,10 @@ import xyz.jpenilla.announcerplus.util.ofChildren
 @ConfigSerializable
 class ToastSettings : MessageElement {
 
+  companion object {
+    val DISABLED_ITEM_MODEL = Key.key("announcerplus", "disabled")
+  }
+
   @Comment("The icon for the Toast/Advancement notification")
   var icon = Material.DIAMOND
 
@@ -51,6 +56,9 @@ class ToastSettings : MessageElement {
 
   @Comment("Enter custom model data for the icon item. -1 to disable")
   var iconCustomModelData = -1
+
+  @Comment("Item model (1.21.4+) resource location. (use announcerplus:disabled to disable)")
+  var iconItemModel: Key = DISABLED_ITEM_MODEL
 
   @Comment("The text for the header of the Toast. If this and the footer are set to \"\" (empty string), the toast is disabled")
   var header = ""
@@ -62,13 +70,22 @@ class ToastSettings : MessageElement {
   var frame = FrameType.GOAL
 
   constructor()
-  constructor(icon: Material, frameType: FrameType, header: String, footer: String, iconEnchanted: Boolean = false, iconCustomModelData: Int = -1) {
+  constructor(
+    icon: Material,
+    frameType: FrameType,
+    header: String,
+    footer: String,
+    iconEnchanted: Boolean = false,
+    iconCustomModelData: Int = -1,
+    iconItemModel: Key = DISABLED_ITEM_MODEL,
+  ) {
     this.icon = icon
     this.frame = frameType
     this.header = header
     this.footer = footer
     this.iconEnchanted = iconEnchanted
     this.iconCustomModelData = iconCustomModelData
+    this.iconItemModel = iconItemModel
   }
 
   private val announcerPlus: AnnouncerPlus by inject()
@@ -90,7 +107,13 @@ class ToastSettings : MessageElement {
       icon.addProperty("id", iconString)
       val components = JsonObject().apply {
         if (iconEnchanted) addProperty("minecraft:enchantment_glint_override", true)
-        addProperty("minecraft:custom_model_data", iconCustomModelData)
+        if (getMinecraftVersion() > 21 || (getMinecraftVersion() == 21 && getMinecraftPatchVersion() >= 4)) {
+          if (iconItemModel != DISABLED_ITEM_MODEL) {
+            addProperty("minecraft:item_model", iconItemModel.asString())
+          }
+        } else {
+          addProperty("minecraft:custom_model_data", iconCustomModelData)
+        }
       }
       icon.add("components", components)
     } else {
