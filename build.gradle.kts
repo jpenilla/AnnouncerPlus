@@ -57,7 +57,7 @@ dependencies {
   implementation("org.incendo:cloud-translations-bukkit")
   implementation("org.incendo:cloud-translations-minecraft-extras")
 
-  implementation(platform("org.spongepowered:configurate-bom:4.1.2"))
+  implementation(platform("org.spongepowered:configurate-bom:4.2.0"))
   implementation("org.spongepowered", "configurate-hocon")
   implementation("org.spongepowered", "configurate-extra-kotlin")
 
