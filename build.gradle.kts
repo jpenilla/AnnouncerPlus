@@ -13,6 +13,13 @@ plugins {
 
 repositories {
   mavenCentral()
+  maven("https://repo.jpenilla.xyz/snapshots/") {
+    mavenContent {
+      snapshotsOnly()
+      includeGroup("xyz.jpenilla")
+      includeGroup("net.kyori") // TODO adventure-platform 4.3.5
+    }
+  }
   maven("https://s01.oss.sonatype.org/content/repositories/snapshots/") {
     mavenContent { snapshotsOnly() }
   }
@@ -20,9 +27,6 @@ repositories {
     mavenContent { snapshotsOnly() }
   }
   maven("https://repo.papermc.io/repository/maven-public/")
-  maven("https://repo.jpenilla.xyz/snapshots/") {
-    mavenContent { snapshotsOnly() }
-  }
   maven("https://repo.essentialsx.net/releases/")
   maven("https://repo.extendedclip.com/content/repositories/placeholderapi/") {
     content { includeGroup("me.clip") }
@@ -43,7 +47,8 @@ dependencies {
   compileOnly("me.clip", "placeholderapi", "2.11.6")
   compileOnly("com.mojang:datafixerupper:7.0.14")
 
-  implementation(platform("net.kyori:adventure-bom:4.20.0"))
+  implementation("net.kyori:adventure-platform-bukkit:4.3.5-SNAPSHOT")
+  implementation(platform("net.kyori:adventure-bom:4.21.0-SNAPSHOT"))
   implementation("net.kyori", "adventure-extra-kotlin")
   implementation("net.kyori", "adventure-serializer-configurate4")
 
@@ -62,7 +67,7 @@ dependencies {
   implementation("org.spongepowered", "configurate-extra-kotlin")
 
   implementation("io.insert-koin", "koin-core", "4.0.4")
-  implementation("xyz.jpenilla", "legacy-plugin-base", "0.0.1+131-SNAPSHOT")
+  implementation("xyz.jpenilla", "legacy-plugin-base", "0.0.1+137-SNAPSHOT")
   implementation("org.bstats", "bstats-bukkit", "3.1.0")
   implementation("io.papermc", "paperlib", "1.0.8")
 
