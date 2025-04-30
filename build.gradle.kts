@@ -48,7 +48,7 @@ dependencies {
   compileOnly("com.mojang:datafixerupper:7.0.14")
 
   implementation("net.kyori:adventure-platform-bukkit:4.3.5-SNAPSHOT") // TODO
-  implementation(platform("net.kyori:adventure-bom:4.21.0-SNAPSHOT"))
+  implementation(platform("net.kyori:adventure-bom:4.21.0"))
   implementation("net.kyori", "adventure-extra-kotlin")
   implementation("net.kyori", "adventure-serializer-configurate4")
 
