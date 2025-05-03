@@ -5,10 +5,14 @@ on:
     branches: [ "**" ]
     tags-ignore: [ "**" ]
   pull_request:
+  release:
+    types: [ released ]
 
 jobs:
   call-build:
     uses: "jpenilla/actions/.github/workflows/shared-ci.yml@master"
+    secrets: inherit
     with:
+      modrinth-publish: true
       artifacts-path: 'build/libs/AnnouncerPlus*.jar'
       jdk-version: 21

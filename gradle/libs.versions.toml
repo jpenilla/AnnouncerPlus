@@ -5,6 +5,7 @@ indraSpotless = { id = "net.kyori.indra.licenser.spotless", version.ref = "indra
 spotless = { id = "com.diffplug.spotless", version = "7.0.3" }
 shadow = { id = "com.gradleup.shadow", version = "8.3.6" }
 runPaper = { id = "xyz.jpenilla.run-paper", version = "2.3.1" }
+modPublishPlugin = { id = "me.modmuss50.mod-publish-plugin", version = "0.8.4" }
 
 [versions]
 ktlint = "1.0.1"
