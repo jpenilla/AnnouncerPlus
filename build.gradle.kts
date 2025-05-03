@@ -184,7 +184,7 @@ publishMods.modrinth {
     "1.20.6",
     "1.21.5",
   )
-  modLoaders.add("paper")
+  modLoaders = listOf("paper", "folia")
   changelog = providers.environmentVariable("RELEASE_NOTES")
   accessToken = providers.environmentVariable("MODRINTH_TOKEN")
 }
