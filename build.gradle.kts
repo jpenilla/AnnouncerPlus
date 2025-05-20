@@ -19,7 +19,6 @@ repositories {
     mavenContent {
       snapshotsOnly()
       includeGroup("xyz.jpenilla")
-      includeGroup("net.kyori") // TODO adventure-platform 4.3.5
     }
   }
   maven("https://s01.oss.sonatype.org/content/repositories/snapshots/") {
@@ -49,7 +48,7 @@ dependencies {
   compileOnly("me.clip", "placeholderapi", "2.11.6")
   compileOnly("com.mojang:datafixerupper:7.0.14")
 
-  implementation("net.kyori:adventure-platform-bukkit:4.4.0") // TODO
+  implementation("net.kyori:adventure-platform-bukkit:4.4.0")
   implementation(platform("net.kyori:adventure-bom:4.21.0"))
   implementation("net.kyori", "adventure-extra-kotlin")
   implementation("net.kyori", "adventure-serializer-configurate4")
