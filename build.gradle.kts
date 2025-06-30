@@ -21,10 +21,7 @@ repositories {
       includeGroup("xyz.jpenilla")
     }
   }
-  maven("https://s01.oss.sonatype.org/content/repositories/snapshots/") {
-    mavenContent { snapshotsOnly() }
-  }
-  maven("https://oss.sonatype.org/content/repositories/snapshots/") {
+  maven("https://central.sonatype.com/repository/maven-snapshots/") {
     mavenContent { snapshotsOnly() }
   }
   maven("https://repo.papermc.io/repository/maven-public/")
@@ -68,7 +65,7 @@ dependencies {
   implementation("org.spongepowered", "configurate-extra-kotlin")
 
   implementation("io.insert-koin", "koin-core", "4.1.0")
-  implementation("xyz.jpenilla", "legacy-plugin-base", "0.0.1+139-SNAPSHOT")
+  implementation("xyz.jpenilla", "legacy-plugin-base", "0.0.1+143-SNAPSHOT")
   implementation("org.bstats", "bstats-bukkit", "3.1.0")
   implementation("io.papermc", "paperlib", "1.0.8")
 
