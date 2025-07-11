@@ -19,6 +19,7 @@ repositories {
     mavenContent {
       snapshotsOnly()
       includeGroup("xyz.jpenilla")
+      includeGroup("net.kyori") // adventure-platform snapshot
     }
   }
   maven("https://central.sonatype.com/repository/maven-snapshots/") {
@@ -45,14 +46,14 @@ dependencies {
   compileOnly("me.clip", "placeholderapi", "2.11.6")
   compileOnly("com.mojang:datafixerupper:7.0.14")
 
-  implementation("net.kyori:adventure-platform-bukkit:4.4.0")
+  implementation("net.kyori:adventure-platform-bukkit:4.4.1-SNAPSHOT")
   implementation(platform("net.kyori:adventure-bom:4.23.0"))
   implementation("net.kyori", "adventure-extra-kotlin")
   implementation("net.kyori", "adventure-serializer-configurate4")
 
   implementation(platform("org.incendo:cloud-bom:2.0.0"))
   implementation("org.incendo:cloud-kotlin-extensions")
-  implementation(platform("org.incendo:cloud-minecraft-bom:2.0.0-beta.10"))
+  implementation(platform("org.incendo:cloud-minecraft-bom:2.0.0-beta.11"))
   implementation("org.incendo:cloud-paper")
   implementation("org.incendo:cloud-minecraft-extras")
   implementation(platform("org.incendo:cloud-translations-bom:1.0.0-SNAPSHOT"))
@@ -109,7 +110,6 @@ tasks {
 
     val prefix = "${project.group}.${project.name.lowercase()}.lib"
     sequenceOf(
-      "com.typesafe.config",
       "io.leangen.geantyref",
       "io.papermc.lib",
       "net.kyori",
