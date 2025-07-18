@@ -133,7 +133,7 @@ tasks {
     dependsOn(shadowJar)
   }
   runServer {
-    minecraftVersion("1.21.7")
+    minecraftVersion("1.21.8")
   }
   withType<RunServer> {
     javaLauncher = project.javaToolchains.launcherFor {
@@ -178,7 +178,7 @@ publishMods.modrinth {
     "1.18.2",
     "1.19.4",
     "1.20.6",
-    "1.21.7",
+    "1.21.8",
   )
   modLoaders = listOf("paper", "folia")
   changelog = providers.environmentVariable("RELEASE_NOTES")
