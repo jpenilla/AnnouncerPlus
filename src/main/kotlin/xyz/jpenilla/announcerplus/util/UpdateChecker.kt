@@ -66,7 +66,7 @@ class UpdateChecker(private val plugin: AnnouncerPlus, private val githubRepo: S
     val versionsBehind = versionList.indexOf(currentVersion)
     plugin.logger.info("There is an update available for ${plugin.name}!")
     plugin.logger.info("This server is running version $currentVersion, which is ${if (versionsBehind == -1) "UNKNOWN" else versionsBehind} versions outdated.")
-    plugin.logger.info("Download the latest version, ${versionList[0]} from GitHub at the link below:")
-    plugin.logger.info(versionMap[versionList[0]])
+    plugin.logger.info("Download the latest version, ${versionList[0]} from Modrinth at the link below:")
+    plugin.logger.info("https://modrinth.com/plugin/announcer-plus")
   }
 }
