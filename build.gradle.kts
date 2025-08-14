@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import xyz.jpenilla.runpaper.task.RunServer
 
 plugins {
-  kotlin("jvm") version "2.2.0"
+  kotlin("jvm") version "2.2.10"
   alias(libs.plugins.indra) apply false
   alias(libs.plugins.indraGit)
   alias(libs.plugins.runPaper)
