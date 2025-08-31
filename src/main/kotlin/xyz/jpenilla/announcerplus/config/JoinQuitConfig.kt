@@ -49,11 +49,11 @@ import xyz.jpenilla.announcerplus.config.visitor.DuplicateCommentRemovingVisitor
 import xyz.jpenilla.announcerplus.util.Constants
 import xyz.jpenilla.announcerplus.util.addDefaultPermission
 import xyz.jpenilla.announcerplus.util.dispatchCommandAsConsole
+import xyz.jpenilla.announcerplus.util.miniMessage
 import xyz.jpenilla.announcerplus.util.playSounds
 import xyz.jpenilla.announcerplus.util.schedule
 import xyz.jpenilla.announcerplus.util.scheduleAsync
 import xyz.jpenilla.announcerplus.util.scheduleGlobal
-import xyz.jpenilla.pluginbase.legacy.Chat
 import xyz.jpenilla.pluginbase.legacy.Environment
 
 @ConfigSerializable
@@ -182,7 +182,6 @@ class JoinQuitConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
     this.apply { this.name = name }
 
   private val announcerPlus: AnnouncerPlus by inject()
-  private val chat: Chat by inject()
 
   @Transient
   private var name: String? = null
@@ -190,14 +189,18 @@ class JoinQuitConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
   fun onJoin(player: Player) {
     // name is null for first-join config
     if (name != null && !player.hasPermission("announcerplus.join.$name")) return
-    chat.send(player, announcerPlus.configManager.parse(player, join.messages))
+    announcerPlus.configManager.parse(player, join.messages)
+      .map { miniMessage(it) }
+      .forEach { announcerPlus.audiences().player(player).sendMessage { it } }
     announcerPlus.schedule(player, 3L) {
       if (!isVanished(player)) {
         announcerPlus.scheduleAsync {
           Bukkit.getOnlinePlayers().toList().forEach { onlinePlayer ->
             if (onlinePlayer.name != player.name) {
               if (announcerPlus.perms!!.playerHas(onlinePlayer, permission) || permission.isEmpty()) {
-                chat.send(onlinePlayer, announcerPlus.configManager.parse(player, join.broadcasts))
+                announcerPlus.configManager.parse(player, join.broadcasts)
+                  .map { miniMessage(it) }
+                  .forEach { announcerPlus.audiences().player(onlinePlayer).sendMessage { it } }
                 if (join.broadcastSounds.isNotEmpty()) {
                   announcerPlus.audiences().player(onlinePlayer).playSounds(join.broadcastSounds, join.randomBroadcastSound)
                 }
@@ -224,7 +227,9 @@ class JoinQuitConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
     for (onlinePlayer in Bukkit.getOnlinePlayers()) {
       if (onlinePlayer.name != player.name) {
         if (announcerPlus.perms!!.playerHas(onlinePlayer, permission) || permission.isEmpty()) {
-          chat.send(onlinePlayer, announcerPlus.configManager.parse(player, quit.broadcasts))
+          announcerPlus.configManager.parse(player, quit.broadcasts)
+            .map { miniMessage(it) }
+            .forEach { announcerPlus.audiences().player(onlinePlayer).sendMessage { it } }
           if (quit.sounds.isNotEmpty()) {
             announcerPlus.audiences().player(onlinePlayer).playSounds(quit.sounds, quit.randomSound)
           }

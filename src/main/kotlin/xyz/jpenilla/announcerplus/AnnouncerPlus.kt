@@ -81,7 +81,6 @@ class AnnouncerPlus : PluginBase(), KoinComponent {
       single { audiences() }
       single { miniMessage() }
       single { DisplayTracker() }
-      single { chat() }
       single { ConfigManager(get(), get(), get(Constants.DATA_PATH)) }
       single { gson }
       single { this@AnnouncerPlus.logger }
