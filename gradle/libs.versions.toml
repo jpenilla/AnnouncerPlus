@@ -4,7 +4,7 @@ indraGit = { id = "net.kyori.indra.git", version.ref = "indra" }
 indraSpotless = { id = "net.kyori.indra.licenser.spotless", version.ref = "indra" }
 spotless = { id = "com.diffplug.spotless", version = "7.2.1" }
 shadow = { id = "com.gradleup.shadow", version = "9.1.0" }
-runPaper = { id = "xyz.jpenilla.run-paper", version = "2.3.1" }
+runPaper = { id = "xyz.jpenilla.run-paper", version = "3.0.0" }
 modPublishPlugin = { id = "me.modmuss50.mod-publish-plugin", version = "1.0.0" }
 
 [versions]
