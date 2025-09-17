@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import xyz.jpenilla.runpaper.task.RunServer
 
 plugins {
+  eclipse
   kotlin("jvm") version "2.2.10"
   alias(libs.plugins.indra) apply false
   alias(libs.plugins.indraGit)
