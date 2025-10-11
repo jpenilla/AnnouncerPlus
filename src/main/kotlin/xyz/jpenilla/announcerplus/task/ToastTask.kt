@@ -30,8 +30,6 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.DataResult
 import com.mojang.serialization.DynamicOps
 import com.mojang.serialization.JsonOps
-import io.papermc.lib.PaperLib.getMinecraftPatchVersion
-import io.papermc.lib.PaperLib.getMinecraftVersion
 import org.bukkit.entity.Player
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -43,6 +41,13 @@ import xyz.jpenilla.announcerplus.util.TaskHandle
 import xyz.jpenilla.announcerplus.util.asyncTimer
 import xyz.jpenilla.announcerplus.util.schedule
 import xyz.jpenilla.pluginbase.legacy.Crafty
+import xyz.jpenilla.pluginbase.legacy.environment.Environment.currentMinecraft
+import xyz.jpenilla.pluginbase.legacy.environment.MinecraftReleases.v1_16
+import xyz.jpenilla.pluginbase.legacy.environment.MinecraftReleases.v1_17
+import xyz.jpenilla.pluginbase.legacy.environment.MinecraftReleases.v1_20
+import xyz.jpenilla.pluginbase.legacy.environment.MinecraftReleases.v1_20_2
+import xyz.jpenilla.pluginbase.legacy.environment.MinecraftReleases.v1_20_4
+import xyz.jpenilla.pluginbase.legacy.environment.MinecraftReleases.v1_20_5
 import xyz.jpenilla.reflectionremapper.ReflectionRemapper
 import java.lang.reflect.Constructor
 import java.lang.reflect.Field
@@ -141,7 +146,7 @@ class ToastTask : KoinComponent {
         advancement
       ) to resourceLocation
     }
-    val advancementBuilder = if (getMinecraftVersion() >= 16) {
+    val advancementBuilder = if (currentMinecraft().isAtLeast(v1_16)) {
       AdvancementBuilder_fromJson(
         null,
         json,
@@ -163,7 +168,7 @@ class ToastTask : KoinComponent {
 
   @Suppress("UNCHECKED_CAST")
   private fun <T : JsonElement> dynamicOps(): DynamicOps<T> {
-    if (getMinecraftVersion() == 20 && getMinecraftPatchVersion() < 5) {
+    if (currentMinecraft().isAtLeast(v1_20) && currentMinecraft().isOlderThan(v1_20_5)) {
       return JsonOps.INSTANCE as DynamicOps<T>
     }
     return DFU.registryOps()
@@ -282,7 +287,7 @@ class ToastTask : KoinComponent {
     } ?: error("Cannot find PlayerAdvancements#getProgress")
 
     // start 1.20.2+
-    val USE_ADVANCEMENT_HOLDER: Boolean = (getMinecraftVersion() == 20 && getMinecraftPatchVersion() >= 2) || getMinecraftVersion() > 20
+    val USE_ADVANCEMENT_HOLDER: Boolean = currentMinecraft().isAtLeast(v1_20_2)
 
     // 1.20.2 only
     val Advancement_fromJson by lazy {
@@ -331,7 +336,7 @@ class ToastTask : KoinComponent {
     val AdvancementProgress_completedCriteria: Method
 
     init {
-      if (getMinecraftVersion() < 17) {
+      if (currentMinecraft().isOlderThan(v1_17)) {
         PlayerAdvancements_award = PlayerAdvancements_class.getDeclaredMethod("grantCriteria", Advancement_class, String::class.java)
         PlayerAdvancements_revoke = try {
           PlayerAdvancements_class.getDeclaredMethod("revokeCritera", Advancement_class, String::class.java) // lol
@@ -345,7 +350,7 @@ class ToastTask : KoinComponent {
         Advancement_CODEC = null
       } else {
         val reflectionRemapper = ReflectionRemapper.forReobfMappingsInPaperJar()
-        if (getMinecraftVersion() == 20 && getMinecraftPatchVersion() >= 4 || getMinecraftVersion() > 20) {
+        if (currentMinecraft().isAtLeast(v1_20_4)) {
           Advancement_CODEC = Advancement_class.getDeclaredField(
             reflectionRemapper.remapFieldName(Advancement_class, "CODEC")
           )

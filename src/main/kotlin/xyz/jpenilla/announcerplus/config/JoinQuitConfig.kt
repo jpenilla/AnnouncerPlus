@@ -54,7 +54,8 @@ import xyz.jpenilla.announcerplus.util.playSounds
 import xyz.jpenilla.announcerplus.util.schedule
 import xyz.jpenilla.announcerplus.util.scheduleAsync
 import xyz.jpenilla.announcerplus.util.scheduleGlobal
-import xyz.jpenilla.pluginbase.legacy.Environment
+import xyz.jpenilla.pluginbase.legacy.environment.Environment.currentMinecraft
+import xyz.jpenilla.pluginbase.legacy.environment.MinecraftReleases.v1_13
 
 @ConfigSerializable
 class JoinQuitConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
@@ -214,7 +215,7 @@ class JoinQuitConfig : SelfSavable<CommentedConfigurationNode>, KoinComponent {
         join.asPlayerCommands.forEach { player.performCommand(announcerPlus.configManager.parse(player, it)) }
       }
     }
-    announcerPlus.scheduleAsync(if (Environment.majorMinecraftVersion() <= 12) 5L else 0L) {
+    announcerPlus.scheduleAsync(if (currentMinecraft().isOlderThan(v1_13)) 5L else 0L) {
       join.messageElements().forEach { it.displayIfEnabled(player) }
       if (join.sounds.isNotEmpty()) {
         announcerPlus.audiences().player(player).playSounds(join.sounds, join.randomSound)
