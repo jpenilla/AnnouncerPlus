@@ -14,23 +14,34 @@ plugins {
 }
 
 repositories {
-  mavenCentral()
-  maven("https://repo.jpenilla.xyz/snapshots/") {
-    mavenContent {
-      snapshotsOnly()
-      includeGroup("xyz.jpenilla")
-    }
+  mavenCentral {
+    mavenContent { releasesOnly() }
   }
   maven("https://central.sonatype.com/repository/maven-snapshots/") {
     mavenContent { snapshotsOnly() }
   }
-  maven("https://repo.papermc.io/repository/maven-public/")
-  maven("https://repo.essentialsx.net/releases/")
-  maven("https://repo.extendedclip.com/content/repositories/placeholderapi/") {
-    content { includeGroup("me.clip") }
+  maven("https://repo.jpenilla.xyz/snapshots/") {
+    mavenContent {
+      snapshotsOnly()
+      includeGroup("xyz.jpenilla")
+      includeModule("net.kyori", "adventure-text-feature-pagination")
+    }
   }
+  maven("https://repo.essentialsx.net/releases/") {
+    mavenContent {
+      releasesOnly()
+      includeGroup("net.essentialsx")
+    }
+  }
+  maven("https://repo.extendedclip.com/content/repositories/placeholderapi/") {
+    mavenContent {
+      releasesOnly()
+      includeGroup("me.clip")
+    }
+  }
+  maven("https://repo.papermc.io/repository/maven-public/")
   maven("https://jitpack.io") {
-    content { includeGroupByRegex("com\\.github\\..*") }
+    mavenContent { includeGroupByRegex("com\\.github\\..*") }
   }
 }
 
