@@ -24,8 +24,6 @@
 package xyz.jpenilla.announcerplus.config.message
 
 import com.google.gson.JsonObject
-import io.papermc.lib.PaperLib.getMinecraftPatchVersion
-import io.papermc.lib.PaperLib.getMinecraftVersion
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.nbt.TagStringIO
 import net.kyori.adventure.text.Component
@@ -40,6 +38,11 @@ import xyz.jpenilla.announcerplus.util.compoundBinaryTag
 import xyz.jpenilla.announcerplus.util.listBinaryTag
 import xyz.jpenilla.announcerplus.util.miniMessage
 import xyz.jpenilla.announcerplus.util.ofChildren
+import xyz.jpenilla.pluginbase.legacy.environment.Environment.currentMinecraft
+import xyz.jpenilla.pluginbase.legacy.environment.MinecraftReleases.v1_13
+import xyz.jpenilla.pluginbase.legacy.environment.MinecraftReleases.v1_16
+import xyz.jpenilla.pluginbase.legacy.environment.MinecraftReleases.v1_20_5
+import xyz.jpenilla.pluginbase.legacy.environment.MinecraftReleases.v1_21_4
 
 @ConfigSerializable
 class ToastSettings : MessageElement {
@@ -102,12 +105,12 @@ class ToastSettings : MessageElement {
     val json = JsonObject()
     val display = JsonObject()
     val icon = JsonObject()
-    val iconString = if (getMinecraftVersion() <= 12) this.icon.name else this.icon.key.toString()
-    if (getMinecraftVersion() > 20 || (getMinecraftVersion() == 20 && getMinecraftPatchVersion() >= 5)) {
+    val iconString = if (currentMinecraft().isOlderThan(v1_13)) this.icon.name else this.icon.key.toString()
+    if (currentMinecraft().isAtLeast(v1_20_5)) {
       icon.addProperty("id", iconString)
       val components = JsonObject().apply {
         if (iconEnchanted) addProperty("minecraft:enchantment_glint_override", true)
-        if (getMinecraftVersion() > 21 || (getMinecraftVersion() == 21 && getMinecraftPatchVersion() >= 4)) {
+        if (currentMinecraft().isAtLeast(v1_21_4)) {
           if (iconItemModel != DISABLED_ITEM_MODEL) {
             addProperty("minecraft:item_model", iconItemModel.asString())
           }
@@ -141,7 +144,7 @@ class ToastSettings : MessageElement {
       Component.newline(),
       miniMessage(announcerPlus.configManager.parse(player, footer))
     )
-    val gsonComponentSerializer = if (getMinecraftVersion() >= 16) {
+    val gsonComponentSerializer = if (currentMinecraft().isAtLeast(v1_16)) {
       GsonComponentSerializer.gson()
     } else {
       GsonComponentSerializer.colorDownsamplingGson()

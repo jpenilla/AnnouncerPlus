@@ -25,8 +25,6 @@ package xyz.jpenilla.announcerplus
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import io.papermc.lib.PaperLib.getMinecraftVersion
-import io.papermc.lib.PaperLib.isPaper
 import io.papermc.lib.PaperLib.suggestPaper
 import net.milkbowl.vault.permission.Permission
 import org.bstats.bukkit.Metrics
@@ -48,6 +46,10 @@ import xyz.jpenilla.announcerplus.util.DisplayTracker
 import xyz.jpenilla.announcerplus.util.UpdateChecker
 import xyz.jpenilla.announcerplus.util.dataPath
 import xyz.jpenilla.pluginbase.legacy.PluginBase
+import xyz.jpenilla.pluginbase.legacy.environment.Environment
+import xyz.jpenilla.pluginbase.legacy.environment.Environment.currentMinecraft
+import xyz.jpenilla.pluginbase.legacy.environment.MinecraftReleases.v1_12
+import xyz.jpenilla.pluginbase.legacy.environment.MinecraftReleases.v1_17
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
@@ -111,13 +113,13 @@ class AnnouncerPlus : PluginBase(), KoinComponent {
   }
 
   private fun initToastTask() {
-    if (getMinecraftVersion() < 12) {
+    if (currentMinecraft().isOlderThan(v1_12)) {
       logger.info("Sorry, but Toast/Advancement style messages do not work on this version. Update to 1.12 or newer to use this feature.")
       return
     }
 
-    if (getMinecraftVersion() > 16) {
-      if (isPaper()) {
+    if (currentMinecraft().isAtLeast(v1_17)) {
+      if (Environment.paper()) {
         try {
           toastTask = ToastTask()
         } catch (e: ExceptionInInitializerError) {
