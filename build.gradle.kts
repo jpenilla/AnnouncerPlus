@@ -115,6 +115,11 @@ tasks {
     }
 
     mergeServiceFiles()
+    // Needed for mergeServiceFiles to work properly in Shadow 9+
+    filesMatching("META-INF/services/**") {
+      duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    }
+
     archiveClassifier.set(null as String?)
     archiveBaseName.set(project.name) // Use uppercase name for final jar
 
