@@ -105,7 +105,7 @@ class ToastSettings : MessageElement {
     val json = JsonObject()
     val display = JsonObject()
     val icon = JsonObject()
-    val iconString = if (currentMinecraft().isOrOlder(v1_13)) this.icon.name else this.icon.key.toString()
+    val iconString = if (currentMinecraft().isOlderThan(v1_13)) this.icon.name else this.icon.key.toString()
     if (currentMinecraft().isAtLeast(v1_20_5)) {
       icon.addProperty("id", iconString)
       val components = JsonObject().apply {
