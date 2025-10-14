@@ -9,7 +9,7 @@ modPublishPlugin = { id = "me.modmuss50.mod-publish-plugin", version = "1.0.0" }
 
 [versions]
 ktlint = "1.0.1"
-indra = "3.2.0"
+indra = "4.0.0"
 
 [libraries]
 reflection-remapper = "xyz.jpenilla:reflection-remapper:0.1.3"
