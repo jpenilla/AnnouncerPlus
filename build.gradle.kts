@@ -8,7 +8,7 @@ plugins {
   alias(libs.plugins.indraGit)
   alias(libs.plugins.runPaper)
   alias(libs.plugins.shadow)
-  alias(libs.plugins.indraSpotless) apply false
+  alias(libs.plugins.indraSpotless)
   alias(libs.plugins.spotless)
   alias(libs.plugins.modPublishPlugin)
 }
@@ -110,8 +110,9 @@ tasks {
     }
   }
   shadowJar {
+    val name = rootProject.name.lowercase()
     from(rootProject.file("license.txt")) {
-      rename { "license_${rootProject.name.lowercase()}.txt" }
+      rename { "license_$name.txt" }
     }
 
     mergeServiceFiles()
@@ -215,14 +216,10 @@ spotless {
   }
 }
 
-// The following is to work around https://github.com/diffplug/spotless/issues/1599
-// Ensure the ktlint step is before the license header step
-plugins.apply(libs.plugins.indraSpotless.get().pluginId)
-
 runPaper.folia.registerTask()
 
 fun String.decorateVersion(): String =
   if (endsWith("-SNAPSHOT")) "$this+${lastCommitHash()}" else this
 
-fun lastCommitHash(): String = indraGit.commit()?.name?.substring(0, 7)
+fun lastCommitHash(): String = indraGit.commit().orNull?.name?.substring(0, 7)
   ?: error("Failed to determine git hash.")
