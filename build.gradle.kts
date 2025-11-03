@@ -53,7 +53,7 @@ dependencies {
   compileOnly("net.essentialsx", "EssentialsX", "2.21.2") {
     isTransitive = false
   }
-  compileOnly("me.clip", "placeholderapi", "2.11.6")
+  compileOnly("me.clip", "placeholderapi", "2.11.7")
   compileOnly("com.mojang:datafixerupper:7.0.14")
 
   implementation("net.kyori:adventure-platform-bukkit:4.4.1")
