@@ -229,9 +229,12 @@ class ToastTask : KoinComponent {
     val ResourceLocation_class = Crafty.needNMSClassOrElse(
       "MinecraftKey",
       "net.minecraft.resources.MinecraftKey",
-      "net.minecraft.resources.ResourceLocation"
+      "net.minecraft.resources.ResourceLocation",
+      "net.minecraft.resources.Identifier"
     )
-    val ResourceLocation_ctr = ResourceLocation_class.getDeclaredConstructor(String::class.java, String::class.java)
+
+    val ResourceLocation_ctr = ResourceLocation_class.runCatching { getDeclaredConstructor(String::class.java, String::class.java) }
+      .getOrNull()
       ?.also { it.isAccessible = true }
       ?: error("Cannot find ResourceLocation constructor")
 

@@ -55,6 +55,7 @@ dependencies {
   }
   compileOnly("me.clip", "placeholderapi", "2.11.7")
   compileOnly("com.mojang:datafixerupper:7.0.14")
+  compileOnly("com.mojang:brigadier:1.0.18")
 
   implementation("net.kyori:adventure-platform-bukkit:4.4.1")
   implementation(platform("net.kyori:adventure-bom:4.26.1"))
@@ -125,6 +126,10 @@ tasks {
     archiveBaseName.set(project.name) // Use uppercase name for final jar
 
     val prefix = "${project.group}.${project.name.lowercase()}.lib"
+
+    exclude("org/incendo/cloud/bukkit/parser/ItemStackParser*.class")
+    exclude("org/incendo/cloud/bukkit/internal/CraftBukkitReflection*.class")
+
     sequenceOf(
       "io.leangen.geantyref",
       "io.papermc.lib",
