@@ -77,7 +77,7 @@ dependencies {
 
   implementation("io.insert-koin", "koin-core", "4.2.1")
   implementation("xyz.jpenilla", "legacy-plugin-base", "0.0.1+169-SNAPSHOT")
-  implementation("org.bstats", "bstats-bukkit", "3.1.0")
+  implementation("org.bstats", "bstats-bukkit", "3.2.1")
   implementation("io.papermc", "paperlib", "1.0.8")
 
   implementation(variantOf(libs.reflection.remapper) { classifier("all") }) {
