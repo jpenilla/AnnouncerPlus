@@ -48,18 +48,18 @@ repositories {
 dependencies {
   implementation(platform(kotlin("bom")))
 
-  compileOnly("dev.folia", "folia-api", "1.19.4-R0.1-SNAPSHOT")
-  compileOnly("com.github.MilkBowl", "VaultAPI", "1.7.1")
-  compileOnly("net.essentialsx", "EssentialsX", "2.21.2") {
+  compileOnly("dev.folia:folia-api:1.19.4-R0.1-SNAPSHOT")
+  compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
+  compileOnly("net.essentialsx:EssentialsX:2.21.2") {
     isTransitive = false
   }
-  compileOnly("me.clip", "placeholderapi", "2.12.2")
+  compileOnly("me.clip:placeholderapi:2.12.2")
   compileOnly("com.mojang:datafixerupper:7.0.14")
 
   implementation("net.kyori:adventure-platform-bukkit:4.4.1")
   implementation(platform("net.kyori:adventure-bom:4.26.1"))
-  implementation("net.kyori", "adventure-extra-kotlin")
-  implementation("net.kyori", "adventure-serializer-configurate4")
+  implementation("net.kyori:adventure-extra-kotlin")
+  implementation("net.kyori:adventure-serializer-configurate4")
 
   implementation(platform("org.incendo:cloud-bom:2.0.0"))
   implementation("org.incendo:cloud-kotlin-extensions")
@@ -72,13 +72,13 @@ dependencies {
   implementation("org.incendo:cloud-translations-minecraft-extras")
 
   implementation(platform("org.spongepowered:configurate-bom:4.2.0"))
-  implementation("org.spongepowered", "configurate-hocon")
-  implementation("org.spongepowered", "configurate-extra-kotlin")
+  implementation("org.spongepowered:configurate-hocon")
+  implementation("org.spongepowered:configurate-extra-kotlin")
 
-  implementation("io.insert-koin", "koin-core", "4.2.2")
-  implementation("xyz.jpenilla", "legacy-plugin-base", "0.0.1+169-SNAPSHOT")
-  implementation("org.bstats", "bstats-bukkit", "3.2.1")
-  implementation("io.papermc", "paperlib", "1.0.8")
+  implementation("io.insert-koin:koin-core:4.2.2")
+  implementation("xyz.jpenilla:legacy-plugin-base:0.0.1+169-SNAPSHOT")
+  implementation("org.bstats:bstats-bukkit:3.2.1")
+  implementation("io.papermc:paperlib:1.0.8")
 
   implementation(variantOf(libs.reflection.remapper) { classifier("all") }) {
     isTransitive = false
