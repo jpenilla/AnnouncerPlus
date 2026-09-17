@@ -116,8 +116,10 @@ tasks {
     }
 
     mergeServiceFiles()
-    // Needed for mergeServiceFiles to work properly in Shadow 9+
     filesMatching("META-INF/services/**") {
+      duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    }
+    filesMatching("**/*.kotlin_module") {
       duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
 
