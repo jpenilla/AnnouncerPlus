@@ -43,12 +43,16 @@ import xyz.jpenilla.pluginbase.legacy.environment.MinecraftReleases.v1_13
 import xyz.jpenilla.pluginbase.legacy.environment.MinecraftReleases.v1_16
 import xyz.jpenilla.pluginbase.legacy.environment.MinecraftReleases.v1_20_5
 import xyz.jpenilla.pluginbase.legacy.environment.MinecraftReleases.v1_21_4
+import xyz.jpenilla.pluginbase.legacy.environment.MinecraftReleases.v26_3
 
 @ConfigSerializable
 class ToastSettings : MessageElement {
 
   companion object {
     val DISABLED_ITEM_MODEL = Key.key("announcerplus", "disabled")
+
+    private val REQUIRE_ADVANCEMENT_BACKGROUND = currentMinecraft().isAtLeast(v26_3)
+    private const val ADVANCEMENT_BACKGROUND = "minecraft:gui/advancements/backgrounds/stone"
   }
 
   @Comment("The icon for the Toast/Advancement notification")
@@ -156,6 +160,9 @@ class ToastSettings : MessageElement {
     display.addProperty("announce_to_chat", false)
     display.addProperty("show_toast", true)
     display.addProperty("hidden", true)
+    if (REQUIRE_ADVANCEMENT_BACKGROUND) {
+      display.addProperty("background", ADVANCEMENT_BACKGROUND)
+    }
     val trigger = JsonObject()
     trigger.addProperty("trigger", "minecraft:impossible")
     val criteria = JsonObject()

@@ -48,6 +48,7 @@ import xyz.jpenilla.pluginbase.legacy.environment.MinecraftReleases.v1_20
 import xyz.jpenilla.pluginbase.legacy.environment.MinecraftReleases.v1_20_2
 import xyz.jpenilla.pluginbase.legacy.environment.MinecraftReleases.v1_20_4
 import xyz.jpenilla.pluginbase.legacy.environment.MinecraftReleases.v1_20_5
+import xyz.jpenilla.pluginbase.legacy.environment.MinecraftReleases.v26_3
 import xyz.jpenilla.reflectionremapper.ReflectionRemapper
 import java.lang.reflect.Constructor
 import java.lang.reflect.Field
@@ -377,9 +378,10 @@ class ToastTask : KoinComponent {
         )
 
         if (USE_ADVANCEMENT_HOLDER) {
+          val addAllParamType = if (currentMinecraft().isAtLeast(v26_3)) Iterable::class.java else Collection::class.java
           AdvancementTree_addAll = AdvancementTree_class.getDeclaredMethod(
-            reflectionRemapper.remapMethodName(AdvancementTree_class, "addAll", Collection::class.java),
-            Collection::class.java
+            reflectionRemapper.remapMethodName(AdvancementTree_class, "addAll", addAllParamType),
+            addAllParamType
           )
           AdvancementTree_remove = AdvancementTree_class.getDeclaredMethod(
             reflectionRemapper.remapMethodName(AdvancementTree_class, "remove", Set::class.java),
